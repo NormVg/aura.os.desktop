@@ -1,0 +1,25 @@
+@import './base.css';
+
+/* ─── Layout ─────────────────────────────────────────────── */
+
+#app {
+  width: 100vw;
+  height: 100vh;
+  position: relative;
+  overflow: hidden;
+}
+
+/* ─── Dot Grid Background ─────────────────────────────────── */
+
+.grid-bg {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+
+  /* Dots only — no lines */
+  background-image: radial-gradient(circle,
+      var(--grid-dot) 1px,
+      transparent 1px);
+  background-size: var(--grid-size) var(--grid-size);
+  background-position: center center;
+}
