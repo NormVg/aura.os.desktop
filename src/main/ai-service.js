@@ -203,8 +203,8 @@ export async function handleVoiceConvo({ audioBase64, settings, messages = [], s
     // Collect the full response
     let aiText = ''
     for await (const part of result.fullStream) {
-      if (part.type === 'text-delta') {
-        aiText += part.delta
+      if (part.type === 'text-delta' && part.textDelta) {
+        aiText += part.textDelta
       }
     }
 
