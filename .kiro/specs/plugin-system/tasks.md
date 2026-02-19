@@ -194,15 +194,15 @@ This plan implements a comprehensive plugin system for Aura that enables third-p
     - **Property 24: Tool Cleanup**
     - **Validates: Requirements 6.6**
 
-- [ ] 8. Implement IPC communication layer
-  - [ ] 8.1 Add plugin IPC channels in main process
+- [x] 8. Implement IPC communication layer
+  - [x] 8.1 Add plugin IPC channels in main process
     - Create `src/main/plugin-system/plugin-ipc.js`
     - Implement IPC handlers for: `plugin:install`, `plugin:uninstall`, `plugin:enable`, `plugin:disable`, `plugin:list`, `plugin:getById`
     - Add IPC message validation for security
     - Implement IPC events for plugin state changes
     - _Requirements: 11.1, 11.3, 11.4, 11.5_
 
-  - [ ] 8.2 Add plugin IPC in preload script
+  - [x] 8.2 Add plugin IPC in preload script
     - Update `src/preload/index.js` to expose plugin APIs
     - Add contextBridge for: `installPlugin`, `uninstallPlugin`, `enablePlugin`, `disablePlugin`, `getInstalledPlugins`, `getPluginById`
     - Add event listeners for plugin state updates
@@ -216,7 +216,7 @@ This plan implements a comprehensive plugin system for Aura that enables third-p
   - Ensure all tests pass, ask the user if questions arise.
 
 - [ ] 10. Implement Plugin Store (Pinia) in renderer
-  - [ ] 10.1 Create plugin store with state management
+  - [x] 10.1 Create plugin store with state management
     - Create `src/renderer/src/stores/plugin.js`
     - Define state: `plugins` (Map), `activePlugins` (Set), `pluginComponents` (Map)
     - Implement `registerPlugin()` and `unregisterPlugin()` actions
@@ -275,7 +275,7 @@ This plan implements a comprehensive plugin system for Aura that enables third-p
     - **Validates: Requirements 5.6**
 
 - [ ] 12. Implement plugin settings UI
-  - [ ] 12.1 Create PluginSettingsPanel component
+  - [x] 12.1 Create PluginSettingsPanel component
     - Create `src/renderer/src/components/settings/PluginSettingsPanel.vue`
     - Display list of installed plugins with enable/disable toggles
     - Show plugin metadata (name, version, description, author)

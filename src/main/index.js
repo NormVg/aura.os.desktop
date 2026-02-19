@@ -132,6 +132,38 @@ app.whenReady().then(() => {
     console.error('[Main] Failed to initialize plugins:', err)
   })
 
+  // Plugin IPC handlers
+  ipcMain.handle('plugin:list', async () => {
+    return pluginManager.getInstalledPlugins().map(p => ({
+      id: p.id,
+      name: p.manifest.name,
+      version: p.manifest.version,
+      description: p.manifest.description,
+      author: p.manifest.author,
+      enabled: p.enabled,
+      loaded: p.loaded,
+      error: p.error
+    }))
+  })
+
+  ipcMain.handle('plugin:enable', async (_, pluginId) => {
+    try {
+      await pluginManager.enablePlugin(pluginId)
+      return { success: true }
+    } catch (err) {
+      return { success: false, error: err.message }
+    }
+  })
+
+  ipcMain.handle('plugin:disable', async (_, pluginId) => {
+    try {
+      await pluginManager.disablePlugin(pluginId)
+      return { success: true }
+    } catch (err) {
+      return { success: false, error: err.message }
+    }
+  })
+
   createWindow()
 
   app.on('activate', function () {

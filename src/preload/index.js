@@ -48,6 +48,11 @@ const api = {
       ipcRenderer.removeAllListeners('aura:question:ask')
     },
   },
+  auraPlugins: {
+    list: () => ipcRenderer.invoke('plugin:list'),
+    enable: (pluginId) => ipcRenderer.invoke('plugin:enable', pluginId),
+    disable: (pluginId) => ipcRenderer.invoke('plugin:disable', pluginId),
+  },
 }
 
 // Use `contextBridge` APIs to expose Electron APIs to
