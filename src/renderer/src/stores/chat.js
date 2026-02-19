@@ -185,6 +185,37 @@ export const useChatStore = defineStore('chat', () => {
   const voiceTranscript = ref('')    // user's spoken text
   const voiceAiText = ref('')        // AI's reply text
 
+  // ── Question state ────────────────────────────────────────
+  const pendingQuestion = ref(null)
+
+  function setPendingQuestion(questionData) {
+    pendingQuestion.value = questionData
+  }
+
+  function answerQuestion(response) {
+    if (!pendingQuestion.value) return
+
+    const questionId = pendingQuestion.value.id
+
+    // Send response via IPC
+    if (window.api?.auraQuestion) {
+      window.api.auraQuestion.respond({
+        questionId,
+        response: {
+          ...response,
+          timestamp: Date.now()
+        }
+      })
+    }
+
+    // Clear pending question
+    pendingQuestion.value = null
+  }
+
+  function clearPendingQuestion() {
+    pendingQuestion.value = null
+  }
+
   function setVoiceState({ status, transcript, aiText }) {
     if (status !== undefined) voiceStatus.value = status
     if (transcript !== undefined) voiceTranscript.value = transcript
@@ -215,6 +246,7 @@ export const useChatStore = defineStore('chat', () => {
     voiceStatus,
     voiceTranscript,
     voiceAiText,
+    pendingQuestion,
     addMessage,
     sendMessage,
     stopStreaming,
@@ -227,5 +259,8 @@ export const useChatStore = defineStore('chat', () => {
     setVoiceState,
     clearVoiceState,
     clearVoiceText,
+    setPendingQuestion,
+    answerQuestion,
+    clearPendingQuestion,
   }
 })

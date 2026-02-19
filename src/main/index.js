@@ -116,6 +116,12 @@ app.whenReady().then(() => {
     })
   })
 
+  // ── Question System ───────────────────────────────────────
+  ipcMain.handle('aura:question:respond', async (_, payload) => {
+    const { questionManager } = await import('./question-manager.js')
+    questionManager.resolveQuestion(payload.questionId, payload.response)
+  })
+
   createWindow()
 
   app.on('activate', function () {

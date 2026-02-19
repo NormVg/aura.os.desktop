@@ -102,4 +102,18 @@ export const auraTools = {
       return { waited: `${seconds}s`, reason: reason || 'No reason given' }
     },
   }),
+
+  askQuestion: tool({
+    description: 'Ask the user a multiple-choice question with optional custom answer field. Use this when you need specific information from the user in a structured format.',
+    inputSchema: z.object({
+      question: z.string().describe('The question to ask the user'),
+      options: z.array(z.string()).min(2).describe('Array of choice options (minimum 2)'),
+      allowCustom: z.boolean().optional().default(true).describe('Allow custom answer input'),
+      customPlaceholder: z.string().optional().describe('Placeholder text for custom input field'),
+    }),
+    execute: async ({ question, options, allowCustom = true, customPlaceholder }) => {
+      const { questionManager } = await import('./question-manager.js')
+      return await questionManager.askQuestion({ question, options, allowCustom, customPlaceholder })
+    },
+  }),
 }

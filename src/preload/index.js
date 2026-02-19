@@ -41,6 +41,13 @@ const api = {
       ipcRenderer.removeAllListeners('aura:voice:error')
     },
   },
+  auraQuestion: {
+    onAsk: (cb) => ipcRenderer.on('aura:question:ask', (_, data) => cb(data)),
+    respond: (payload) => ipcRenderer.invoke('aura:question:respond', payload),
+    removeListeners: () => {
+      ipcRenderer.removeAllListeners('aura:question:ask')
+    },
+  },
 }
 
 // Use `contextBridge` APIs to expose Electron APIs to

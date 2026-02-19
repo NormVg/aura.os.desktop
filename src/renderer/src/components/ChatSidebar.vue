@@ -1,15 +1,16 @@
 <script setup>
-import { ref, nextTick, watch } from 'vue'
+import { ref, nextTick, watch, onMounted, onUnmounted } from 'vue'
 import { storeToRefs } from 'pinia'
 import { renderMarkdown } from '../utils/markdown'
 import { useChatStore } from '../stores/chat'
 import ChatInput from './ChatInput.vue'
 import ReplyChips from './ReplyChips.vue'
+import QuestionCard from './QuestionCard.vue'
 import AuraLogo from './AuraLogo.vue'
 import { Wrench, Clock, Calculator, Cloud, Globe, Bell, Timer, ChevronDown, ChevronRight, Loader2 } from 'lucide-vue-next'
 
 const chatStore = useChatStore()
-const { messages, suggestions, contextMessages, replyingTo, isStreaming, streamingText, pendingToolCalls } = storeToRefs(chatStore)
+const { messages, suggestions, contextMessages, replyingTo, isStreaming, streamingText, pendingToolCalls, pendingQuestion } = storeToRefs(chatStore)
 
 // ── Tool UI helpers ─────────────────────────────────────────
 const toolIcons = { getCurrentTime: Clock, calculate: Calculator, getWeather: Cloud, openUrl: Globe, setReminder: Bell, wait: Timer }
@@ -56,6 +57,26 @@ function scrollToBottom() {
 watch(streamingText, () => {
   nextTick(scrollToBottom)
 })
+
+// ── Question IPC listener ──────────────────────────────────
+onMounted(() => {
+  if (window.api?.auraQuestion) {
+    window.api.auraQuestion.onAsk((questionData) => {
+      chatStore.setPendingQuestion(questionData)
+      nextTick(scrollToBottom)
+    })
+  }
+})
+
+onUnmounted(() => {
+  if (window.api?.auraQuestion) {
+    window.api.auraQuestion.removeListeners()
+  }
+})
+
+function handleAnswer(response) {
+  chatStore.answerQuestion(response)
+}
 
 
 // ── Markdown ───────────────────────────────────────────────
@@ -161,6 +182,17 @@ function copy(msg) {
           <div class="ai-text" v-if="streamingText" v-html="renderMd(streamingText)" />
           <span class="streaming-cursor">|</span>
         </div>
+      </div>
+
+      <!-- Pending Question -->
+      <div v-if="pendingQuestion" class="msg-row ai">
+        <QuestionCard
+          :question="pendingQuestion.question"
+          :options="pendingQuestion.options"
+          :allowCustom="pendingQuestion.allowCustom"
+          :customPlaceholder="pendingQuestion.customPlaceholder"
+          @answer="handleAnswer"
+        />
       </div>
     </div>
 
