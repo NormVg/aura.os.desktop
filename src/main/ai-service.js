@@ -180,7 +180,7 @@ export async function handleVoiceConvo({ audioBase64, settings, messages = [], s
     const userText = sttResult.transcript
     sender.send('aura:voice:transcript', userText)
 
-    // 2. AI response (with tools support)
+    // 2. AI response (streaming with tools support)
     sender.send('aura:voice:status', 'thinking')
     const model = resolveModel('chat', settings)
     const systemPrompt = settings.systemPrompt || 'You are Aura, a helpful AI assistant. Be concise and warm. Keep responses short for voice output — 1-3 sentences max.'
@@ -191,14 +191,23 @@ export async function handleVoiceConvo({ audioBase64, settings, messages = [], s
       { role: 'user', content: userText },
     ]
 
-    const aiResult = await generateText({
+    const result = streamText({
       model,
       system: systemPrompt,
       messages: fullMessages,
       tools: auraTools,
+      toolChoice: 'auto',
       maxSteps: 5,
     })
-    const aiText = aiResult.text
+
+    // Collect the full response
+    let aiText = ''
+    for await (const part of result.fullStream) {
+      if (part.type === 'text-delta') {
+        aiText += part.delta
+      }
+    }
+
     sender.send('aura:voice:aitext', aiText)
 
     // 3. TTS
