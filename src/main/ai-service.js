@@ -200,14 +200,8 @@ export async function handleVoiceConvo({ audioBase64, settings, messages = [], s
       maxSteps: 5,
     })
 
-    // Collect the full response
-    let aiText = ''
-    for await (const part of result.fullStream) {
-      if (part.type === 'text-delta' && part.textDelta) {
-        aiText += part.textDelta
-      }
-    }
-
+    // Wait for completion and get final text
+    const aiText = await result.text
     sender.send('aura:voice:aitext', aiText)
 
     // 3. TTS
