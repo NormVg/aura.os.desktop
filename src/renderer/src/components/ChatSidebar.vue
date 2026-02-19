@@ -562,51 +562,71 @@ function copy(msg) {
 .tool-calls-wrap {
   display: flex;
   flex-direction: column;
-  gap: 6px;
-  padding: 0 4px;
+  gap: 4px;
+  padding: 0;
+  margin: 8px 0;
 }
 
 .tool-card {
-  background: rgba(205, 198, 247, 0.04);
-  border: 1px solid rgba(205, 198, 247, 0.08);
-  border-radius: 10px;
+  background: transparent;
+  border: 1px solid rgba(205, 198, 247, 0.04);
+  border-radius: 8px;
   overflow: hidden;
-  transition: border-color 0.3s;
+  transition: all 0.2s;
+  opacity: 0.6;
+}
+
+.tool-card:hover {
+  opacity: 1;
+  background: rgba(205, 198, 247, 0.02);
+  border-color: rgba(205, 198, 247, 0.08);
 }
 
 .tool-card.done {
-  border-color: rgba(140, 220, 140, 0.2);
+  border-color: rgba(140, 220, 140, 0.08);
+}
+
+.tool-card.done:hover {
+  border-color: rgba(140, 220, 140, 0.15);
 }
 
 .tool-header {
   display: flex;
   align-items: center;
   gap: 8px;
-  padding: 8px 12px;
+  padding: 6px 10px;
   cursor: pointer;
-  font-size: 12px;
-  color: rgba(205, 198, 247, 0.6);
+  font-size: 11px;
+  color: rgba(205, 198, 247, 0.4);
+  transition: all 0.2s;
 }
 
 .tool-header:hover {
-  background: rgba(205, 198, 247, 0.04);
+  background: rgba(205, 198, 247, 0.03);
+  color: rgba(205, 198, 247, 0.6);
 }
 
 .tool-icon {
-  color: #cdc6f7;
+  color: rgba(205, 198, 247, 0.5);
   flex-shrink: 0;
+  opacity: 0.6;
+}
+
+.tool-header:hover .tool-icon {
+  opacity: 1;
 }
 
 .tool-name {
-  font-weight: 600;
-  color: rgba(205, 198, 247, 0.85);
+  font-weight: 500;
+  color: rgba(205, 198, 247, 0.6);
   font-family: 'SF Mono', 'Fira Code', monospace;
+  font-size: 11px;
 }
 
 .tool-args {
-  color: rgba(205, 198, 247, 0.4);
+  color: rgba(205, 198, 247, 0.3);
   font-family: 'SF Mono', 'Fira Code', monospace;
-  font-size: 11px;
+  font-size: 10px;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -616,12 +636,18 @@ function copy(msg) {
 .tool-status-icon {
   margin-left: auto;
   flex-shrink: 0;
-  color: rgba(205, 198, 247, 0.35);
+  color: rgba(205, 198, 247, 0.25);
+  opacity: 0.5;
+}
+
+.tool-header:hover .tool-status-icon {
+  opacity: 1;
 }
 
 .tool-status-icon.spin {
   animation: tool-spin 1s linear infinite;
-  color: #cdc6f7;
+  color: rgba(205, 198, 247, 0.5);
+  opacity: 1;
 }
 
 @keyframes tool-spin {
@@ -635,18 +661,19 @@ function copy(msg) {
 }
 
 .tool-result {
-  border-top: 1px solid rgba(205, 198, 247, 0.06);
-  padding: 8px 12px;
-  background: rgba(0, 0, 0, 0.15);
+  border-top: 1px solid rgba(205, 198, 247, 0.04);
+  padding: 8px 10px;
+  background: rgba(0, 0, 0, 0.08);
 }
 
 .tool-result pre {
   margin: 0;
-  font-size: 11px;
+  font-size: 10px;
   font-family: 'SF Mono', 'Fira Code', monospace;
-  color: rgba(140, 220, 140, 0.7);
+  color: rgba(140, 220, 140, 0.5);
   line-height: 1.5;
   white-space: pre-wrap;
   word-break: break-all;
+  opacity: 0.8;
 }
 </style>
