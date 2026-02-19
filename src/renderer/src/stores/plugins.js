@@ -54,12 +54,35 @@ export const usePluginsStore = defineStore('plugins', () => {
     }
   }
 
+  async function installPlugin() {
+    if (!window.api?.auraPlugins) return
+
+    try {
+      const result = await window.api.auraPlugins.install()
+
+      if (result.canceled) {
+        return { canceled: true }
+      }
+
+      if (result.success) {
+        await loadPlugins()
+        return { success: true, pluginId: result.pluginId }
+      } else {
+        throw new Error(result.error)
+      }
+    } catch (err) {
+      error.value = err.message
+      throw err
+    }
+  }
+
   return {
     plugins,
     loading,
     error,
     loadPlugins,
     enablePlugin,
-    disablePlugin
+    disablePlugin,
+    installPlugin
   }
 })

@@ -52,6 +52,7 @@ const api = {
     list: () => ipcRenderer.invoke('plugin:list'),
     enable: (pluginId) => ipcRenderer.invoke('plugin:enable', pluginId),
     disable: (pluginId) => ipcRenderer.invoke('plugin:disable', pluginId),
+    install: () => ipcRenderer.invoke('plugin:install'),
   },
 }
 

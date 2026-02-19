@@ -174,6 +174,91 @@ export class PluginManager {
   }
 
   /**
+   * Install a plugin from a source directory
+   * @param {string} sourcePath - Path to plugin source directory
+   * @returns {Promise<{success: boolean, error?: string, pluginId?: string}>}
+   */
+  async installPlugin(sourcePath) {
+    try {
+      // Validate plugin
+      const { manifest, validation } = await this.validator.validatePlugin(sourcePath)
+
+      if (!validation.valid) {
+        return {
+          success: false,
+          error: validation.errors.map(e => `${e.field}: ${e.message}`).join(', ')
+        }
+      }
+
+      // Check for duplicate ID
+      if (this.plugins.has(manifest.id)) {
+        return {
+          success: false,
+          error: `Plugin with ID "${manifest.id}" is already installed`
+        }
+      }
+
+      // Copy plugin to plugins directory
+      const destPath = path.join(this.pluginsDir, manifest.id)
+      await this.copyDirectory(sourcePath, destPath)
+
+      // Create plugin object
+      const plugin = {
+        id: manifest.id,
+        manifest,
+        path: destPath,
+        enabled: true,
+        loaded: false,
+        error: null,
+        instance: null,
+        api: null,
+        activatedAt: null,
+        deactivatedAt: null
+      }
+
+      this.plugins.set(manifest.id, plugin)
+
+      // Enable the plugin
+      await this.enablePlugin(manifest.id)
+
+      console.log(`[PluginManager] Installed plugin: ${manifest.id}`)
+
+      return {
+        success: true,
+        pluginId: manifest.id
+      }
+    } catch (err) {
+      console.error('[PluginManager] Failed to install plugin:', err)
+      return {
+        success: false,
+        error: err.message
+      }
+    }
+  }
+
+  /**
+   * Copy directory recursively
+   * @param {string} src - Source directory
+   * @param {string} dest - Destination directory
+   * @returns {Promise<void>}
+   */
+  async copyDirectory(src, dest) {
+    await fs.mkdir(dest, { recursive: true })
+    const entries = await fs.readdir(src, { withFileTypes: true })
+
+    for (const entry of entries) {
+      const srcPath = path.join(src, entry.name)
+      const destPath = path.join(dest, entry.name)
+
+      if (entry.isDirectory()) {
+        await this.copyDirectory(srcPath, destPath)
+      } else {
+        await fs.copyFile(srcPath, destPath)
+      }
+    }
+  }
+
+  /**
    * Shutdown all plugins
    * @returns {Promise<void>}
    */

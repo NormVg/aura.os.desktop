@@ -164,6 +164,22 @@ app.whenReady().then(() => {
     }
   })
 
+  ipcMain.handle('plugin:install', async () => {
+    const { dialog } = await import('electron')
+    const result = await dialog.showOpenDialog({
+      properties: ['openDirectory'],
+      title: 'Select Plugin Folder',
+      buttonLabel: 'Install Plugin'
+    })
+
+    if (result.canceled || !result.filePaths.length) {
+      return { success: false, canceled: true }
+    }
+
+    const sourcePath = result.filePaths[0]
+    return await pluginManager.installPlugin(sourcePath)
+  })
+
   createWindow()
 
   app.on('activate', function () {

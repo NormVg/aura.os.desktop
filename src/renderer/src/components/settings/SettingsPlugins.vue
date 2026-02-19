@@ -1,11 +1,14 @@
 <script setup>
-import { onMounted } from 'vue'
+import { onMounted, ref } from 'vue'
 import { storeToRefs } from 'pinia'
 import { usePluginsStore } from '../../stores/plugins'
-import { Loader2, Power, PowerOff, Package } from 'lucide-vue-next'
+import { Loader2, Power, PowerOff, Package, Plus, CheckCircle, XCircle } from 'lucide-vue-next'
 
 const pluginsStore = usePluginsStore()
 const { plugins, loading, error } = storeToRefs(pluginsStore)
+
+const installing = ref(false)
+const installMessage = ref(null)
 
 onMounted(() => {
   pluginsStore.loadPlugins()
@@ -22,13 +25,59 @@ async function togglePlugin(plugin) {
     console.error('Failed to toggle plugin:', err)
   }
 }
+
+async function installPlugin() {
+  installing.value = true
+  installMessage.value = null
+
+  try {
+    const result = await pluginsStore.installPlugin()
+
+    if (result.canceled) {
+      installMessage.value = null
+    } else if (result.success) {
+      installMessage.value = {
+        type: 'success',
+        text: 'Plugin installed successfully!'
+      }
+      setTimeout(() => {
+        installMessage.value = null
+      }, 3000)
+    }
+  } catch (err) {
+    installMessage.value = {
+      type: 'error',
+      text: err.message || 'Failed to install plugin'
+    }
+    setTimeout(() => {
+      installMessage.value = null
+    }, 5000)
+  } finally {
+    installing.value = false
+  }
+}
 </script>
 
 <template>
   <div class="settings-plugins">
     <div class="settings-header">
-      <h2 class="settings-title">Plugins</h2>
-      <p class="settings-desc">Manage installed plugins to extend Aura's functionality</p>
+      <div class="header-content">
+        <div>
+          <h2 class="settings-title">Plugins</h2>
+          <p class="settings-desc">Manage installed plugins to extend Aura's functionality</p>
+        </div>
+        <button class="install-btn" @click="installPlugin" :disabled="installing">
+          <Loader2 v-if="installing" :size="18" class="spin" />
+          <Plus v-else :size="18" />
+          <span>{{ installing ? 'Installing...' : 'Install Plugin' }}</span>
+        </button>
+      </div>
+
+      <div v-if="installMessage" class="install-message" :class="installMessage.type">
+        <CheckCircle v-if="installMessage.type === 'success'" :size="16" />
+        <XCircle v-else :size="16" />
+        <span>{{ installMessage.text }}</span>
+      </div>
     </div>
 
     <div v-if="loading" class="loading-state">
@@ -89,6 +138,14 @@ async function togglePlugin(plugin) {
   margin-bottom: 24px;
 }
 
+.header-content {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 12px;
+}
+
 .settings-title {
   font-size: 20px;
   font-weight: 600;
@@ -100,6 +157,68 @@ async function togglePlugin(plugin) {
   font-size: 13px;
   color: rgba(205, 198, 247, 0.5);
   line-height: 1.5;
+}
+
+.install-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 18px;
+  background: rgba(205, 198, 247, 0.1);
+  border: 1px solid rgba(205, 198, 247, 0.2);
+  border-radius: 10px;
+  color: #cdc6f7;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+  white-space: nowrap;
+}
+
+.install-btn:hover:not(:disabled) {
+  background: rgba(205, 198, 247, 0.16);
+  border-color: rgba(205, 198, 247, 0.3);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(140, 120, 240, 0.2);
+}
+
+.install-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.install-message {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 14px;
+  border-radius: 8px;
+  font-size: 13px;
+  animation: slideIn 0.3s ease;
+}
+
+.install-message.success {
+  background: rgba(140, 220, 140, 0.12);
+  border: 1px solid rgba(140, 220, 140, 0.3);
+  color: #b8e6b8;
+}
+
+.install-message.error {
+  background: rgba(255, 80, 80, 0.12);
+  border: 1px solid rgba(255, 80, 80, 0.3);
+  color: #ff7b7b;
+}
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .loading-state,
