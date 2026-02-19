@@ -1,0 +1,10 @@
+{
+  "id": "com.example.hello",
+  "name": "Hello Plugin",
+  "version": "1.0.0",
+  "description": "A simple example plugin that logs hello messages",
+  "author": "Aura Team",
+  "auraVersion": "^1.0.0",
+  "main": "./main.js",
+  "permissions": []
+}

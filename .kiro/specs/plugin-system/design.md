@@ -673,3 +673,271 @@ export default function(api) {
   })
 }
 ```
+
+
+## Correctness Properties
+
+*A property is a characteristic or behavior that should hold true across all valid executions of a system—essentially, a formal statement about what the system should do. Properties serve as the bridge between human-readable specifications and machine-verifiable correctness guarantees.*
+
+### Property 1: Validation Before Installation
+
+*For any* plugin folder path, when installation is attempted, validation must complete before any system modifications occur.
+
+**Validates: Requirements 1.1**
+
+### Property 2: Valid Plugin Installation
+
+*For any* plugin with a valid manifest and required files, installation should result in the plugin being copied to the plugins directory and metadata persisted to storage.
+
+**Validates: Requirements 1.2, 1.3**
+
+### Property 3: Failed Validation Preserves System State
+
+*For any* invalid plugin, when installation fails validation, the system state should remain unchanged and detailed error messages should be returned.
+
+**Validates: Requirements 1.4, 10.3, 10.4**
+
+### Property 4: Plugin Discovery Completeness
+
+*For any* set of plugin directories in the plugins folder, discovery should find all valid plugins.
+
+**Validates: Requirements 1.5**
+
+### Property 5: Plugin ID Uniqueness
+
+*For any* two loaded plugins, their IDs must be different. When attempting to install a plugin with a duplicate ID, the installation should be rejected and the existing plugin preserved.
+
+**Validates: Requirements 1.6, 6.2**
+
+### Property 6: Manifest Validation Completeness
+
+*For any* manifest object, validation should verify: JSON validity, required fields presence, ID format (lowercase dot-separated), version format (semver), main file existence, auraVersion compatibility, and permission validity.
+
+**Validates: Requirements 2.1, 2.2, 2.3, 2.4, 2.5, 2.6, 2.7**
+
+### Property 7: Conditional File Validation
+
+*For any* manifest that references optional files (renderer entry point, component files), validation should verify those files exist.
+
+**Validates: Requirements 2.8, 2.9**
+
+### Property 8: Plugin Loading Isolation
+
+*For any* enabled plugin, loading should create an isolated execution context with the Plugin_API injected, preventing access to other plugin contexts.
+
+**Validates: Requirements 3.1, 3.2, 3.3**
+
+### Property 9: Lifecycle Hook Execution
+
+*For any* plugin with activate/deactivate hooks, enabling should call activate and disabling should call deactivate.
+
+**Validates: Requirements 3.4, 3.5, 8.5**
+
+### Property 10: Resource Cleanup on Unload
+
+*For any* plugin with resources (event listeners, timers), unloading should clean up all resources.
+
+**Validates: Requirements 3.6, 9.3**
+
+### Property 11: Plugin Error Isolation
+
+*For any* plugin that throws an unhandled exception, the error should be caught, logged, and the plugin automatically disabled without affecting other plugins.
+
+**Validates: Requirements 3.7, 10.1, 10.2**
+
+### Property 12: Graceful Shutdown
+
+*For any* set of loaded plugins, application shutdown should cleanly deactivate all plugins.
+
+**Validates: Requirements 3.8**
+
+### Property 13: Permission Enforcement
+
+*For any* Plugin_API method that requires a permission, access should be granted only if the plugin has that permission, otherwise a permission error should be returned.
+
+**Validates: Requirements 4.2, 4.3, 4.7, 4.8, 4.9, 15.2, 16.1, 16.2, 17.3, 18.1, 18.2**
+
+### Property 14: Permission Updates
+
+*For any* plugin, when permissions are modified in settings, the permission grants should be updated and the plugin notified.
+
+**Validates: Requirements 4.5**
+
+### Property 15: Storage Isolation
+
+*For any* two plugins A and B, plugin A's storage operations (set, get, delete) should only access plugin A's namespace and never plugin B's namespace.
+
+**Validates: Requirements 4.6, 7.1, 7.2, 7.3**
+
+### Property 16: Storage Persistence
+
+*For any* plugin storage operation, data should be persisted asynchronously without blocking the main thread.
+
+**Validates: Requirements 7.6**
+
+### Property 17: Component Registration and Rendering
+
+*For any* plugin that registers a component for a UI location, the component metadata should be stored and the component should render in the specified location with correct props.
+
+**Validates: Requirements 5.1, 5.2, 5.7**
+
+### Property 18: Component Ordering
+
+*For any* set of plugins registering components for the same UI location, components should render in order specified by their order property.
+
+**Validates: Requirements 5.3**
+
+### Property 19: Component Lifecycle Round Trip
+
+*For any* plugin, disabling then enabling should unmount then remount all contributed components.
+
+**Validates: Requirements 5.4, 5.5**
+
+### Property 20: Component Style Isolation
+
+*For any* plugin component with styles, rendering should isolate the styles to prevent conflicts with the main application or other plugins.
+
+**Validates: Requirements 5.6**
+
+### Property 21: Tool Registration Validation
+
+*For any* tool registration, validation should verify the tool definition includes name, description, parameters, and handler, and that the handler file exists and exports a function.
+
+**Validates: Requirements 6.1, 6.3**
+
+### Property 22: Tool Execution
+
+*For any* registered tool, when the AI invokes it, the handler function should be executed with the provided parameters.
+
+**Validates: Requirements 6.4**
+
+### Property 23: Tool Error Handling
+
+*For any* tool handler that throws an error, the error should be caught and returned to the AI as a tool execution failure.
+
+**Validates: Requirements 6.5**
+
+### Property 24: Tool Cleanup
+
+*For any* plugin that registers tools, disabling the plugin should unregister all its tools.
+
+**Validates: Requirements 6.6**
+
+### Property 25: Settings Management
+
+*For any* plugin, registering a settings panel should store the metadata, and calling getSettings/updateSettings should retrieve/persist the correct settings data.
+
+**Validates: Requirements 8.1, 8.2, 8.3, 8.4**
+
+### Property 26: Event System Round Trip
+
+*For any* event name and callback, registering a listener via api.on() then emitting via api.emit() should invoke the callback.
+
+**Validates: Requirements 9.1, 9.2**
+
+### Property 27: Chat Message Events
+
+*For any* plugin that registers an onChatMessage callback, each new chat message should invoke the callback.
+
+**Validates: Requirements 9.4**
+
+### Property 28: Event Namespace Isolation
+
+*For any* plugin, event operations should be isolated to prevent interference with system events.
+
+**Validates: Requirements 9.5**
+
+### Property 29: Version Compatibility Validation
+
+*For any* plugin with an auraVersion that is incompatible with the current Aura version, validation should reject the plugin with a clear version mismatch message.
+
+**Validates: Requirements 10.6**
+
+### Property 30: IPC Communication
+
+*For any* plugin operation that requires cross-process communication (registration, component data, API proxying, state changes), the appropriate IPC messages should be sent and validated.
+
+**Validates: Requirements 11.1, 11.2, 11.3, 11.4, 11.5**
+
+### Property 31: State Consistency Invariant
+
+*For any* plugin, if enabled is true, then loaded must also be true (but loaded can be true while enabled is false).
+
+**Validates: Requirements 12.1, 12.2**
+
+### Property 32: Query Consistency
+
+*For any* sequence of getInstalledPlugins() calls without intervening modifications, the results should be identical.
+
+**Validates: Requirements 12.3**
+
+### Property 33: Reactive State Updates
+
+*For any* plugin state change in the Plugin_Store, the UI should automatically update to reflect the new state.
+
+**Validates: Requirements 12.4**
+
+### Property 34: Uninstall Order
+
+*For any* plugin being uninstalled, the plugin must be disabled and unloaded before directory removal, storage deletion, and metadata cleanup.
+
+**Validates: Requirements 12.5, 14.1, 14.2, 14.4, 14.5**
+
+### Property 35: Uninstall Completeness
+
+*For any* plugin, after uninstall completes successfully, the plugin should not appear in the installed plugins list and all associated data (storage, metadata) should be deleted.
+
+**Validates: Requirements 7.4, 14.3, 14.6**
+
+### Property 36: Parallel Discovery
+
+*For any* set of plugin directories, discovery should scan them in parallel rather than sequentially.
+
+**Validates: Requirements 13.1**
+
+### Property 37: Lazy Loading
+
+*For any* discovered plugin that is disabled, the plugin code should not be loaded.
+
+**Validates: Requirements 13.2**
+
+### Property 38: Component Caching
+
+*For any* plugin component that is rendered multiple times, the compiled Vue component should be cached to avoid recompilation.
+
+**Validates: Requirements 13.3**
+
+### Property 39: Async Loading
+
+*For any* set of plugins being loaded, loading should occur asynchronously without blocking the UI thread.
+
+**Validates: Requirements 13.4**
+
+### Property 40: Startup Performance
+
+*For any* system with up to 10 installed plugins, plugin discovery and loading should complete within 500ms.
+
+**Validates: Requirements
+
+
+*For any* plugin with 'network' permission that makes a network request, the request should be logged for security auditing.
+
+**Validates: Requirements 18.3**
+
+### Property 44: Plugin Metadata Query
+
+*For any* installed plugin, getInstalledPlugins() should include it, getPluginById(id) should return its metadata, and getPluginById(invalid_id) should return null.
+
+**Validates: Requirements 19.1, 19.2, 19.3**
+
+### Property 45: Plugin Self-Query
+
+*For any* plugin that calls getPluginInfo(), the returned metadata should match the plugin's own id, name, version, and manifest.
+
+**Validates: Requirements 19.4**
+
+### Property 46: Sidebar Integration
+
+*For any* plugin that registers sidebar items, the items should be stored and rendered in the sidebar, and removed when the plugin is disabled.
+
+**Validates: Requirements 20.1, 20.2, 20.4**

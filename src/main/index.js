@@ -5,6 +5,10 @@ import path from 'path'
 import { electronApp, optimizer, is } from '@electron-toolkit/utils'
 import icon from '../../resources/icon.png?asset'
 import { handleChat, handleSTT, handleVoiceConvo } from './ai-service.js'
+import { PluginManager } from './plugin-system/plugin-manager.js'
+
+// Initialize plugin manager
+const pluginManager = new PluginManager()
 
 function createWindow() {
   // Create the browser window.
@@ -122,6 +126,12 @@ app.whenReady().then(() => {
     questionManager.resolveQuestion(payload.questionId, payload.response)
   })
 
+  // ── Plugin System ─────────────────────────────────────────
+  // Initialize plugins
+  pluginManager.initialize().catch(err => {
+    console.error('[Main] Failed to initialize plugins:', err)
+  })
+
   createWindow()
 
   app.on('activate', function () {
@@ -135,6 +145,11 @@ app.whenReady().then(() => {
 // for applications and their menu bar to stay active until the user quits
 // explicitly with Cmd + Q.
 app.on('window-all-closed', () => {
+  // Shutdown plugins
+  pluginManager.shutdown().catch(err => {
+    console.error('[Main] Failed to shutdown plugins:', err)
+  })
+
   if (process.platform !== 'darwin') {
     app.quit()
   }
