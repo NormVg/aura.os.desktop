@@ -9,12 +9,12 @@ defineEmits(['voiceStart', 'voiceEnd'])
 
 const wsStore = useWorkspaceStore()
 const isOpen = ref(wsStore.state.sidePanelOpen !== undefined ? wsStore.state.sidePanelOpen : true)
-const panelWidth = ref(wsStore.state.sidePanelWidth || 420)
+const MIN_W = 700
+const MAX_W = 900
+const panelWidth = ref(Math.max(MIN_W, wsStore.state.sidePanelWidth || 700))
 
 const showSettings = ref(false)
 const isResizing = ref(false)
-const MIN_W = 700
-const MAX_W = 900
 
 let _syncing = false
 watch(isOpen, v => { if (!_syncing) { _syncing = true; wsStore.updateSidePanel(v, undefined); _syncing = false } })
@@ -100,7 +100,6 @@ onUnmounted(() => {
   transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1),
     opacity 0.3s ease;
   opacity: 1;
-  min-width: 40%;
 }
 
 .chat-panel.closed {

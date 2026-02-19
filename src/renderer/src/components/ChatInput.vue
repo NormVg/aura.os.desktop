@@ -281,29 +281,18 @@ defineExpose({ focus })
 }
 
 /* ── Recording indicator ── */
-/* ── Recording indicator ── */
 .ci-icon.recording {
   background: rgba(255, 80, 80, 0.15);
+  border: 1px solid rgba(255, 80, 80, 0.3);
   border-radius: 8px;
-  animation: subtle-pulse 1.5s infinite ease-in-out;
+}
+
+.ci-icon.recording:hover {
+  background: rgba(255, 80, 80, 0.25);
 }
 
 .ci-icon.recording .ci-icon-img {
   opacity: 1;
-  filter: drop-shadow(0 0 2px rgba(255, 80, 80, 0.4));
-}
-
-@keyframes subtle-pulse {
-  0% {
-    transform: scale(1);
-  }
-
-  50% {
-    transform: scale(1.12);
-  }
-
-  100% {
-    transform: scale(1);
-  }
+  filter: drop-shadow(0 0 4px rgba(255, 80, 80, 0.4));
 }
 </style>
