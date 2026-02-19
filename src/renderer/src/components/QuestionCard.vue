@@ -83,124 +83,136 @@ function submitCustom() {
 
 <style scoped>
 .question-card {
-  background: rgba(205, 198, 247, 0.06);
-  border: 1px solid rgba(205, 198, 247, 0.12);
-  border-radius: 16px;
-  padding: 18px;
-  margin: 12px 0;
-  max-width: 90%;
+  background: transparent;
+  border: none;
+  padding: 0;
+  margin: 0;
+  max-width: 100%;
 }
 
 .question-text {
-  font-size: 15px;
-  font-weight: 500;
-  color: #e0daf7;
-  margin-bottom: 14px;
-  line-height: 1.5;
+  font-size: 14px;
+  line-height: 1.7;
+  color: rgba(205, 198, 247, 0.78);
+  margin-bottom: 12px;
+  letter-spacing: 0.005em;
 }
 
 .options-grid {
-  display: flex;
-  flex-direction: column;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
   gap: 8px;
-  margin-bottom: 12px;
+  margin-bottom: 10px;
 }
 
 .option-btn {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 12px 16px;
-  background: rgba(255, 255, 255, 0.03);
-  border: 1px solid rgba(205, 198, 247, 0.15);
+  padding: 10px 14px;
+  background: rgba(205, 198, 247, 0.06);
+  border: 1px solid rgba(205, 198, 247, 0.12);
   border-radius: 10px;
-  color: rgba(205, 198, 247, 0.8);
-  font-size: 14px;
+  color: rgba(205, 198, 247, 0.75);
+  font-size: 13px;
   cursor: pointer;
-  transition: all 0.2s;
+  transition: all 0.15s ease;
   text-align: left;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
 }
 
 .option-btn:hover:not(:disabled) {
-  background: rgba(205, 198, 247, 0.1);
-  border-color: rgba(205, 198, 247, 0.25);
-  transform: translateX(2px);
+  background: rgba(205, 198, 247, 0.12);
+  border-color: rgba(205, 198, 247, 0.22);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(140, 120, 240, 0.2);
 }
 
 .option-btn.selected {
-  background: rgba(140, 220, 140, 0.15);
-  border-color: rgba(140, 220, 140, 0.4);
+  background: rgba(140, 220, 140, 0.12);
+  border-color: rgba(140, 220, 140, 0.35);
   color: #b8e6b8;
+  box-shadow: 0 4px 16px rgba(140, 220, 140, 0.25);
 }
 
 .option-btn.disabled {
-  opacity: 0.4;
+  opacity: 0.35;
   cursor: not-allowed;
+  transform: none;
 }
 
 .option-text {
   flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .check-icon {
   color: #8cd48c;
   flex-shrink: 0;
+  margin-left: 8px;
 }
 
 .custom-section {
   display: flex;
   gap: 8px;
-  padding-top: 12px;
-  border-top: 1px solid rgba(205, 198, 247, 0.08);
+  margin-top: 10px;
 }
 
 .custom-input {
   flex: 1;
   padding: 10px 14px;
-  background: rgba(255, 255, 255, 0.03);
-  border: 1px solid rgba(205, 198, 247, 0.15);
-  border-radius: 8px;
+  background: rgba(205, 198, 247, 0.06);
+  border: 1px solid rgba(205, 198, 247, 0.12);
+  border-radius: 10px;
   color: rgba(205, 198, 247, 0.8);
   font-size: 13px;
   font-family: 'Inter', sans-serif;
   outline: none;
-  transition: all 0.2s;
+  transition: all 0.15s;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
 }
 
 .custom-input:focus {
-  background: rgba(255, 255, 255, 0.05);
-  border-color: rgba(205, 198, 247, 0.3);
+  background: rgba(205, 198, 247, 0.1);
+  border-color: rgba(205, 198, 247, 0.25);
+  box-shadow: 0 4px 12px rgba(140, 120, 240, 0.2);
 }
 
 .custom-input:disabled {
-  opacity: 0.4;
+  opacity: 0.35;
   cursor: not-allowed;
 }
 
 .custom-input::placeholder {
-  color: rgba(205, 198, 247, 0.3);
+  color: rgba(205, 198, 247, 0.35);
 }
 
 .custom-submit {
-  padding: 10px 20px;
-  background: rgba(205, 198, 247, 0.12);
-  border: 1px solid rgba(205, 198, 247, 0.2);
-  border-radius: 8px;
+  padding: 10px 18px;
+  background: rgba(205, 198, 247, 0.1);
+  border: 1px solid rgba(205, 198, 247, 0.18);
+  border-radius: 10px;
   color: #cdc6f7;
   font-size: 13px;
   font-weight: 500;
   cursor: pointer;
-  transition: all 0.2s;
+  transition: all 0.15s;
   white-space: nowrap;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
 }
 
 .custom-submit:hover:not(:disabled) {
-  background: rgba(205, 198, 247, 0.18);
-  border-color: rgba(205, 198, 247, 0.3);
+  background: rgba(205, 198, 247, 0.16);
+  border-color: rgba(205, 198, 247, 0.28);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(140, 120, 240, 0.25);
 }
 
 .custom-submit:disabled {
-  opacity: 0.4;
+  opacity: 0.35;
   cursor: not-allowed;
+  transform: none;
 }
 </style>
