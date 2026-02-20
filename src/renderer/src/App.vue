@@ -350,7 +350,7 @@ onMounted(() => {
                   y: newWidget.y,
                   w: newWidget.w,
                   h: newWidget.h,
-                  data: newWidget.data
+                  data: JSON.parse(JSON.stringify(newWidget.data))
                 }
               : null
           })
@@ -435,7 +435,7 @@ onMounted(() => {
                   y: updatedWidget.y,
                   w: updatedWidget.w,
                   h: updatedWidget.h,
-                  data: updatedWidget.data
+                  data: JSON.parse(JSON.stringify(updatedWidget.data))
                 }
               : null
           })
@@ -460,7 +460,7 @@ onMounted(() => {
             widget: {
               id: widget.id,
               type: widget.type,
-              data: widget.data,
+              data: JSON.parse(JSON.stringify(widget.data)),
               x: widget.x,
               y: widget.y,
               w: widget.w,

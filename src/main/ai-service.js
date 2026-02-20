@@ -307,6 +307,11 @@ export async function handleVoiceConvo({ audioBase64, settings, messages = [], s
     // Clean up multiple spaces and trim
     ttsText = ttsText.replace(/\s+/g, ' ').trim()
 
+    // Fallback if the AI output was purely markdown/tools and resulted in an empty string
+    if (!ttsText) {
+      ttsText = 'Task completed.'
+    }
+
     const ttsProvider = settings.tts?.provider || 'sarvam'
     let ttsResult
 
