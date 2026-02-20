@@ -11,10 +11,10 @@ const props = defineProps({
 const wsStore = useWorkspaceStore()
 
 // Timer state
-const minutes = ref(props.data?.minutes || 5)
-const seconds = ref(props.data?.seconds || 0)
+const minutes = ref(props.data?.minutes ?? 5)
+const seconds = ref(props.data?.seconds ?? 0)
 const isRunning = ref(false)
-const totalSeconds = ref((props.data?.minutes || 5) * 60 + (props.data?.seconds || 0))
+const totalSeconds = ref(minutes.value * 60 + seconds.value)
 const remainingSeconds = ref(totalSeconds.value)
 
 let intervalId = null
