@@ -204,7 +204,12 @@ export const auraTools = {
         .describe(
           'Type of widget (required for create). Use "timer" for both timers and stopwatches.'
         ),
-      widgetId: z.number().optional().describe('Widget ID (required for update/get)'),
+      widgetId: z
+        .number()
+        .optional()
+        .describe(
+          'Widget ID (required for update/get). Optional for start/stop (if omitted, applies to all active timers).'
+        ),
       data: z
         .string()
         .optional()

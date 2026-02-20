@@ -473,36 +473,46 @@ onMounted(() => {
             }
           })
         } else if (action === 'start' || action === 'stop') {
-          if (!widgetId) {
+          let targetWidgets = []
+
+          if (widgetId) {
+            const w = active.value.widgets.find((wi) => wi.id === widgetId)
+            if (w) targetWidgets.push(w)
+          } else {
+            // Smart Targeting: Auto-target all timers if ID is omitted
+            targetWidgets = active.value.widgets.filter((w) => w.type === 'timer')
+          }
+
+          if (targetWidgets.length === 0) {
             window.api.send('aura:tool:widget:result', {
-              error: `Validation Error: widgetId is required to ${action} a widget.`
+              error: widgetId
+                ? `Target Error: Widget with ID ${widgetId} not found.`
+                : `Target Error: No active timer widgets found to ${action}.`
             })
             return
           }
 
-          const widget = active.value.widgets.find((w) => w.id === widgetId)
-          if (!widget) {
+          let successCount = 0
+          for (const widget of targetWidgets) {
+            if (widget.type !== 'timer') continue
+
+            // Dispatch a global DOM event so the specific timer component can start/stop itself
+            window.dispatchEvent(
+              new CustomEvent(`aura:widget:${action}`, { detail: { id: widget.id } })
+            )
+            successCount++
+          }
+
+          if (successCount === 0) {
             window.api.send('aura:tool:widget:result', {
-              error: `Target Error: Widget with ID ${widgetId} not found.`
+              error: `Action Error: ${action} is not supported for these widgets. Only timers support this.`
             })
             return
           }
-
-          if (widget.type !== 'timer') {
-            window.api.send('aura:tool:widget:result', {
-              error: `Action Error: ${action} is not supported for ${widget.type} widgets. Only timers support this.`
-            })
-            return
-          }
-
-          // Dispatch a global DOM event so the specific timer component can start/stop itself
-          window.dispatchEvent(
-            new CustomEvent(`aura:widget:${action}`, { detail: { id: widgetId } })
-          )
 
           window.api.send('aura:tool:widget:result', {
             success: true,
-            message: `Successfully sent ${action} command to ${widget.type} widget ${widgetId}`
+            message: `Successfully sent ${action} command to ${successCount} timer(s).`
           })
         } else {
           window.api.send('aura:tool:widget:result', {
