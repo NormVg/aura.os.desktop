@@ -593,6 +593,13 @@ onUnmounted(() => {
                   @toggle-edit="toggleEdit"
                 />
                 <WidgetTimer v-else-if="w.type === 'timer'" :id="w.id" :data="w.data" />
+                <WidgetWebview
+                  v-else-if="w.type === 'webview'"
+                  :id="w.id"
+                  :data="w.data"
+                  :is-editing="isEditing"
+                  @toggle-edit="toggleEdit"
+                />
                 <MermaidWidget
                   v-else-if="w.type === 'mermaid'"
                   :initialCode="w.data"
