@@ -1,6 +1,6 @@
 <script setup>
 // App Tray — standalone app launcher, independent of workspaces
-import { FileText, Clock, GitBranch, CheckSquare, Image, Timer } from 'lucide-vue-next'
+import { FileText, Clock, GitBranch, CheckSquare, Image, Timer, Globe } from 'lucide-vue-next'
 import { useWorkspaceStore } from '../stores/workspaces'
 
 const wsStore = useWorkspaceStore()
@@ -11,6 +11,7 @@ const appItems = [
   { id: 'mermaid', label: 'Diagram', icon: GitBranch, color: '#7c6aff' },
   { id: 'image', label: 'Image', icon: Image, color: '#EC407A' },
   { id: 'timer', label: 'Timer', icon: Timer, color: '#FF7043' },
+  { id: 'webview', label: 'Web', icon: Globe, color: '#AB47BC' },
   { id: 'clock', label: 'Clock', icon: Clock, color: '#42A5F5' }
 ]
 
@@ -48,6 +49,13 @@ B --> C[End]`
       w: 280,
       h: 320,
       data: { minutes: 5, seconds: 0 }
+    })
+  } else if (app.id === 'webview') {
+    wsStore.addWidget({
+      type: 'webview',
+      w: 600,
+      h: 500,
+      data: { url: 'https://google.com' }
     })
   }
 }
