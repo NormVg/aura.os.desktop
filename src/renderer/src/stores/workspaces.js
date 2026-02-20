@@ -1,5 +1,5 @@
 import { defineStore } from 'pinia'
-import { reactive, computed, toRaw } from 'vue'
+import { reactive, computed } from 'vue'
 
 export const useWorkspaceStore = defineStore('workspaces', () => {
   const state = reactive({
@@ -44,7 +44,7 @@ export const useWorkspaceStore = defineStore('workspaces', () => {
   function saveState() {
     if (!window.api || !window.api.auraState) return
     window.api.auraState.save('workspaces', {
-      workspaces: toRaw(state.workspaces),
+      workspaces: JSON.parse(JSON.stringify(state.workspaces)),
       activeId: state.activeId,
       sidePanelOpen: state.sidePanelOpen,
       sidePanelWidth: state.sidePanelWidth
