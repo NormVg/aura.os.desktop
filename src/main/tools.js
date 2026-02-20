@@ -191,7 +191,7 @@ export const auraTools = {
 
   widgetControl: tool({
     description:
-      'Control widgets on the canvas. Can create, update, or retrieve data from widgets. Available widget types: "mermaid" (diagram editor), "note" (markdown notes), "todo" (task list), "image" (image viewer), "timer" (countdown timer or stopwatch).',
+      'Control widgets on the canvas. Can create, update, or retrieve data from widgets. Available widget types: "mermaid" (diagram editor), "note" (markdown notes), "todo" (task list), "image" (image viewer), "timer" (countdown timer or stopwatch), "webview" (embeds websites).',
     inputSchema: z.object({
       action: z
         .enum(['create', 'update', 'get', 'start', 'stop'])
@@ -199,10 +199,10 @@ export const auraTools = {
           'Action to perform: create (new widget), update (modify existing), get (retrieve data), start (begins a timer/stopwatch), stop (pauses a timer/stopwatch)'
         ),
       widgetType: z
-        .enum(['mermaid', 'note', 'todo', 'image', 'timer', 'stopwatch'])
+        .enum(['mermaid', 'note', 'todo', 'image', 'timer', 'stopwatch', 'webview'])
         .optional()
         .describe(
-          'Type of widget (required for create). Use "timer" for both timers and stopwatches.'
+          'Type of widget (required for create). Use "timer" for both timers and stopwatches. Use "webview" to embed external websites.'
         ),
       widgetId: z
         .number()
@@ -214,7 +214,7 @@ export const auraTools = {
         .string()
         .optional()
         .describe(
-          'Data to set (mermaid: diagram code, note: markdown, todo: JSON array, image: URL, timer: JSON string `{"minutes": X, "seconds": Y}`). NOTE: If creating a timer, ALWAYS start the timer immediately afterward in a second tool call!'
+          'Data to set (mermaid: diagram code, note: markdown, todo: JSON array, image: URL, timer: JSON string `{"minutes": X, "seconds": Y}`, webview: URL string `https://example.com` or JSON string `{"url": "https://example.com"}`). NOTE: If creating a timer, ALWAYS start the timer immediately afterward in a second tool call!'
         ),
       title: z.string().optional().describe('Widget title'),
       position: z

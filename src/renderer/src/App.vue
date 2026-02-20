@@ -14,6 +14,7 @@ import WidgetClock from './components/widgets/WidgetClock.vue'
 import WidgetTodo from './components/widgets/WidgetTodo.vue'
 import WidgetImageViewer from './components/widgets/WidgetImageViewer.vue'
 import WidgetTimer from './components/widgets/WidgetTimer.vue'
+import WidgetWebview from './components/widgets/WidgetWebview.vue'
 import MermaidWidget from './components/MermaidWidget.vue'
 import { useWorkspaceStore } from './stores/workspaces.js'
 
@@ -292,6 +293,21 @@ onMounted(() => {
             widgetData.data = { content: data || '' }
             widgetData.w = widgetData.w || 400
             widgetData.h = widgetData.h || 300
+          } else if (widgetType === 'webview') {
+            let targetUrl = data || 'https://google.com'
+            try {
+              const parsedReq =
+                typeof data === 'string' && data.startsWith('{') ? JSON.parse(data) : null
+              if (parsedReq && parsedReq.url) targetUrl = parsedReq.url
+            } catch (e) {
+              // ignore json parse errors for string fallbacks
+            }
+            if (!/^https?:\/\//i.test(targetUrl)) {
+              targetUrl = 'https://' + targetUrl
+            }
+            widgetData.data = { url: targetUrl }
+            widgetData.w = widgetData.w || 600
+            widgetData.h = widgetData.h || 500
           } else if (widgetType === 'todo') {
             try {
               const items = data ? (typeof data === 'string' ? JSON.parse(data) : data) : []
