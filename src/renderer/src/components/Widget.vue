@@ -27,9 +27,12 @@ function toggleEdit() {
   isEditing.value = !isEditing.value
 }
 
-// Only show edit toggle for Note, Mermaid, and Image
+// Only show edit toggle for Note, Mermaid, Image, and Webview
 const supportsEditing = ref(
-  props.type === 'note' || props.type === 'mermaid' || props.type === 'image'
+  props.type === 'note' ||
+    props.type === 'mermaid' ||
+    props.type === 'image' ||
+    props.type === 'webview'
 )
 
 // Editing state is now passed via scoped slot

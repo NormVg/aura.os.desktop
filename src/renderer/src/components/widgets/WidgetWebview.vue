@@ -17,7 +17,7 @@ const inputUrl = ref(url.value)
 const isLoading = ref(false)
 const error = ref(null)
 
-const iframeRef = ref(null)
+const webviewRef = ref(null)
 
 function loadSite() {
   let targetUrl = inputUrl.value.trim()
@@ -45,13 +45,19 @@ function loadSite() {
   })
 }
 
-function onIframeLoad() {
-  isLoading.value = false
-}
-
-function onIframeError() {
-  isLoading.value = false
-  error.value = 'Failed to load webpage.'
+function handleWebviewEvent(event) {
+  if (event.type === 'did-start-loading') {
+    isLoading.value = true
+    error.value = null
+  } else if (event.type === 'did-stop-loading') {
+    isLoading.value = false
+  } else if (event.type === 'did-fail-load') {
+    isLoading.value = false
+    // Ignore internal electron aborts, show real errors
+    if (event.errorCode !== -3) {
+      error.value = `Failed to load: ${event.errorDescription}`
+    }
+  }
 }
 
 watch(
@@ -66,6 +72,15 @@ watch(
   },
   { deep: true }
 )
+
+// The webview element emits special native events we need to listen for programmatically
+onMounted(() => {
+  if (webviewRef.value) {
+    webviewRef.value.addEventListener('did-start-loading', handleWebviewEvent)
+    webviewRef.value.addEventListener('did-stop-loading', handleWebviewEvent)
+    webviewRef.value.addEventListener('did-fail-load', handleWebviewEvent)
+  }
+})
 </script>
 
 <template>
@@ -91,15 +106,14 @@ watch(
 
       <div v-else-if="url" class="webview-wrapper">
         <div v-if="isLoading && !isEditing" class="loading-bar"></div>
-        <iframe
-          ref="iframeRef"
+        <webview
+          ref="webviewRef"
           :src="url"
-          sandbox="allow-scripts allow-same-origin allow-forms allow-popups"
+          allowpopups
+          webpreferences="sandbox=yes"
           class="native-webview"
           :class="{ dimmed: isEditing }"
-          @load="onIframeLoad"
-          @error="onIframeError"
-        ></iframe>
+        ></webview>
       </div>
 
       <div v-else class="placeholder" @dblclick="emit('toggle-edit')">
