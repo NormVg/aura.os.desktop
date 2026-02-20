@@ -543,6 +543,35 @@ onMounted(() => {
       }
     }
   )
+
+  // Handle webview automation tool
+  window.api.on('aura:tool:webviewRun', async ({ widgetId, script }) => {
+    console.log('[Tool:WebviewRun] Received:', { widgetId, script })
+
+    const widget = active.value.widgets.find((w) => w.id === widgetId)
+    if (!widget || widget.type !== 'webview') {
+      window.api.send('aura:tool:webviewRun:result', {
+        error: `Target Error: Webview widget with ID ${widgetId} not found.`
+      })
+      return
+    }
+
+    const reqId = Date.now() + '-' + Math.random().toString(36).substr(2, 9)
+
+    // Wait for the specific widget component to evaluate the script and return the payload
+    const resultListener = (event) => {
+      if (event.detail.reqId === reqId) {
+        window.removeEventListener('aura:widget:webview:result', resultListener)
+        window.api.send('aura:tool:webviewRun:result', event.detail.result)
+      }
+    }
+    window.addEventListener('aura:widget:webview:result', resultListener)
+
+    // Dispatch the exact script to the targeted widget
+    window.dispatchEvent(
+      new CustomEvent(`aura:widget:webview:run:${widgetId}`, { detail: { script, reqId } })
+    )
+  })
 })
 
 onUnmounted(() => {

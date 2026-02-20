@@ -1,5 +1,5 @@
 <script setup>
-import { ref, watch, computed, onMounted } from 'vue'
+import { ref, watch, computed, onMounted, onUnmounted } from 'vue'
 import { useWorkspaceStore } from '../../stores/workspaces'
 
 const props = defineProps({
@@ -73,6 +73,35 @@ watch(
   { deep: true }
 )
 
+function onWebviewRunEvent(e) {
+  const { script, reqId } = e.detail
+  if (!webviewRef.value) {
+    window.dispatchEvent(
+      new CustomEvent('aura:widget:webview:result', {
+        detail: { reqId, result: { error: 'Webview element is not mounted/ready.' } }
+      })
+    )
+    return
+  }
+
+  webviewRef.value
+    .executeJavaScript(script)
+    .then((data) => {
+      window.dispatchEvent(
+        new CustomEvent('aura:widget:webview:result', {
+          detail: { reqId, result: { success: true, data } }
+        })
+      )
+    })
+    .catch((err) => {
+      window.dispatchEvent(
+        new CustomEvent('aura:widget:webview:result', {
+          detail: { reqId, result: { error: err.message } }
+        })
+      )
+    })
+}
+
 // The webview element emits special native events we need to listen for programmatically
 onMounted(() => {
   if (webviewRef.value) {
@@ -80,6 +109,11 @@ onMounted(() => {
     webviewRef.value.addEventListener('did-stop-loading', handleWebviewEvent)
     webviewRef.value.addEventListener('did-fail-load', handleWebviewEvent)
   }
+  window.addEventListener(`aura:widget:webview:run:${props.id}`, onWebviewRunEvent)
+})
+
+onUnmounted(() => {
+  window.removeEventListener(`aura:widget:webview:run:${props.id}`, onWebviewRunEvent)
 })
 </script>
 

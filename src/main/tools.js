@@ -267,5 +267,42 @@ export const auraTools = {
         ipcMain.once('aura:tool:widget:result', listener)
       })
     }
+  }),
+
+  webviewRun: tool({
+    description:
+      'Inject and execute raw JavaScript inside an active Webview widget. Use this to automate interactions, extract data from the DOM, or manipulate the page styling natively.',
+    inputSchema: z.object({
+      widgetId: z.number().describe('The ID of the target Webview widget.'),
+      script: z.string().describe('The raw JavaScript code to execute inside the webview.')
+    }),
+    execute: async ({ widgetId, script }) => {
+      const { BrowserWindow } = await import('electron')
+
+      const win = BrowserWindow.getFocusedWindow()
+      if (!win) {
+        return { error: 'No active window found' }
+      }
+
+      win.webContents.send('aura:tool:webviewRun', { widgetId, script })
+
+      return new Promise((resolve) => {
+        const timeoutId = setTimeout(() => {
+          ipcMain.removeListener('aura:tool:webviewRun:result', listener)
+          resolve({
+            error:
+              'Webview script execution timeout - no response in 15 seconds. Page might be locked.'
+          })
+        }, 15000)
+
+        const listener = (event, result) => {
+          clearTimeout(timeoutId)
+          ipcMain.removeListener('aura:tool:webviewRun:result', listener)
+          resolve(result)
+        }
+
+        ipcMain.once('aura:tool:webviewRun:result', listener)
+      })
+    }
   })
 }
