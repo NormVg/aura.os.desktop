@@ -191,23 +191,25 @@ export const auraTools = {
 
   widgetControl: tool({
     description:
-      'Control widgets on the canvas. Can create, update, or retrieve data from widgets. Available widget types: "mermaid" (diagram editor), "note" (markdown notes), "todo" (task list), "image" (image viewer), "timer" (countdown timer).',
+      'Control widgets on the canvas. Can create, update, or retrieve data from widgets. Available widget types: "mermaid" (diagram editor), "note" (markdown notes), "todo" (task list), "image" (image viewer), "timer" (countdown timer or stopwatch).',
     inputSchema: z.object({
       action: z
-        .enum(['create', 'update', 'get'])
+        .enum(['create', 'update', 'get', 'start', 'stop'])
         .describe(
-          'Action to perform: create (new widget), update (modify existing), get (retrieve data)'
+          'Action to perform: create (new widget), update (modify existing), get (retrieve data), start (begins a timer/stopwatch), stop (pauses a timer/stopwatch)'
         ),
       widgetType: z
-        .enum(['mermaid', 'note', 'todo', 'image', 'timer'])
+        .enum(['mermaid', 'note', 'todo', 'image', 'timer', 'stopwatch'])
         .optional()
-        .describe('Type of widget (required for create)'),
+        .describe(
+          'Type of widget (required for create). Use "timer" for both timers and stopwatches.'
+        ),
       widgetId: z.number().optional().describe('Widget ID (required for update/get)'),
       data: z
         .string()
         .optional()
         .describe(
-          'Data to set (for mermaid: diagram code, for note: markdown content, for todo: JSON array of items, for image: image URL, for timer: JSON with minutes and seconds)'
+          'Data to set (mermaid: diagram code, note: markdown, todo: JSON array, image: URL, timer: JSON string `{"minutes": X, "seconds": Y}`). NOTE: If creating a timer, ALWAYS start the timer immediately afterward in a second tool call!'
         ),
       title: z.string().optional().describe('Widget title'),
       position: z

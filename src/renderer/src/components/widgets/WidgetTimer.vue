@@ -1,5 +1,5 @@
 <script setup>
-import { ref, computed, watch, onUnmounted } from 'vue'
+import { ref, computed, watch, onMounted, onUnmounted } from 'vue'
 import { useWorkspaceStore } from '../../stores/workspaces'
 import { Play, Pause, RotateCcw } from 'lucide-vue-next'
 
@@ -91,9 +91,24 @@ watch(
   { deep: true }
 )
 
+onMounted(() => {
+  window.addEventListener('aura:widget:start', handleRemoteStart)
+  window.addEventListener('aura:widget:stop', handleRemoteStop)
+})
+
 onUnmounted(() => {
   if (intervalId) clearInterval(intervalId)
+  window.removeEventListener('aura:widget:start', handleRemoteStart)
+  window.removeEventListener('aura:widget:stop', handleRemoteStop)
 })
+
+function handleRemoteStart(e) {
+  if (e.detail?.id === props.id) start()
+}
+
+function handleRemoteStop(e) {
+  if (e.detail?.id === props.id) pause()
+}
 </script>
 
 <template>

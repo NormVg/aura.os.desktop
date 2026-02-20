@@ -265,6 +265,8 @@ onMounted(() => {
             return
           }
 
+          if (widgetType === 'stopwatch') widgetType = 'timer'
+
           let widgetData = {
             type: widgetType,
             ...position,
@@ -310,15 +312,18 @@ onMounted(() => {
             widgetData.h = widgetData.h || 400
           } else if (widgetType === 'timer') {
             try {
-              const timerData = data
-                ? typeof data === 'string'
-                  ? JSON.parse(data)
-                  : data
-                : { minutes: 5, seconds: 0 }
+              let timerData = { minutes: 5, seconds: 0 }
+              if (data) {
+                timerData = typeof data === 'string' ? JSON.parse(data) : data
+              }
               if (typeof timerData.minutes !== 'number' || typeof timerData.seconds !== 'number') {
                 throw new Error("Must include numeric 'minutes' and 'seconds'")
               }
-              widgetData.data = { minutes: timerData.minutes, seconds: timerData.seconds }
+              // Safely map zero values without || overriding zeros with defaults
+              widgetData.data = {
+                minutes: timerData.minutes !== undefined ? timerData.minutes : 5,
+                seconds: timerData.seconds !== undefined ? timerData.seconds : 0
+              }
             } catch (err) {
               window.api.send('aura:tool:widget:result', {
                 error: `Parsing Error: Timer data must be a valid JSON object with 'minutes' and 'seconds' numbers. Error: ${err.message}`
@@ -467,9 +472,41 @@ onMounted(() => {
               h: widget.h
             }
           })
+        } else if (action === 'start' || action === 'stop') {
+          if (!widgetId) {
+            window.api.send('aura:tool:widget:result', {
+              error: `Validation Error: widgetId is required to ${action} a widget.`
+            })
+            return
+          }
+
+          const widget = active.value.widgets.find((w) => w.id === widgetId)
+          if (!widget) {
+            window.api.send('aura:tool:widget:result', {
+              error: `Target Error: Widget with ID ${widgetId} not found.`
+            })
+            return
+          }
+
+          if (widget.type !== 'timer') {
+            window.api.send('aura:tool:widget:result', {
+              error: `Action Error: ${action} is not supported for ${widget.type} widgets. Only timers support this.`
+            })
+            return
+          }
+
+          // Dispatch a global DOM event so the specific timer component can start/stop itself
+          window.dispatchEvent(
+            new CustomEvent(`aura:widget:${action}`, { detail: { id: widgetId } })
+          )
+
+          window.api.send('aura:tool:widget:result', {
+            success: true,
+            message: `Successfully sent ${action} command to ${widget.type} widget ${widgetId}`
+          })
         } else {
           window.api.send('aura:tool:widget:result', {
-            error: `Action Error: Unknown action '${action}'. Valid actions are 'create', 'update', or 'get'.`
+            error: `Action Error: Unknown action '${action}'. Valid actions are 'create', 'update', 'get', 'start', or 'stop'.`
           })
         }
       } catch (err) {
