@@ -44,7 +44,7 @@ Ollama provider support has been successfully integrated into Aura Desktop, allo
 // In ai-service.js
 if (modelEntry.provider === 'ollama') {
   const ollama = createOllama({
-    baseURL: keys.ollamaBaseURL || 'http://localhost:11434/api',
+    baseURL: keys.ollamaBaseURL || 'http://localhost:11434/api'
   })
   return ollama(modelEntry.modelId)
 }
@@ -73,6 +73,7 @@ if (modelEntry.provider === 'ollama') {
 ## Testing
 
 Build verification: ✅ Passed
+
 - All 3 stages compiled successfully (main, preload, renderer)
 - No TypeScript/ESLint errors
 - Bundle size: ~607KB (renderer)
@@ -95,7 +96,7 @@ Build verification: ✅ Passed
     "models": [
       {
         "id": "llama-3b-local",
-    "provider": "ollama",
+        "provider": "ollama",
         "modelId": "llama3.2:3b",
         "label": "Llama 3.2 3B (Local)"
       }
@@ -109,12 +110,12 @@ Build verification: ✅ Passed
 
 ## Recommended Models
 
-| Use Case | Model | RAM Required | Speed |
-|----------|-------|--------------|-------|
-| General Chat | llama3.2:3b | ~4GB | Fast |
-| Tool Calling | llama3.1:8b | ~8GB | Medium |
-| Quick Responses | phi3:mini | ~2GB | Very Fast |
-| High Quality | mistral:7b | ~8GB | Medium |
+| Use Case        | Model       | RAM Required | Speed     |
+| --------------- | ----------- | ------------ | --------- |
+| General Chat    | llama3.2:3b | ~4GB         | Fast      |
+| Tool Calling    | llama3.1:8b | ~8GB         | Medium    |
+| Quick Responses | phi3:mini   | ~2GB         | Very Fast |
+| High Quality    | mistral:7b  | ~8GB         | Medium    |
 
 ## Future Enhancements
 
@@ -140,4 +141,3 @@ Potential improvements for future versions:
 **Integration Status**: ✅ Complete and Production Ready
 **Build Status**: ✅ Passing
 **Documentation**: ✅ Complete
-

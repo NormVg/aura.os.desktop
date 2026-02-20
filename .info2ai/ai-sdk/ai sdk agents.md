@@ -1,4 +1,3 @@
-
 # Agents
 
 Agents are **large language models (LLMs)** that use **tools** in a **loop** to accomplish tasks.
@@ -16,9 +15,9 @@ These components work together:
 The ToolLoopAgent class handles these three components. Here's an agent that uses multiple tools in a loop to accomplish a task:
 
 ```ts
-import { ToolLoopAgent, stepCountIs, tool } from 'ai';
-__PROVIDER_IMPORT__;
-import { z } from 'zod';
+import { ToolLoopAgent, stepCountIs, tool } from 'ai'
+__PROVIDER_IMPORT__
+import { z } from 'zod'
 
 const weatherAgent = new ToolLoopAgent({
   model: __MODEL__,
@@ -26,34 +25,34 @@ const weatherAgent = new ToolLoopAgent({
     weather: tool({
       description: 'Get the weather in a location (in Fahrenheit)',
       inputSchema: z.object({
-        location: z.string().describe('The location to get the weather for'),
+        location: z.string().describe('The location to get the weather for')
       }),
       execute: async ({ location }) => ({
         location,
-        temperature: 72 + Math.floor(Math.random() * 21) - 10,
-      }),
+        temperature: 72 + Math.floor(Math.random() * 21) - 10
+      })
     }),
     convertFahrenheitToCelsius: tool({
       description: 'Convert temperature from Fahrenheit to Celsius',
       inputSchema: z.object({
-        temperature: z.number().describe('Temperature in Fahrenheit'),
+        temperature: z.number().describe('Temperature in Fahrenheit')
       }),
       execute: async ({ temperature }) => {
-        const celsius = Math.round((temperature - 32) * (5 / 9));
-        return { celsius };
-      },
-    }),
-  },
+        const celsius = Math.round((temperature - 32) * (5 / 9))
+        return { celsius }
+      }
+    })
+  }
   // Agent's default behavior is to stop after a maximum of 20 steps
   // stopWhen: stepCountIs(20),
-});
+})
 
 const result = await weatherAgent.generate({
-  prompt: 'What is the weather in San Francisco in celsius?',
-});
+  prompt: 'What is the weather in San Francisco in celsius?'
+})
 
-console.log(result.text); // agent's final answer
-console.log(result.steps); // steps taken by the agent
+console.log(result.text) // agent's final answer
+console.log(result.steps) // steps taken by the agent
 ```
 
 The agent automatically:
@@ -85,8 +84,6 @@ Agents are flexible and powerful, but non-deterministic. When you need reliable,
 
 [Explore workflow patterns](/docs/agents/workflows) to learn more about building structured, reliable systems.
 
-
-
 # Building Agents
 
 The Agent class provides a structured way to encapsulate LLM configuration, tools, and behavior into reusable components. It handles the agent loop for you, allowing the LLM to call tools multiple times in sequence to accomplish complex tasks. Define agents once and use them across your application.
@@ -107,16 +104,16 @@ The ToolLoopAgent class provides a single place to define your agent's behavior.
 Define an agent by instantiating the ToolLoopAgent class with your desired configuration:
 
 ```ts
-import { ToolLoopAgent } from 'ai';
-__PROVIDER_IMPORT__;
+import { ToolLoopAgent } from 'ai'
+__PROVIDER_IMPORT__
 
 const myAgent = new ToolLoopAgent({
   model: __MODEL__,
   instructions: 'You are a helpful assistant.',
   tools: {
     // Your tools here
-  },
-});
+  }
+})
 ```
 
 ## Configuration Options
@@ -126,13 +123,13 @@ The Agent class accepts all the same settings as `generateText` and `streamText`
 ### Model and System Instructions
 
 ```ts
-import { ToolLoopAgent } from 'ai';
-__PROVIDER_IMPORT__;
+import { ToolLoopAgent } from 'ai'
+__PROVIDER_IMPORT__
 
 const agent = new ToolLoopAgent({
   model: __MODEL__,
-  instructions: 'You are an expert software engineer.',
-});
+  instructions: 'You are an expert software engineer.'
+})
 ```
 
 ### Tools
@@ -140,9 +137,9 @@ const agent = new ToolLoopAgent({
 Provide tools that the agent can use to accomplish tasks:
 
 ```ts
-import { ToolLoopAgent, tool } from 'ai';
-__PROVIDER_IMPORT__;
-import { z } from 'zod';
+import { ToolLoopAgent, tool } from 'ai'
+__PROVIDER_IMPORT__
+import { z } from 'zod'
 
 const codeAgent = new ToolLoopAgent({
   model: __MODEL__,
@@ -150,15 +147,15 @@ const codeAgent = new ToolLoopAgent({
     runCode: tool({
       description: 'Execute Python code',
       inputSchema: z.object({
-        code: z.string(),
+        code: z.string()
       }),
       execute: async ({ code }) => {
         // Execute code and return result
-        return { output: 'Code executed successfully' };
-      },
-    }),
-  },
-});
+        return { output: 'Code executed successfully' }
+      }
+    })
+  }
+})
 ```
 
 ### Loop Control
@@ -168,13 +165,13 @@ By default, agents run for 20 steps (`stopWhen: stepCountIs(20)`). In each step,
 To let agents call multiple tools in sequence, configure `stopWhen` to allow more steps. After each tool execution, the agent triggers a new generation where the model can call another tool or generate text:
 
 ```ts
-import { ToolLoopAgent, stepCountIs } from 'ai';
-__PROVIDER_IMPORT__;
+import { ToolLoopAgent, stepCountIs } from 'ai'
+__PROVIDER_IMPORT__
 
 const agent = new ToolLoopAgent({
   model: __MODEL__,
-  stopWhen: stepCountIs(20), // Allow up to 20 steps
-});
+  stopWhen: stepCountIs(20) // Allow up to 20 steps
+})
 ```
 
 Each step represents one generation (which results in either text or a tool call). The loop continues until:
@@ -187,16 +184,16 @@ Each step represents one generation (which results in either text or a tool call
 You can combine multiple conditions:
 
 ```ts
-import { ToolLoopAgent, stepCountIs } from 'ai';
-__PROVIDER_IMPORT__;
+import { ToolLoopAgent, stepCountIs } from 'ai'
+__PROVIDER_IMPORT__
 
 const agent = new ToolLoopAgent({
   model: __MODEL__,
   stopWhen: [
     stepCountIs(20), // Maximum 20 steps
-    yourCustomCondition(), // Custom logic for when to stop
-  ],
-});
+    yourCustomCondition() // Custom logic for when to stop
+  ]
+})
 ```
 
 Learn more about [loop control and stop conditions](/docs/agents/loop-control).
@@ -206,37 +203,37 @@ Learn more about [loop control and stop conditions](/docs/agents/loop-control).
 Control how the agent uses tools:
 
 ```ts
-import { ToolLoopAgent } from 'ai';
-__PROVIDER_IMPORT__;
+import { ToolLoopAgent } from 'ai'
+__PROVIDER_IMPORT__
 
 const agent = new ToolLoopAgent({
   model: __MODEL__,
   tools: {
     // your tools here
   },
-  toolChoice: 'required', // Force tool use
+  toolChoice: 'required' // Force tool use
   // or toolChoice: 'none' to disable tools
   // or toolChoice: 'auto' (default) to let the model decide
-});
+})
 ```
 
 You can also force the use of a specific tool:
 
 ```ts
-import { ToolLoopAgent } from 'ai';
-__PROVIDER_IMPORT__;
+import { ToolLoopAgent } from 'ai'
+__PROVIDER_IMPORT__
 
 const agent = new ToolLoopAgent({
   model: __MODEL__,
   tools: {
     weather: weatherTool,
-    cityAttractions: attractionsTool,
+    cityAttractions: attractionsTool
   },
   toolChoice: {
     type: 'tool',
-    toolName: 'weather', // Force the weather tool to be used
-  },
-});
+    toolName: 'weather' // Force the weather tool to be used
+  }
+})
 ```
 
 ### Structured Output
@@ -244,9 +241,9 @@ const agent = new ToolLoopAgent({
 Define structured output schemas:
 
 ```ts
-import { ToolLoopAgent, Output, stepCountIs } from 'ai';
-__PROVIDER_IMPORT__;
-import { z } from 'zod';
+import { ToolLoopAgent, Output, stepCountIs } from 'ai'
+__PROVIDER_IMPORT__
+import { z } from 'zod'
 
 const analysisAgent = new ToolLoopAgent({
   model: __MODEL__,
@@ -254,15 +251,15 @@ const analysisAgent = new ToolLoopAgent({
     schema: z.object({
       sentiment: z.enum(['positive', 'neutral', 'negative']),
       summary: z.string(),
-      keyPoints: z.array(z.string()),
-    }),
+      keyPoints: z.array(z.string())
+    })
   }),
-  stopWhen: stepCountIs(10),
-});
+  stopWhen: stepCountIs(10)
+})
 
 const { output } = await analysisAgent.generate({
-  prompt: 'Analyze customer feedback from the last quarter',
-});
+  prompt: 'Analyze customer feedback from the last quarter'
+})
 ```
 
 ## Define Agent Behavior with System Instructions
@@ -276,9 +273,8 @@ Set the agent's role and expertise:
 ```ts
 const agent = new ToolLoopAgent({
   model: __MODEL__,
-  instructions:
-    'You are an expert data analyst. You provide clear insights from complex data.',
-});
+  instructions: 'You are an expert data analyst. You provide clear insights from complex data.'
+})
 ```
 
 ### Detailed Behavioral Instructions
@@ -295,8 +291,8 @@ const codeReviewAgent = new ToolLoopAgent({
   - Identify performance bottlenecks
   - Suggest improvements for readability and maintainability
   - Be constructive and educational in your feedback
-  - Always explain why something is an issue and how to fix it`,
-});
+  - Always explain why something is an issue and how to fix it`
+})
 ```
 
 ### Constrain Agent Behavior
@@ -317,9 +313,9 @@ const customerSupportAgent = new ToolLoopAgent({
   tools: {
     checkOrderStatus,
     lookupPolicy,
-    createTicket,
-  },
-});
+    createTicket
+  }
+})
 ```
 
 ### Tool Usage Instructions
@@ -340,9 +336,9 @@ const researchAgent = new ToolLoopAgent({
   tools: {
     webSearch,
     analyzeDocument,
-    extractQuotes,
-  },
-});
+    extractQuotes
+  }
+})
 ```
 
 ### Format and Style Instructions
@@ -361,8 +357,8 @@ const technicalWriterAgent = new ToolLoopAgent({
   - Include code examples where relevant
   - Write in second person ("you" instead of "the user")
 
-  Always format responses in Markdown.`,
-});
+  Always format responses in Markdown.`
+})
 ```
 
 ## Using an Agent
@@ -375,10 +371,10 @@ Use `generate()` for one-time text generation:
 
 ```ts
 const result = await myAgent.generate({
-  prompt: 'What is the weather like?',
-});
+  prompt: 'What is the weather like?'
+})
 
-console.log(result.text);
+console.log(result.text)
 ```
 
 ### Stream Text
@@ -387,11 +383,11 @@ Use `stream()` for streaming responses:
 
 ```ts
 const stream = myAgent.stream({
-  prompt: 'Tell me a story',
-});
+  prompt: 'Tell me a story'
+})
 
 for await (const chunk of stream.textStream) {
-  console.log(chunk);
+  console.log(chunk)
 }
 ```
 
@@ -401,15 +397,15 @@ Use `createAgentUIStreamResponse()` to create API responses for client applicati
 
 ```ts
 // In your API route (e.g., app/api/chat/route.ts)
-import { createAgentUIStreamResponse } from 'ai';
+import { createAgentUIStreamResponse } from 'ai'
 
 export async function POST(request: Request) {
-  const { messages } = await request.json();
+  const { messages } = await request.json()
 
   return createAgentUIStreamResponse({
     agent: myAgent,
-    messages,
-  });
+    messages
+  })
 }
 ```
 
@@ -418,30 +414,29 @@ export async function POST(request: Request) {
 You can infer types for your agent's `UIMessage`s:
 
 ```ts
-import { ToolLoopAgent, InferAgentUIMessage } from 'ai';
+import { ToolLoopAgent, InferAgentUIMessage } from 'ai'
 
 const myAgent = new ToolLoopAgent({
   // ... configuration
-});
+})
 
 // Infer the UIMessage type for UI components or persistence
-export type MyAgentUIMessage = InferAgentUIMessage<typeof myAgent>;
+export type MyAgentUIMessage = InferAgentUIMessage<typeof myAgent>
 ```
 
 Use this type in your client components with `useChat`:
 
 ```tsx filename="components/chat.tsx"
-'use client';
+'use client'
 
-import { useChat } from '@ai-sdk/react';
-import type { MyAgentUIMessage } from '@/agent/my-agent';
+import { useChat } from '@ai-sdk/react'
+import type { MyAgentUIMessage } from '@/agent/my-agent'
 
 export function Chat() {
-  const { messages } = useChat<MyAgentUIMessage>();
+  const { messages } = useChat<MyAgentUIMessage>()
   // Full type safety for your messages and tools
 }
 ```
-
 
 # Workflow Patterns
 
@@ -480,18 +475,18 @@ These patterns, adapted from [Anthropic's guide on building effective agents](ht
 The simplest workflow pattern executes steps in a predefined order. Each step's output becomes input for the next step, creating a clear chain of operations. Use this pattern for tasks with well-defined sequences, like content generation pipelines or data transformation processes.
 
 ```ts
-import { generateText, generateObject } from 'ai';
-__PROVIDER_IMPORT__;
-import { z } from 'zod';
+import { generateText, generateObject } from 'ai'
+__PROVIDER_IMPORT__
+import { z } from 'zod'
 
 async function generateMarketingCopy(input: string) {
-  const model = __MODEL__;
+  const model = __MODEL__
 
   // First step: Generate marketing copy
   const { text: copy } = await generateText({
     model,
-    prompt: `Write persuasive marketing copy for: ${input}. Focus on benefits and emotional appeal.`,
-  });
+    prompt: `Write persuasive marketing copy for: ${input}. Focus on benefits and emotional appeal.`
+  })
 
   // Perform quality check on copy
   const { object: qualityMetrics } = await generateObject({
@@ -499,15 +494,15 @@ async function generateMarketingCopy(input: string) {
     schema: z.object({
       hasCallToAction: z.boolean(),
       emotionalAppeal: z.number().min(1).max(10),
-      clarity: z.number().min(1).max(10),
+      clarity: z.number().min(1).max(10)
     }),
     prompt: `Evaluate this marketing copy for:
     1. Presence of call to action (true/false)
     2. Emotional appeal (1-10)
     3. Clarity (1-10)
 
-    Copy to evaluate: ${copy}`,
-  });
+    Copy to evaluate: ${copy}`
+  })
 
   // If quality check fails, regenerate with more specific instructions
   if (
@@ -522,12 +517,12 @@ async function generateMarketingCopy(input: string) {
       ${qualityMetrics.emotionalAppeal < 7 ? '- Stronger emotional appeal' : ''}
       ${qualityMetrics.clarity < 7 ? '- Improved clarity and directness' : ''}
 
-      Original copy: ${copy}`,
-    });
-    return { copy: improvedCopy, qualityMetrics };
+      Original copy: ${copy}`
+    })
+    return { copy: improvedCopy, qualityMetrics }
   }
 
-  return { copy, qualityMetrics };
+  return { copy, qualityMetrics }
 }
 ```
 
@@ -536,12 +531,12 @@ async function generateMarketingCopy(input: string) {
 This pattern lets the model decide which path to take through a workflow based on context and intermediate results. The model acts as an intelligent router, directing the flow of execution between different branches of your workflow. Use this when handling varied inputs that require different processing approaches. In the example below, the first LLM call's results determine the second call's model size and system prompt.
 
 ```ts
-import { generateObject, generateText } from 'ai';
-__PROVIDER_IMPORT__;
-import { z } from 'zod';
+import { generateObject, generateText } from 'ai'
+__PROVIDER_IMPORT__
+import { z } from 'zod'
 
 async function handleCustomerQuery(query: string) {
-  const model = __MODEL__;
+  const model = __MODEL__
 
   // First step: Classify the query type
   const { object: classification } = await generateObject({
@@ -549,7 +544,7 @@ async function handleCustomerQuery(query: string) {
     schema: z.object({
       reasoning: z.string(),
       type: z.enum(['general', 'refund', 'technical']),
-      complexity: z.enum(['simple', 'complex']),
+      complexity: z.enum(['simple', 'complex'])
     }),
     prompt: `Classify this customer query:
     ${query}
@@ -557,28 +552,24 @@ async function handleCustomerQuery(query: string) {
     Determine:
     1. Query type (general, refund, or technical)
     2. Complexity (simple or complex)
-    3. Brief reasoning for classification`,
-  });
+    3. Brief reasoning for classification`
+  })
 
   // Route based on classification
   // Set model and system prompt based on query type and complexity
   const { text: response } = await generateText({
-    model:
-      classification.complexity === 'simple'
-        ? 'openai/gpt-4o-mini'
-        : 'openai/o4-mini',
+    model: classification.complexity === 'simple' ? 'openai/gpt-4o-mini' : 'openai/o4-mini',
     system: {
-      general:
-        'You are an expert customer service agent handling general inquiries.',
+      general: 'You are an expert customer service agent handling general inquiries.',
       refund:
         'You are a customer service agent specializing in refund requests. Follow company policy and collect necessary information.',
       technical:
-        'You are a technical support specialist with deep product knowledge. Focus on clear step-by-step troubleshooting.',
+        'You are a technical support specialist with deep product knowledge. Focus on clear step-by-step troubleshooting.'
     }[classification.type],
-    prompt: query,
-  });
+    prompt: query
+  })
 
-  return { response, classification };
+  return { response, classification }
 }
 ```
 
@@ -587,72 +578,71 @@ async function handleCustomerQuery(query: string) {
 Break down tasks into independent subtasks that execute simultaneously. This pattern uses parallel execution to improve efficiency while maintaining the benefits of structured workflows. For example, analyze multiple documents or process different aspects of a single input concurrently (like code review).
 
 ```ts
-import { generateText, generateObject } from 'ai';
-__PROVIDER_IMPORT__;
-import { z } from 'zod';
+import { generateText, generateObject } from 'ai'
+__PROVIDER_IMPORT__
+import { z } from 'zod'
 
 // Example: Parallel code review with multiple specialized reviewers
 async function parallelCodeReview(code: string) {
-  const model = __MODEL__;
+  const model = __MODEL__
 
   // Run parallel reviews
-  const [securityReview, performanceReview, maintainabilityReview] =
-    await Promise.all([
-      generateObject({
-        model,
-        system:
-          'You are an expert in code security. Focus on identifying security vulnerabilities, injection risks, and authentication issues.',
-        schema: z.object({
-          vulnerabilities: z.array(z.string()),
-          riskLevel: z.enum(['low', 'medium', 'high']),
-          suggestions: z.array(z.string()),
-        }),
-        prompt: `Review this code:
-      ${code}`,
+  const [securityReview, performanceReview, maintainabilityReview] = await Promise.all([
+    generateObject({
+      model,
+      system:
+        'You are an expert in code security. Focus on identifying security vulnerabilities, injection risks, and authentication issues.',
+      schema: z.object({
+        vulnerabilities: z.array(z.string()),
+        riskLevel: z.enum(['low', 'medium', 'high']),
+        suggestions: z.array(z.string())
       }),
+      prompt: `Review this code:
+      ${code}`
+    }),
 
-      generateObject({
-        model,
-        system:
-          'You are an expert in code performance. Focus on identifying performance bottlenecks, memory leaks, and optimization opportunities.',
-        schema: z.object({
-          issues: z.array(z.string()),
-          impact: z.enum(['low', 'medium', 'high']),
-          optimizations: z.array(z.string()),
-        }),
-        prompt: `Review this code:
-      ${code}`,
+    generateObject({
+      model,
+      system:
+        'You are an expert in code performance. Focus on identifying performance bottlenecks, memory leaks, and optimization opportunities.',
+      schema: z.object({
+        issues: z.array(z.string()),
+        impact: z.enum(['low', 'medium', 'high']),
+        optimizations: z.array(z.string())
       }),
+      prompt: `Review this code:
+      ${code}`
+    }),
 
-      generateObject({
-        model,
-        system:
-          'You are an expert in code quality. Focus on code structure, readability, and adherence to best practices.',
-        schema: z.object({
-          concerns: z.array(z.string()),
-          qualityScore: z.number().min(1).max(10),
-          recommendations: z.array(z.string()),
-        }),
-        prompt: `Review this code:
-      ${code}`,
+    generateObject({
+      model,
+      system:
+        'You are an expert in code quality. Focus on code structure, readability, and adherence to best practices.',
+      schema: z.object({
+        concerns: z.array(z.string()),
+        qualityScore: z.number().min(1).max(10),
+        recommendations: z.array(z.string())
       }),
-    ]);
+      prompt: `Review this code:
+      ${code}`
+    })
+  ])
 
   const reviews = [
     { ...securityReview.object, type: 'security' },
     { ...performanceReview.object, type: 'performance' },
-    { ...maintainabilityReview.object, type: 'maintainability' },
-  ];
+    { ...maintainabilityReview.object, type: 'maintainability' }
+  ]
 
   // Aggregate results using another model instance
   const { text: summary } = await generateText({
     model,
     system: 'You are a technical lead summarizing multiple code reviews.',
     prompt: `Synthesize these code review results into a concise summary with key actions:
-    ${JSON.stringify(reviews, null, 2)}`,
-  });
+    ${JSON.stringify(reviews, null, 2)}`
+  })
 
-  return { reviews, summary };
+  return { reviews, summary }
 }
 ```
 
@@ -661,9 +651,9 @@ async function parallelCodeReview(code: string) {
 A primary model (orchestrator) coordinates the execution of specialized workers. Each worker optimizes for a specific subtask, while the orchestrator maintains overall context and ensures coherent results. This pattern excels at complex tasks requiring different types of expertise or processing.
 
 ```ts
-import { generateObject } from 'ai';
-__PROVIDER_IMPORT__;
-import { z } from 'zod';
+import { generateObject } from 'ai'
+__PROVIDER_IMPORT__
+import { z } from 'zod'
 
 async function implementFeature(featureRequest: string) {
   // Orchestrator: Plan the implementation
@@ -674,55 +664,53 @@ async function implementFeature(featureRequest: string) {
         z.object({
           purpose: z.string(),
           filePath: z.string(),
-          changeType: z.enum(['create', 'modify', 'delete']),
-        }),
+          changeType: z.enum(['create', 'modify', 'delete'])
+        })
       ),
-      estimatedComplexity: z.enum(['low', 'medium', 'high']),
+      estimatedComplexity: z.enum(['low', 'medium', 'high'])
     }),
-    system:
-      'You are a senior software architect planning feature implementations.',
+    system: 'You are a senior software architect planning feature implementations.',
     prompt: `Analyze this feature request and create an implementation plan:
-    ${featureRequest}`,
-  });
+    ${featureRequest}`
+  })
 
   // Workers: Execute the planned changes
   const fileChanges = await Promise.all(
-    implementationPlan.files.map(async file => {
+    implementationPlan.files.map(async (file) => {
       // Each worker is specialized for the type of change
       const workerSystemPrompt = {
         create:
           'You are an expert at implementing new files following best practices and project patterns.',
         modify:
           'You are an expert at modifying existing code while maintaining consistency and avoiding regressions.',
-        delete:
-          'You are an expert at safely removing code while ensuring no breaking changes.',
-      }[file.changeType];
+        delete: 'You are an expert at safely removing code while ensuring no breaking changes.'
+      }[file.changeType]
 
       const { object: change } = await generateObject({
         model: __MODEL__,
         schema: z.object({
           explanation: z.string(),
-          code: z.string(),
+          code: z.string()
         }),
         system: workerSystemPrompt,
         prompt: `Implement the changes for ${file.filePath} to support:
         ${file.purpose}
 
         Consider the overall feature context:
-        ${featureRequest}`,
-      });
+        ${featureRequest}`
+      })
 
       return {
         file,
-        implementation: change,
-      };
-    }),
-  );
+        implementation: change
+      }
+    })
+  )
 
   return {
     plan: implementationPlan,
-    changes: fileChanges,
-  };
+    changes: fileChanges
+  }
 }
 ```
 
@@ -731,24 +719,24 @@ async function implementFeature(featureRequest: string) {
 Add quality control to workflows with dedicated evaluation steps that assess intermediate results. Based on the evaluation, the workflow proceeds, retries with adjusted parameters, or takes corrective action. This creates robust workflows capable of self-improvement and error recovery.
 
 ```ts
-import { generateText, generateObject } from 'ai';
-__PROVIDER_IMPORT__;
-import { z } from 'zod';
+import { generateText, generateObject } from 'ai'
+__PROVIDER_IMPORT__
+import { z } from 'zod'
 
 async function translateWithFeedback(text: string, targetLanguage: string) {
-  let currentTranslation = '';
-  let iterations = 0;
-  const MAX_ITERATIONS = 3;
+  let currentTranslation = ''
+  let iterations = 0
+  const MAX_ITERATIONS = 3
 
   // Initial translation
   const { text: translation } = await generateText({
     model: __MODEL__,
     system: 'You are an expert literary translator.',
     prompt: `Translate this text to ${targetLanguage}, preserving tone and cultural nuances:
-    ${text}`,
-  });
+    ${text}`
+  })
 
-  currentTranslation = translation;
+  currentTranslation = translation
 
   // Evaluation-optimization loop
   while (iterations < MAX_ITERATIONS) {
@@ -761,7 +749,7 @@ async function translateWithFeedback(text: string, targetLanguage: string) {
         preservesNuance: z.boolean(),
         culturallyAccurate: z.boolean(),
         specificIssues: z.array(z.string()),
-        improvementSuggestions: z.array(z.string()),
+        improvementSuggestions: z.array(z.string())
       }),
       system: 'You are an expert in evaluating literary translations.',
       prompt: `Evaluate this translation:
@@ -773,8 +761,8 @@ async function translateWithFeedback(text: string, targetLanguage: string) {
       1. Overall quality
       2. Preservation of tone
       3. Preservation of nuance
-      4. Cultural accuracy`,
-    });
+      4. Cultural accuracy`
+    })
 
     // Check if quality meets threshold
     if (
@@ -783,7 +771,7 @@ async function translateWithFeedback(text: string, targetLanguage: string) {
       evaluation.preservesNuance &&
       evaluation.culturallyAccurate
     ) {
-      break;
+      break
     }
 
     // Generate improved translation based on feedback
@@ -795,20 +783,19 @@ async function translateWithFeedback(text: string, targetLanguage: string) {
       ${evaluation.improvementSuggestions.join('\n')}
 
       Original: ${text}
-      Current Translation: ${currentTranslation}`,
-    });
+      Current Translation: ${currentTranslation}`
+    })
 
-    currentTranslation = improvedTranslation;
-    iterations++;
+    currentTranslation = improvedTranslation
+    iterations++
   }
 
   return {
     finalTranslation: currentTranslation,
-    iterationsRequired: iterations,
-  };
+    iterationsRequired: iterations
+  }
 }
 ```
-
 
 # Loop Control
 
@@ -832,20 +819,20 @@ When you provide `stopWhen`, the agent continues executing after tool calls unti
 The AI SDK provides several built-in stopping conditions:
 
 ```ts
-import { ToolLoopAgent, stepCountIs } from 'ai';
-__PROVIDER_IMPORT__;
+import { ToolLoopAgent, stepCountIs } from 'ai'
+__PROVIDER_IMPORT__
 
 const agent = new ToolLoopAgent({
   model: __MODEL__,
   tools: {
     // your tools
   },
-  stopWhen: stepCountIs(20), // Default state: stop after 20 steps maximum
-});
+  stopWhen: stepCountIs(20) // Default state: stop after 20 steps maximum
+})
 
 const result = await agent.generate({
-  prompt: 'Analyze this dataset and create a summary report',
-});
+  prompt: 'Analyze this dataset and create a summary report'
+})
 ```
 
 ### Combine Multiple Conditions
@@ -853,8 +840,8 @@ const result = await agent.generate({
 Combine multiple stopping conditions. The loop stops when it meets any condition:
 
 ```ts
-import { ToolLoopAgent, stepCountIs, hasToolCall } from 'ai';
-__PROVIDER_IMPORT__;
+import { ToolLoopAgent, stepCountIs, hasToolCall } from 'ai'
+__PROVIDER_IMPORT__
 
 const agent = new ToolLoopAgent({
   model: __MODEL__,
@@ -863,13 +850,13 @@ const agent = new ToolLoopAgent({
   },
   stopWhen: [
     stepCountIs(20), // Maximum 20 steps
-    hasToolCall('someTool'), // Stop after calling 'someTool'
-  ],
-});
+    hasToolCall('someTool') // Stop after calling 'someTool'
+  ]
+})
 
 const result = await agent.generate({
-  prompt: 'Research and analyze the topic',
-});
+  prompt: 'Research and analyze the topic'
+})
 ```
 
 ### Create Custom Conditions
@@ -877,27 +864,27 @@ const result = await agent.generate({
 Build custom stopping conditions for specific requirements:
 
 ```ts
-import { ToolLoopAgent, StopCondition, ToolSet } from 'ai';
-__PROVIDER_IMPORT__;
+import { ToolLoopAgent, StopCondition, ToolSet } from 'ai'
+__PROVIDER_IMPORT__
 
 const tools = {
   // your tools
-} satisfies ToolSet;
+} satisfies ToolSet
 
 const hasAnswer: StopCondition<typeof tools> = ({ steps }) => {
   // Stop when the model generates text containing "ANSWER:"
-  return steps.some(step => step.text?.includes('ANSWER:')) ?? false;
-};
+  return steps.some((step) => step.text?.includes('ANSWER:')) ?? false
+}
 
 const agent = new ToolLoopAgent({
   model: __MODEL__,
   tools,
-  stopWhen: hasAnswer,
-});
+  stopWhen: hasAnswer
+})
 
 const result = await agent.generate({
-  prompt: 'Find the answer and respond with "ANSWER: [your answer]"',
-});
+  prompt: 'Find the answer and respond with "ANSWER: [your answer]"'
+})
 ```
 
 Custom conditions receive step information across all steps:
@@ -907,15 +894,14 @@ const budgetExceeded: StopCondition<typeof tools> = ({ steps }) => {
   const totalUsage = steps.reduce(
     (acc, step) => ({
       inputTokens: acc.inputTokens + (step.usage?.inputTokens ?? 0),
-      outputTokens: acc.outputTokens + (step.usage?.outputTokens ?? 0),
+      outputTokens: acc.outputTokens + (step.usage?.outputTokens ?? 0)
     }),
-    { inputTokens: 0, outputTokens: 0 },
-  );
+    { inputTokens: 0, outputTokens: 0 }
+  )
 
-  const costEstimate =
-    (totalUsage.inputTokens * 0.01 + totalUsage.outputTokens * 0.03) / 1000;
-  return costEstimate > 0.5; // Stop if cost exceeds $0.50
-};
+  const costEstimate = (totalUsage.inputTokens * 0.01 + totalUsage.outputTokens * 0.03) / 1000
+  return costEstimate > 0.5 // Stop if cost exceeds $0.50
+}
 ```
 
 ## Prepare Step
@@ -927,8 +913,8 @@ The `prepareStep` callback runs before each step in the loop and defaults to the
 Switch models based on step requirements:
 
 ```ts
-import { ToolLoopAgent } from 'ai';
-__PROVIDER_IMPORT__;
+import { ToolLoopAgent } from 'ai'
+__PROVIDER_IMPORT__
 
 const agent = new ToolLoopAgent({
   model: 'openai/gpt-4o-mini', // Default model
@@ -939,17 +925,17 @@ const agent = new ToolLoopAgent({
     // Use a stronger model for complex reasoning after initial steps
     if (stepNumber > 2 && messages.length > 10) {
       return {
-        model: __MODEL__,
-      };
+        model: __MODEL__
+      }
     }
     // Continue with default settings
-    return {};
-  },
-});
+    return {}
+  }
+})
 
 const result = await agent.generate({
-  prompt: '...',
-});
+  prompt: '...'
+})
 ```
 
 ### Context Management
@@ -957,8 +943,8 @@ const result = await agent.generate({
 Manage growing conversation history in long-running loops:
 
 ```ts
-import { ToolLoopAgent } from 'ai';
-__PROVIDER_IMPORT__;
+import { ToolLoopAgent } from 'ai'
+__PROVIDER_IMPORT__
 
 const agent = new ToolLoopAgent({
   model: __MODEL__,
@@ -971,17 +957,17 @@ const agent = new ToolLoopAgent({
       return {
         messages: [
           messages[0], // Keep system instructions
-          ...messages.slice(-10), // Keep last 10 messages
-        ],
-      };
+          ...messages.slice(-10) // Keep last 10 messages
+        ]
+      }
     }
-    return {};
-  },
-});
+    return {}
+  }
+})
 
 const result = await agent.generate({
-  prompt: '...',
-});
+  prompt: '...'
+})
 ```
 
 ### Tool Selection
@@ -989,43 +975,43 @@ const result = await agent.generate({
 Control which tools are available at each step:
 
 ```ts
-import { ToolLoopAgent } from 'ai';
-__PROVIDER_IMPORT__;
+import { ToolLoopAgent } from 'ai'
+__PROVIDER_IMPORT__
 
 const agent = new ToolLoopAgent({
   model: __MODEL__,
   tools: {
     search: searchTool,
     analyze: analyzeTool,
-    summarize: summarizeTool,
+    summarize: summarizeTool
   },
   prepareStep: async ({ stepNumber, steps }) => {
     // Search phase (steps 0-2)
     if (stepNumber <= 2) {
       return {
         activeTools: ['search'],
-        toolChoice: 'required',
-      };
+        toolChoice: 'required'
+      }
     }
 
     // Analysis phase (steps 3-5)
     if (stepNumber <= 5) {
       return {
-        activeTools: ['analyze'],
-      };
+        activeTools: ['analyze']
+      }
     }
 
     // Summary phase (step 6+)
     return {
       activeTools: ['summarize'],
-      toolChoice: 'required',
-    };
-  },
-});
+      toolChoice: 'required'
+    }
+  }
+})
 
 const result = await agent.generate({
-  prompt: '...',
-});
+  prompt: '...'
+})
 ```
 
 You can also force a specific tool to be used:
@@ -1035,19 +1021,19 @@ prepareStep: async ({ stepNumber }) => {
   if (stepNumber === 0) {
     // Force the search tool to be used first
     return {
-      toolChoice: { type: 'tool', toolName: 'search' },
-    };
+      toolChoice: { type: 'tool', toolName: 'search' }
+    }
   }
 
   if (stepNumber === 5) {
     // Force the summarize tool after analysis
     return {
-      toolChoice: { type: 'tool', toolName: 'summarize' },
-    };
+      toolChoice: { type: 'tool', toolName: 'summarize' }
+    }
   }
 
-  return {};
-};
+  return {}
+}
 ```
 
 ### Message Modification
@@ -1055,8 +1041,8 @@ prepareStep: async ({ stepNumber }) => {
 Transform messages before sending them to the model:
 
 ```ts
-import { ToolLoopAgent } from 'ai';
-__PROVIDER_IMPORT__;
+import { ToolLoopAgent } from 'ai'
+__PROVIDER_IMPORT__
 
 const agent = new ToolLoopAgent({
   model: __MODEL__,
@@ -1065,23 +1051,23 @@ const agent = new ToolLoopAgent({
   },
   prepareStep: async ({ messages, stepNumber }) => {
     // Summarize tool results to reduce token usage
-    const processedMessages = messages.map(msg => {
+    const processedMessages = messages.map((msg) => {
       if (msg.role === 'tool' && msg.content.length > 1000) {
         return {
           ...msg,
-          content: summarizeToolResult(msg.content),
-        };
+          content: summarizeToolResult(msg.content)
+        }
       }
-      return msg;
-    });
+      return msg
+    })
 
-    return { messages: processedMessages };
-  },
-});
+    return { messages: processedMessages }
+  }
+})
 
 const result = await agent.generate({
-  prompt: '...',
-});
+  prompt: '...'
+})
 ```
 
 ## Access Step Information
@@ -1119,13 +1105,13 @@ For scenarios requiring complete control over the agent loop, you can use AI SDK
 Build your own agent loop when you need full control over execution:
 
 ```ts
-import { generateText, ModelMessage } from 'ai';
-__PROVIDER_IMPORT__;
+import { generateText, ModelMessage } from 'ai'
+__PROVIDER_IMPORT__
 
-const messages: ModelMessage[] = [{ role: 'user', content: '...' }];
+const messages: ModelMessage[] = [{ role: 'user', content: '...' }]
 
-let step = 0;
-const maxSteps = 10;
+let step = 0
+const maxSteps = 10
 
 while (step < maxSteps) {
   const result = await generateText({
@@ -1133,16 +1119,16 @@ while (step < maxSteps) {
     messages,
     tools: {
       // your tools here
-    },
-  });
+    }
+  })
 
-  messages.push(...result.response.messages);
+  messages.push(...result.response.messages)
 
   if (result.text) {
-    break; // Stop when model generates text
+    break // Stop when model generates text
   }
 
-  step++;
+  step++
 }
 ```
 
@@ -1155,8 +1141,6 @@ This manual approach gives you complete control over:
 - Error handling and recovery
 
 [Learn more about manual agent loops in the cookbook](/cookbook/node/manual-agent-loop).
-
-
 
 # Configuring Call Options
 
@@ -1186,15 +1170,15 @@ Define call options in three steps:
 Add user context to your agent's prompt at runtime:
 
 ```ts
-import { ToolLoopAgent } from 'ai';
-__PROVIDER_IMPORT__;
-import { z } from 'zod';
+import { ToolLoopAgent } from 'ai'
+__PROVIDER_IMPORT__
+import { z } from 'zod'
 
 const supportAgent = new ToolLoopAgent({
   model: __MODEL__,
   callOptionsSchema: z.object({
     userId: z.string(),
-    accountType: z.enum(['free', 'pro', 'enterprise']),
+    accountType: z.enum(['free', 'pro', 'enterprise'])
   }),
   instructions: 'You are a helpful customer support agent.',
   prepareCall: ({ options, ...settings }) => ({
@@ -1205,18 +1189,18 @@ const supportAgent = new ToolLoopAgent({
 - Account type: ${options.accountType}
 - User ID: ${options.userId}
 
-Adjust your response based on the user's account level.`,
-  }),
-});
+Adjust your response based on the user's account level.`
+  })
+})
 
 // Call the agent with specific user context
 const result = await supportAgent.generate({
   prompt: 'How do I upgrade my account?',
   options: {
     userId: 'user_123',
-    accountType: 'free',
-  },
-});
+    accountType: 'free'
+  }
+})
 ```
 
 The `options` parameter is now required and type-checked. If you don't provide it or pass incorrect types, TypeScript will error.
@@ -1230,33 +1214,32 @@ Use `prepareCall` to modify any agent setting. Return only the settings you want
 Choose models based on request characteristics:
 
 ```ts
-import { ToolLoopAgent } from 'ai';
-__PROVIDER_IMPORT__;
-import { z } from 'zod';
+import { ToolLoopAgent } from 'ai'
+__PROVIDER_IMPORT__
+import { z } from 'zod'
 
 const agent = new ToolLoopAgent({
   model: __MODEL__, // Default model
   callOptionsSchema: z.object({
-    complexity: z.enum(['simple', 'complex']),
+    complexity: z.enum(['simple', 'complex'])
   }),
   prepareCall: ({ options, ...settings }) => ({
     ...settings,
-    model:
-      options.complexity === 'simple' ? 'openai/gpt-4o-mini' : 'openai/o1-mini',
-  }),
-});
+    model: options.complexity === 'simple' ? 'openai/gpt-4o-mini' : 'openai/o1-mini'
+  })
+})
 
 // Use faster model for simple queries
 await agent.generate({
   prompt: 'What is 2+2?',
-  options: { complexity: 'simple' },
-});
+  options: { complexity: 'simple' }
+})
 
 // Use more capable model for complex reasoning
 await agent.generate({
   prompt: 'Explain quantum entanglement',
-  options: { complexity: 'complex' },
-});
+  options: { complexity: 'complex' }
+})
 ```
 
 ### Dynamic Tool Configuration
@@ -1264,19 +1247,19 @@ await agent.generate({
 Configure tools based on runtime context:
 
 ```ts
-import { openai } from '@ai-sdk/openai';
-import { ToolLoopAgent } from 'ai';
-__PROVIDER_IMPORT__;
-import { z } from 'zod';
+import { openai } from '@ai-sdk/openai'
+import { ToolLoopAgent } from 'ai'
+__PROVIDER_IMPORT__
+import { z } from 'zod'
 
 const newsAgent = new ToolLoopAgent({
   model: __MODEL__,
   callOptionsSchema: z.object({
     userCity: z.string().optional(),
-    userRegion: z.string().optional(),
+    userRegion: z.string().optional()
   }),
   tools: {
-    web_search: openai.tools.webSearch(),
+    web_search: openai.tools.webSearch()
   },
   prepareCall: ({ options, ...settings }) => ({
     ...settings,
@@ -1287,20 +1270,20 @@ const newsAgent = new ToolLoopAgent({
           type: 'approximate',
           city: options.userCity,
           region: options.userRegion,
-          country: 'US',
-        },
-      }),
-    },
-  }),
-});
+          country: 'US'
+        }
+      })
+    }
+  })
+})
 
 await newsAgent.generate({
   prompt: 'What are the top local news stories?',
   options: {
     userCity: 'San Francisco',
-    userRegion: 'California',
-  },
-});
+    userRegion: 'California'
+  }
+})
 ```
 
 ### Provider-Specific Options
@@ -1308,29 +1291,29 @@ await newsAgent.generate({
 Configure provider settings dynamically:
 
 ```ts
-import { openai, OpenAIProviderOptions } from '@ai-sdk/openai';
-import { ToolLoopAgent } from 'ai';
-import { z } from 'zod';
+import { openai, OpenAIProviderOptions } from '@ai-sdk/openai'
+import { ToolLoopAgent } from 'ai'
+import { z } from 'zod'
 
 const agent = new ToolLoopAgent({
   model: 'openai/o3',
   callOptionsSchema: z.object({
-    taskDifficulty: z.enum(['low', 'medium', 'high']),
+    taskDifficulty: z.enum(['low', 'medium', 'high'])
   }),
   prepareCall: ({ options, ...settings }) => ({
     ...settings,
     providerOptions: {
       openai: {
-        reasoningEffort: options.taskDifficulty,
-      } satisfies OpenAIProviderOptions,
-    },
-  }),
-});
+        reasoningEffort: options.taskDifficulty
+      } satisfies OpenAIProviderOptions
+    }
+  })
+})
 
 await agent.generate({
   prompt: 'Analyze this complex scenario...',
-  options: { taskDifficulty: 'high' },
-});
+  options: { taskDifficulty: 'high' }
+})
 ```
 
 ## Advanced Patterns
@@ -1340,32 +1323,32 @@ await agent.generate({
 Fetch relevant context and inject it into your prompt:
 
 ```ts
-import { ToolLoopAgent } from 'ai';
-__PROVIDER_IMPORT__;
-import { z } from 'zod';
+import { ToolLoopAgent } from 'ai'
+__PROVIDER_IMPORT__
+import { z } from 'zod'
 
 const ragAgent = new ToolLoopAgent({
   model: __MODEL__,
   callOptionsSchema: z.object({
-    query: z.string(),
+    query: z.string()
   }),
   prepareCall: async ({ options, ...settings }) => {
     // Fetch relevant documents (this can be async)
-    const documents = await vectorSearch(options.query);
+    const documents = await vectorSearch(options.query)
 
     return {
       ...settings,
       instructions: `Answer questions using the following context:
 
-${documents.map(doc => doc.content).join('\n\n')}`,
-    };
-  },
-});
+${documents.map((doc) => doc.content).join('\n\n')}`
+    }
+  }
+})
 
 await ragAgent.generate({
   prompt: 'What is our refund policy?',
-  options: { query: 'refund policy' },
-});
+  options: { query: 'refund policy' }
+})
 ```
 
 The `prepareCall` function can be async, enabling you to fetch data before configuring the agent.
@@ -1375,19 +1358,19 @@ The `prepareCall` function can be async, enabling you to fetch data before confi
 Modify multiple settings together:
 
 ```ts
-import { ToolLoopAgent } from 'ai';
-__PROVIDER_IMPORT__;
-import { z } from 'zod';
+import { ToolLoopAgent } from 'ai'
+__PROVIDER_IMPORT__
+import { z } from 'zod'
 
 const agent = new ToolLoopAgent({
   model: __MODEL__,
   callOptionsSchema: z.object({
     userRole: z.enum(['admin', 'user']),
-    urgency: z.enum(['low', 'high']),
+    urgency: z.enum(['low', 'high'])
   }),
   tools: {
     readDatabase: readDatabaseTool,
-    writeDatabase: writeDatabaseTool,
+    writeDatabase: writeDatabaseTool
   },
   prepareCall: ({ options, ...settings }) => ({
     ...settings,
@@ -1395,22 +1378,20 @@ const agent = new ToolLoopAgent({
     model: options.urgency === 'high' ? __MODEL__ : settings.model,
     // Limit tools based on user role
     activeTools:
-      options.userRole === 'admin'
-        ? ['readDatabase', 'writeDatabase']
-        : ['readDatabase'],
+      options.userRole === 'admin' ? ['readDatabase', 'writeDatabase'] : ['readDatabase'],
     // Adjust instructions
     instructions: `You are a ${options.userRole} assistant.
-${options.userRole === 'admin' ? 'You have full database access.' : 'You have read-only access.'}`,
-  }),
-});
+${options.userRole === 'admin' ? 'You have full database access.' : 'You have read-only access.'}`
+  })
+})
 
 await agent.generate({
   prompt: 'Update the user record',
   options: {
     userRole: 'admin',
-    urgency: 'high',
-  },
-});
+    urgency: 'high'
+  }
+})
 ```
 
 ## Using with createAgentUIStreamResponse
@@ -1418,20 +1399,20 @@ await agent.generate({
 Pass call options through API routes to your agent:
 
 ```ts filename="app/api/chat/route.ts"
-import { createAgentUIStreamResponse } from 'ai';
-import { myAgent } from '@/ai/agents/my-agent';
+import { createAgentUIStreamResponse } from 'ai'
+import { myAgent } from '@/ai/agents/my-agent'
 
 export async function POST(request: Request) {
-  const { messages, userId, accountType } = await request.json();
+  const { messages, userId, accountType } = await request.json()
 
   return createAgentUIStreamResponse({
     agent: myAgent,
     messages,
     options: {
       userId,
-      accountType,
-    },
-  });
+      accountType
+    }
+  })
 }
 ```
 

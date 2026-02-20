@@ -1,24 +1,18 @@
 {
-    "name": "aura-desktop",
-    "author": "thenormvg",
-    "stir": true,
-    "cmd": {
-        "serve": [
-            "npm run dev"
-        ],
-        "build": [
-            "npm run build:mac"
-        ],
-        "clean": [
-            "rm -rf node_modules"
-        ]
-    },
-    "template": {
-        "name": "",
-        "category": "",
-        "date": "",
-        "author": "",
-        "stack": [],
-        "github": ""
-    }
+  "name": "aura-desktop",
+  "author": "thenormvg",
+  "stir": true,
+  "cmd": {
+    "serve": ["npm run dev"],
+    "build": ["npm run build:mac"],
+    "clean": ["rm -rf node_modules"]
+  },
+  "template": {
+    "name": "",
+    "category": "",
+    "date": "",
+    "author": "",
+    "stack": [],
+    "github": ""
+  }
 }

@@ -48,28 +48,27 @@ root/
 
 In Nuxt 4, the "source directory" (`srcDir`) defaults to `app/`. This isolates your Vue code from server code and build configs.
 
-* **`components/`**: Place `.vue` components here. Subdirectories effectively namespace the component name (e.g., `app/components/base/Button.vue` -> `<BaseButton />`).
-* **`pages/`**: Creates routes automatically. `app/pages/about.vue` becomes `/about`.
-* **`composables/`**: Auto-imported logic. Export named functions (e.g., `export const useUser = () => ...`).
-* **`app.vue`**: The main entry point. Use this if you don't need routing (landing pages) or to wrap `<NuxtPage />` for global layouts.
+- **`components/`**: Place `.vue` components here. Subdirectories effectively namespace the component name (e.g., `app/components/base/Button.vue` -> `<BaseButton />`).
+- **`pages/`**: Creates routes automatically. `app/pages/about.vue` becomes `/about`.
+- **`composables/`**: Auto-imported logic. Export named functions (e.g., `export const useUser = () => ...`).
+- **`app.vue`**: The main entry point. Use this if you don't need routing (landing pages) or to wrap `<NuxtPage />` for global layouts.
 
 ### The `server/` Directory (Nitro Context)
 
 Code here runs **only** on the server (during SSR or API calls). It does **not** get bundled into the client client.
 
-* **`api/`**: Files here automatically become API endpoints prefixed with `/api`.
-* Example: `server/api/users.ts` maps to `GET /api/users`.
+- **`api/`**: Files here automatically become API endpoints prefixed with `/api`.
+- Example: `server/api/users.ts` maps to `GET /api/users`.
 
-
-* **`routes/`**: Similar to `api/` but without the `/api` prefix. Good for generating `sitemap.xml` or `robots.txt` dynamically.
-* **`utils/`**: Functions exported here are auto-imported **only within the `server/` directory**. They are not available in `app/`.
+- **`routes/`**: Similar to `api/` but without the `/api` prefix. Good for generating `sitemap.xml` or `robots.txt` dynamically.
+- **`utils/`**: Functions exported here are auto-imported **only within the `server/` directory**. They are not available in `app/`.
 
 ### The `public/` Directory
 
 Static files that must be accessible via URL but don't need processing (Webpack/Vite).
 
-* File: `public/logo.png`
-* Access: `<img src="/logo.png" />`
+- File: `public/logo.png`
+- Access: `<img src="/logo.png" />`
 
 ---
 
@@ -79,20 +78,20 @@ Static files that must be accessible via URL but don't need processing (Webpack/
 
 Nuxt 4 creates separate "virtual" TypeScript environments for `app/` and `server/`.
 
-* **Benefit**: You cannot accidentally import a server utility (like a database connector) into a client-side Vue component. If you try, TypeScript will throw an error.
-* **Shared Code**: If you need code shared between both (e.g., types/interfaces), put it in a `shared/` directory (if configured) or the root `utils/` (though standard Nuxt 4 encourages clear separation).
+- **Benefit**: You cannot accidentally import a server utility (like a database connector) into a client-side Vue component. If you try, TypeScript will throw an error.
+- **Shared Code**: If you need code shared between both (e.g., types/interfaces), put it in a `shared/` directory (if configured) or the root `utils/` (though standard Nuxt 4 encourages clear separation).
 
 ### B. Data Fetching Changes (`useFetch` / `useAsyncData`)
 
-* **Stale Data**: In Nuxt 4, when you refetch data, the old data is cleared **immediately** (value becomes `null` while loading). In Nuxt 3, it kept the old data until the new data arrived.
-* **Shared Refs**: Requests with the exact same key will share the same `data`, `error`, and `pending` states automatically across components.
+- **Stale Data**: In Nuxt 4, when you refetch data, the old data is cleared **immediately** (value becomes `null` while loading). In Nuxt 3, it kept the old data until the new data arrived.
+- **Shared Refs**: Requests with the exact same key will share the same `data`, `error`, and `pending` states automatically across components.
 
 ### C. Auto-Imports
 
 Nuxt automatically scans `components`, `composables`, and `utils` to auto-import them.
 
-* **Client**: Imports from `app/composables` and `app/utils`.
-* **Server**: Imports from `server/utils`.
+- **Client**: Imports from `app/composables` and `app/utils`.
+- **Server**: Imports from `server/utils`.
 
 ### D. Layers (`layers/`)
 
@@ -100,5 +99,5 @@ Nuxt 4 treats `layers/` as a first-class citizen. You can drop a whole mini-Nuxt
 
 ### E. Configuration
 
-* **`nuxt.config.ts`**: Stays at the root. Handles modules, build settings, and runtime config.
-* **`app.config.ts`**: Moves to `app/app.config.ts`. Used for reactive UI configuration (like themes, titles) that updates without a rebuild.
+- **`nuxt.config.ts`**: Stays at the root. Handles modules, build settings, and runtime config.
+- **`app.config.ts`**: Moves to `app/app.config.ts`. Used for reactive UI configuration (like themes, titles) that updates without a rebuild.

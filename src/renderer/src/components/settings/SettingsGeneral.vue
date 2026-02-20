@@ -48,7 +48,7 @@ h2 {
 
 /* Inputs */
 select,
-input[type="text"] {
+input[type='text'] {
   background: rgba(0, 0, 0, 0.3);
   border: 1px solid rgba(255, 255, 255, 0.08);
   color: #fff;
@@ -66,7 +66,7 @@ input:focus {
 }
 
 /* Checkbox */
-input[type="checkbox"] {
+input[type='checkbox'] {
   accent-color: #cdc6f7;
   width: 16px;
   height: 16px;

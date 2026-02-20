@@ -71,13 +71,25 @@ defineExpose({ focus })
       <img :src="watermark" class="ci-watermark" alt="" />
 
       <!-- Text input -->
-      <textarea ref="textareaEl" v-model="input" class="ci-textarea" placeholder="Can you please send me the report"
-        rows="1" @keydown="onKeydown" @input="autoResize" />
+      <textarea
+        ref="textareaEl"
+        v-model="input"
+        class="ci-textarea"
+        placeholder="Can you please send me the report"
+        rows="1"
+        @keydown="onKeydown"
+        @input="autoResize"
+      />
 
       <!-- Top-right action icons -->
       <div class="ci-actions">
         <!-- Waveform / voice -->
-        <button class="ci-icon" :class="{ recording: isRecording }" title="Voice" @click="toggleRecording">
+        <button
+          class="ci-icon"
+          :class="{ recording: isRecording }"
+          title="Voice"
+          @click="toggleRecording"
+        >
           <img :src="isRecording ? iconVoiceStop : iconVoice" class="ci-icon-img" alt="voice" />
         </button>
 
@@ -169,7 +181,9 @@ defineExpose({ focus })
   color: rgba(205, 198, 247, 0.4);
   cursor: pointer;
   flex-shrink: 0;
-  transition: background 0.12s, color 0.12s;
+  transition:
+    background 0.12s,
+    color 0.12s;
 }
 
 .ci-reply-close:hover {

@@ -21,7 +21,12 @@ function removeContextMessage(messageId) {
         <span class="rc-label">{{ s.label }}</span>
         <button class="rc-remove" @click.stop="removeContextMessage(s.messageId)" title="Remove">
           <svg width="10" height="10" viewBox="0 0 10 10" fill="none">
-            <path d="M2 2l6 6M8 2l-6 6" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" />
+            <path
+              d="M2 2l6 6M8 2l-6 6"
+              stroke="currentColor"
+              stroke-width="1.4"
+              stroke-linecap="round"
+            />
           </svg>
         </button>
       </div>

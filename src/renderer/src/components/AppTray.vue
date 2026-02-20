@@ -1,29 +1,69 @@
 <script setup>
 // App Tray — standalone app launcher, independent of workspaces
-import { FileText, Clock } from 'lucide-vue-next'
+import { FileText, Clock, GitBranch, CheckSquare, Image, Timer } from 'lucide-vue-next'
 import { useWorkspaceStore } from '../stores/workspaces'
 
 const wsStore = useWorkspaceStore()
 
 const appItems = [
   { id: 'note', label: 'Note', icon: FileText, color: '#FFB74D' },
-  { id: 'clock', label: 'Clock', icon: Clock, color: '#4EC9E8' },
-  // { id: 'browser', label: 'Browser', icon: Globe, color: '#4CAF50' }, // Future
+  { id: 'todo', label: 'Todo', icon: CheckSquare, color: '#66BB6A' },
+  { id: 'mermaid', label: 'Diagram', icon: GitBranch, color: '#7c6aff' },
+  { id: 'image', label: 'Image', icon: Image, color: '#EC407A' },
+  { id: 'timer', label: 'Timer', icon: Timer, color: '#FF7043' },
+  { id: 'clock', label: 'Clock', icon: Clock, color: '#42A5F5' }
 ]
 
 function launch(app) {
   if (app.id === 'note') {
-    wsStore.addWidget({ type: 'note', w: 300, h: 240, data: { content: '' } })
+    wsStore.addWidget({ type: 'note', w: 400, h: 300, data: { content: '' } })
   } else if (app.id === 'clock') {
     wsStore.addWidget({ type: 'clock', w: 240, h: 140 })
+  } else if (app.id === 'mermaid') {
+    wsStore.addWidget({
+      type: 'mermaid',
+      w: 500,
+      h: 400,
+      data: `graph TD
+A[Start] --> B[Process]
+B --> C[End]`
+    })
+  } else if (app.id === 'todo') {
+    wsStore.addWidget({
+      type: 'todo',
+      w: 350,
+      h: 400,
+      data: { items: [] }
+    })
+  } else if (app.id === 'image') {
+    wsStore.addWidget({
+      type: 'image',
+      w: 450,
+      h: 400,
+      data: { imageUrl: '', imageName: '' }
+    })
+  } else if (app.id === 'timer') {
+    wsStore.addWidget({
+      type: 'timer',
+      w: 280,
+      h: 320,
+      data: { minutes: 5, seconds: 0 }
+    })
   }
 }
 </script>
 
 <template>
   <div class="tray-inner">
-    <button v-for="app in appItems" :key="app.id" class="tray-item" :title="app.label" @click="launch(app)">
-      <component :is="app.icon" :size="22" :stroke="app.color" />
+    <button
+      v-for="app in appItems"
+      :key="app.id"
+      class="tray-item"
+      :title="app.label"
+      :style="{ '--icon-color': app.color }"
+      @click="launch(app)"
+    >
+      <component :is="app.icon" :size="20" color="#ffffff" stroke-width="2.5" />
     </button>
   </div>
 </template>
@@ -32,14 +72,14 @@ function launch(app) {
 .tray-inner {
   display: flex;
   align-items: center;
-  gap: 8px;
-  padding: 8px 10px;
-  background: rgba(30, 30, 34, 0.8);
-  backdrop-filter: blur(12px);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  gap: 12px;
+  padding: 10px 14px;
+  background: rgba(20, 20, 24, 0.6);
+  backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
   border-radius: 20px;
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
-  max-width: 320px;
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.5);
+  max-width: 400px;
   overflow-x: auto;
   scrollbar-width: none;
 }
@@ -55,19 +95,33 @@ function launch(app) {
   display: flex;
   align-items: center;
   justify-content: center;
-  background: rgba(255, 255, 255, 0.05);
-  border-radius: 12px;
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(255, 255, 255, 0.03);
+  border-radius: 14px;
+  border: 1px solid rgba(255, 255, 255, 0.05);
   cursor: pointer;
-  transition: transform 0.15s ease, border-color 0.15s, background 0.15s;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  transition: all 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+  position: relative;
+  overflow: hidden;
+}
+
+.tray-item::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: var(--icon-color);
+  opacity: 0;
+  transition: opacity 0.2s ease;
+  z-index: -1;
 }
 
 .tray-item:hover {
-  transform: scale(1.08);
-  background: rgba(255, 255, 255, 0.1);
-  border-color: rgba(255, 255, 255, 0.2);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
-  z-index: 10;
+  transform: translateY(-2px) scale(1.05);
+  border-color: rgba(255, 255, 255, 0.15);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.3);
+}
+
+.tray-item:hover::before {
+  opacity: 0.1;
+  /* Subtle tint of the icon color on hover */
 }
 </style>

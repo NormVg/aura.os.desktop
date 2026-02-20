@@ -107,9 +107,7 @@ async function installPlugin() {
             <span class="plugin-author">by {{ plugin.author }}</span>
             <span class="plugin-id">{{ plugin.id }}</span>
           </div>
-          <div v-if="plugin.error" class="plugin-error">
-            Error: {{ plugin.error }}
-          </div>
+          <div v-if="plugin.error" class="plugin-error">Error: {{ plugin.error }}</div>
         </div>
 
         <div class="plugin-actions">
@@ -236,8 +234,12 @@ async function installPlugin() {
 }
 
 @keyframes spin {
-  from { transform: rotate(0deg); }
-  to { transform: rotate(360deg); }
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 .error-state {

@@ -53,6 +53,7 @@ sequenceDiagram
 **Purpose**: Orchestrates plugin discovery, validation, loading, and lifecycle management
 
 **Interface**:
+
 ```typescript
 interface PluginManager {
   // Core operations
@@ -73,6 +74,7 @@ interface PluginManager {
 ```
 
 **Responsibilities**:
+
 - Scan user plugins directory for valid plugin folders
 - Validate plugin manifests and structure
 - Coordinate plugin loading and initialization
@@ -85,6 +87,7 @@ interface PluginManager {
 **Purpose**: Ensures plugins meet security and structural requirements before loading
 
 **Interface**:
+
 ```typescript
 interface PluginValidator {
   validateManifest(manifest: unknown): ValidationResult
@@ -101,6 +104,7 @@ interface ValidationResult {
 ```
 
 **Responsibilities**:
+
 - Verify manifest.json schema compliance
 - Check required files and folder structure
 - Validate requested permissions against allowed set
@@ -113,6 +117,7 @@ interface ValidationResult {
 **Purpose**: Dynamically loads plugin code and creates isolated execution contexts
 
 **Interface**:
+
 ```typescript
 interface PluginLoader {
   loadPlugin(pluginPath: string, manifest: PluginManifest): Promise<Plugin>
@@ -122,6 +127,7 @@ interface PluginLoader {
 ```
 
 **Responsibilities**:
+
 - Dynamically require/import plugin entry points
 - Create isolated execution context for each plugin
 - Inject Plugin API into plugin context
@@ -134,6 +140,7 @@ interface PluginLoader {
 **Purpose**: Provides secure, controlled access to Aura's capabilities for plugins
 
 **Interface**:
+
 ```typescript
 interface PluginAPI {
   // Core info
@@ -170,6 +177,7 @@ interface PluginAPI {
 ```
 
 **Responsibilities**:
+
 - Expose safe subset of Aura functionality
 - Enforce permission checks for sensitive operations
 - Provide isolated storage per plugin
@@ -182,6 +190,7 @@ interface PluginAPI {
 **Purpose**: Manages plugin state in the Vue application
 
 **Interface**:
+
 ```typescript
 interface PluginStore {
   // State
@@ -203,6 +212,7 @@ interface PluginStore {
 ```
 
 **Responsibilities**:
+
 - Store plugin metadata in renderer process
 - Track active/inactive plugin states
 - Manage Vue component registration from plugins
@@ -215,6 +225,7 @@ interface PluginStore {
 **Purpose**: Renders plugin-contributed UI components in appropriate locations
 
 **Interface**:
+
 ```typescript
 interface PluginUIIntegration {
   renderPluginComponents(location: UILocation): Component[]
@@ -226,6 +237,7 @@ type UILocation = 'sidebar' | 'settings' | 'chat-toolbar' | 'main-panel'
 ```
 
 **Responsibilities**:
+
 - Dynamically mount plugin Vue components
 - Provide plugin component slots in main UI
 - Handle plugin component lifecycle
@@ -239,21 +251,21 @@ type UILocation = 'sidebar' | 'settings' | 'chat-toolbar' | 'main-panel'
 ```typescript
 interface PluginManifest {
   // Identity
-  id: string                    // Unique identifier (e.g., "com.example.weather")
-  name: string                  // Display name
-  version: string               // Semantic version (e.g., "1.0.0")
-  description: string           // Short description
-  author: string                // Author name
+  id: string // Unique identifier (e.g., "com.example.weather")
+  name: string // Display name
+  version: string // Semantic version (e.g., "1.0.0")
+  description: string // Short description
+  author: string // Author name
 
   // Compatibility
-  auraVersion: string           // Compatible Aura version (e.g., "^1.0.0")
+  auraVersion: string // Compatible Aura version (e.g., "^1.0.0")
 
   // Entry points
-  main: string                  // Main process entry (e.g., "./main.js")
-  renderer?: string             // Renderer process entry (e.g., "./renderer.js")
+  main: string // Main process entry (e.g., "./main.js")
+  renderer?: string // Renderer process entry (e.g., "./renderer.js")
 
   // Permissions
-  permissions: Permission[]     // Requested permissions
+  permissions: Permission[] // Requested permissions
 
   // UI contributions
   contributes?: {
@@ -267,7 +279,7 @@ interface PluginManifest {
   dependencies?: Record<string, string>
 
   // Assets
-  icon?: string                 // Path to plugin icon
+  icon?: string // Path to plugin icon
 
   // Metadata
   homepage?: string
@@ -277,6 +289,7 @@ interface PluginManifest {
 ```
 
 **Validation Rules**:
+
 - `id` must be unique, lowercase, dot-separated (e.g., "com.author.plugin")
 - `version` must follow semantic versioning
 - `main` file must exist in plugin directory
@@ -290,7 +303,7 @@ interface Plugin {
   // Metadata
   id: string
   manifest: PluginManifest
-  path: string                  // Absolute path to plugin directory
+  path: string // Absolute path to plugin directory
 
   // State
   enabled: boolean
@@ -298,8 +311,8 @@ interface Plugin {
   error?: string
 
   // Runtime
-  instance?: any                // Plugin instance from entry point
-  api: PluginAPI                // Injected API
+  instance?: any // Plugin instance from entry point
+  api: PluginAPI // Injected API
 
   // Lifecycle
   activatedAt?: Date
@@ -308,6 +321,7 @@ interface Plugin {
 ```
 
 **Validation Rules**:
+
 - `id` must match manifest.id
 - `path` must be valid directory
 - `enabled` and `loaded` states must be consistent
@@ -317,17 +331,17 @@ interface Plugin {
 
 ```typescript
 type Permission =
-  | 'storage'           // Access plugin-scoped storage
-  | 'ai:chat'           // Send/receive chat messages
-  | 'ai:tools'          // Register AI tools
-  | 'ui:components'     // Register UI components
-  | 'ui:settings'       // Add settings panels
-  | 'ui:sidebar'        // Add sidebar items
-  | 'notifications'     // Show system notifications
-  | 'clipboard'         // Access clipboard
-  | 'filesystem:read'   // Read files (with user permission)
-  | 'filesystem:write'  // Write files (with user permission)
-  | 'network'           // Make network requests
+  | 'storage' // Access plugin-scoped storage
+  | 'ai:chat' // Send/receive chat messages
+  | 'ai:tools' // Register AI tools
+  | 'ui:components' // Register UI components
+  | 'ui:settings' // Add settings panels
+  | 'ui:sidebar' // Add sidebar items
+  | 'notifications' // Show system notifications
+  | 'clipboard' // Access clipboard
+  | 'filesystem:read' // Read files (with user permission)
+  | 'filesystem:write' // Write files (with user permission)
+  | 'network' // Make network requests
 
 interface PermissionGrant {
   permission: Permission
@@ -337,6 +351,7 @@ interface PermissionGrant {
 ```
 
 **Validation Rules**:
+
 - All requested permissions must be in allowed set
 - Sensitive permissions require user approval
 - Permissions are immutable after installation
@@ -345,22 +360,18 @@ interface PermissionGrant {
 
 ```typescript
 interface ComponentContribution {
-  id: string                    // Component identifier
-  location: UILocation          // Where to render
-  component: string             // Path to Vue component file
-  props?: Record<string, any>   // Default props
-  order?: number                // Display order
+  id: string // Component identifier
+  location: UILocation // Where to render
+  component: string // Path to Vue component file
+  props?: Record<string, any> // Default props
+  order?: number // Display order
 }
 
-type UILocation =
-  | 'sidebar'
-  | 'settings'
-  | 'chat-toolbar'
-  | 'main-panel'
-  | 'context-menu'
+type UILocation = 'sidebar' | 'settings' | 'chat-toolbar' | 'main-panel' | 'context-menu'
 ```
 
 **Validation Rules**:
+
 - `id` must be unique within plugin
 - `component` file must exist
 - `location` must be valid UILocation
@@ -370,10 +381,10 @@ type UILocation =
 
 ```typescript
 interface ToolContribution {
-  name: string                  // Tool name for AI
-  description: string           // What the tool does
-  parameters: ToolParameter[]   // Tool parameters schema
-  handler: string               // Path to handler function
+  name: string // Tool name for AI
+  description: string // What the tool does
+  parameters: ToolParameter[] // Tool parameters schema
+  handler: string // Path to handler function
 }
 
 interface ToolParameter {
@@ -386,6 +397,7 @@ interface ToolParameter {
 ```
 
 **Validation Rules**:
+
 - `name` must be unique across all plugins
 - `parameters` must have valid JSON schema types
 - `handler` file must exist and export function
@@ -396,12 +408,13 @@ interface ToolParameter {
 interface PluginSettings {
   pluginId: string
   enabled: boolean
-  config: Record<string, any>   // Plugin-specific configuration
+  config: Record<string, any> // Plugin-specific configuration
   permissions: PermissionGrant[]
 }
 ```
 
 **Validation Rules**:
+
 - `pluginId` must reference existing plugin
 - `config` must match plugin's settings schema
 - `permissions` must match manifest permissions
@@ -463,10 +476,11 @@ sequenceDiagram
 
 **Condition**: Plugin manifest.json is missing, malformed, or doesn't meet schema requirements
 **Response**:
+
 - Validation fails with detailed error messages
 - Plugin is not loaded
 - User sees error notification with specific issues
-**Recovery**:
+  **Recovery**:
 - User can fix manifest and retry installation
 - System provides manifest template/example
 
@@ -474,10 +488,11 @@ sequenceDiagram
 
 **Condition**: Plugin requests permissions that user denies or are not allowed
 **Response**:
+
 - Installation proceeds but plugin runs with limited capabilities
 - Plugin is notified of denied permissions
 - UI shows warning badge on plugin
-**Recovery**:
+  **Recovery**:
 - User can grant permissions later in settings
 - Plugin can request permissions at runtime
 
@@ -485,11 +500,12 @@ sequenceDiagram
 
 **Condition**: Plugin code throws unhandled exception during execution
 **Response**:
+
 - Error is caught and logged
 - Plugin is automatically disabled
 - Other plugins continue running
 - User sees error notification
-**Recovery**:
+  **Recovery**:
 - User can view error logs
 - User can attempt to re-enable plugin
 - System suggests checking for updates
@@ -498,10 +514,11 @@ sequenceDiagram
 
 **Condition**: Plugin requires different Aura version than installed
 **Response**:
+
 - Validation fails with version mismatch error
 - Plugin is not loaded
 - User sees clear version requirement message
-**Recovery**:
+  **Recovery**:
 - User can update Aura if newer version available
 - User can check for compatible plugin version
 
@@ -509,10 +526,11 @@ sequenceDiagram
 
 **Condition**: Plugin with same ID already installed
 **Response**:
+
 - Installation fails with conflict error
 - Existing plugin remains unchanged
 - User prompted to uninstall existing or rename new
-**Recovery**:
+  **Recovery**:
 - User uninstalls existing plugin first
 - User contacts plugin author about ID conflict
 
@@ -520,10 +538,11 @@ sequenceDiagram
 
 **Condition**: Plugin requires npm packages not available
 **Response**:
+
 - Validation warns about missing dependencies
 - Plugin loads but may have reduced functionality
 - Error logged when missing dependency accessed
-**Recovery**:
+  **Recovery**:
 - Plugin includes dependencies in folder
 - User installs dependencies manually
 - System provides dependency installation helper
@@ -549,6 +568,7 @@ Use property-based testing to verify system invariants across random inputs:
 **Property Test Library**: fast-check (JavaScript/TypeScript)
 
 **Key Properties**:
+
 1. **Manifest Validation Consistency**: For any manifest object, validation result should be deterministic
 2. **Plugin ID Uniqueness**: No two loaded plugins can have the same ID
 3. **Permission Enforcement**: Plugin cannot access API methods without required permission
@@ -593,6 +613,7 @@ Test complete workflows with real plugin examples:
 ## Dependencies
 
 **Main Process**:
+
 - Node.js `fs/promises` - File system operations
 - Node.js `path` - Path manipulation
 - `electron` - IPC, app paths
@@ -600,11 +621,13 @@ Test complete workflows with real plugin examples:
 - `ajv` - JSON schema validation
 
 **Renderer Process**:
+
 - `vue` - Component system
 - `pinia` - State management
 - Existing Aura stores and utilities
 
 **Development**:
+
 - `fast-check` - Property-based testing
 - `vitest` - Unit testing
 - TypeScript definitions for plugin API
@@ -613,14 +636,12 @@ Test complete workflows with real plugin examples:
 
 ```javascript
 // Example plugin main.js
-module.exports = function(api) {
+module.exports = function (api) {
   // Register a tool for the AI
   api.registerTool({
     name: 'get_weather',
     description: 'Get current weather for a location',
-    parameters: [
-      { name: 'location', type: 'string', description: 'City name', required: true }
-    ],
+    parameters: [{ name: 'location', type: 'string', description: 'City name', required: true }],
     handler: './lib/weather-handler.js'
   })
 
@@ -651,7 +672,7 @@ module.exports = function(api) {
 
 ```javascript
 // Example plugin renderer.js
-export default function(api) {
+export default function (api) {
   // Register a Vue component
   api.registerComponent({
     id: 'weather-widget',
@@ -668,276 +689,274 @@ export default function(api) {
   })
 
   // Get plugin settings
-  api.getSettings().then(settings => {
+  api.getSettings().then((settings) => {
     console.log('API Key:', settings.config.apiKey)
   })
 }
 ```
 
-
 ## Correctness Properties
 
-*A property is a characteristic or behavior that should hold true across all valid executions of a system—essentially, a formal statement about what the system should do. Properties serve as the bridge between human-readable specifications and machine-verifiable correctness guarantees.*
+_A property is a characteristic or behavior that should hold true across all valid executions of a system—essentially, a formal statement about what the system should do. Properties serve as the bridge between human-readable specifications and machine-verifiable correctness guarantees._
 
 ### Property 1: Validation Before Installation
 
-*For any* plugin folder path, when installation is attempted, validation must complete before any system modifications occur.
+_For any_ plugin folder path, when installation is attempted, validation must complete before any system modifications occur.
 
 **Validates: Requirements 1.1**
 
 ### Property 2: Valid Plugin Installation
 
-*For any* plugin with a valid manifest and required files, installation should result in the plugin being copied to the plugins directory and metadata persisted to storage.
+_For any_ plugin with a valid manifest and required files, installation should result in the plugin being copied to the plugins directory and metadata persisted to storage.
 
 **Validates: Requirements 1.2, 1.3**
 
 ### Property 3: Failed Validation Preserves System State
 
-*For any* invalid plugin, when installation fails validation, the system state should remain unchanged and detailed error messages should be returned.
+_For any_ invalid plugin, when installation fails validation, the system state should remain unchanged and detailed error messages should be returned.
 
 **Validates: Requirements 1.4, 10.3, 10.4**
 
 ### Property 4: Plugin Discovery Completeness
 
-*For any* set of plugin directories in the plugins folder, discovery should find all valid plugins.
+_For any_ set of plugin directories in the plugins folder, discovery should find all valid plugins.
 
 **Validates: Requirements 1.5**
 
 ### Property 5: Plugin ID Uniqueness
 
-*For any* two loaded plugins, their IDs must be different. When attempting to install a plugin with a duplicate ID, the installation should be rejected and the existing plugin preserved.
+_For any_ two loaded plugins, their IDs must be different. When attempting to install a plugin with a duplicate ID, the installation should be rejected and the existing plugin preserved.
 
 **Validates: Requirements 1.6, 6.2**
 
 ### Property 6: Manifest Validation Completeness
 
-*For any* manifest object, validation should verify: JSON validity, required fields presence, ID format (lowercase dot-separated), version format (semver), main file existence, auraVersion compatibility, and permission validity.
+_For any_ manifest object, validation should verify: JSON validity, required fields presence, ID format (lowercase dot-separated), version format (semver), main file existence, auraVersion compatibility, and permission validity.
 
 **Validates: Requirements 2.1, 2.2, 2.3, 2.4, 2.5, 2.6, 2.7**
 
 ### Property 7: Conditional File Validation
 
-*For any* manifest that references optional files (renderer entry point, component files), validation should verify those files exist.
+_For any_ manifest that references optional files (renderer entry point, component files), validation should verify those files exist.
 
 **Validates: Requirements 2.8, 2.9**
 
 ### Property 8: Plugin Loading Isolation
 
-*For any* enabled plugin, loading should create an isolated execution context with the Plugin_API injected, preventing access to other plugin contexts.
+_For any_ enabled plugin, loading should create an isolated execution context with the Plugin_API injected, preventing access to other plugin contexts.
 
 **Validates: Requirements 3.1, 3.2, 3.3**
 
 ### Property 9: Lifecycle Hook Execution
 
-*For any* plugin with activate/deactivate hooks, enabling should call activate and disabling should call deactivate.
+_For any_ plugin with activate/deactivate hooks, enabling should call activate and disabling should call deactivate.
 
 **Validates: Requirements 3.4, 3.5, 8.5**
 
 ### Property 10: Resource Cleanup on Unload
 
-*For any* plugin with resources (event listeners, timers), unloading should clean up all resources.
+_For any_ plugin with resources (event listeners, timers), unloading should clean up all resources.
 
 **Validates: Requirements 3.6, 9.3**
 
 ### Property 11: Plugin Error Isolation
 
-*For any* plugin that throws an unhandled exception, the error should be caught, logged, and the plugin automatically disabled without affecting other plugins.
+_For any_ plugin that throws an unhandled exception, the error should be caught, logged, and the plugin automatically disabled without affecting other plugins.
 
 **Validates: Requirements 3.7, 10.1, 10.2**
 
 ### Property 12: Graceful Shutdown
 
-*For any* set of loaded plugins, application shutdown should cleanly deactivate all plugins.
+_For any_ set of loaded plugins, application shutdown should cleanly deactivate all plugins.
 
 **Validates: Requirements 3.8**
 
 ### Property 13: Permission Enforcement
 
-*For any* Plugin_API method that requires a permission, access should be granted only if the plugin has that permission, otherwise a permission error should be returned.
+_For any_ Plugin_API method that requires a permission, access should be granted only if the plugin has that permission, otherwise a permission error should be returned.
 
 **Validates: Requirements 4.2, 4.3, 4.7, 4.8, 4.9, 15.2, 16.1, 16.2, 17.3, 18.1, 18.2**
 
 ### Property 14: Permission Updates
 
-*For any* plugin, when permissions are modified in settings, the permission grants should be updated and the plugin notified.
+_For any_ plugin, when permissions are modified in settings, the permission grants should be updated and the plugin notified.
 
 **Validates: Requirements 4.5**
 
 ### Property 15: Storage Isolation
 
-*For any* two plugins A and B, plugin A's storage operations (set, get, delete) should only access plugin A's namespace and never plugin B's namespace.
+_For any_ two plugins A and B, plugin A's storage operations (set, get, delete) should only access plugin A's namespace and never plugin B's namespace.
 
 **Validates: Requirements 4.6, 7.1, 7.2, 7.3**
 
 ### Property 16: Storage Persistence
 
-*For any* plugin storage operation, data should be persisted asynchronously without blocking the main thread.
+_For any_ plugin storage operation, data should be persisted asynchronously without blocking the main thread.
 
 **Validates: Requirements 7.6**
 
 ### Property 17: Component Registration and Rendering
 
-*For any* plugin that registers a component for a UI location, the component metadata should be stored and the component should render in the specified location with correct props.
+_For any_ plugin that registers a component for a UI location, the component metadata should be stored and the component should render in the specified location with correct props.
 
 **Validates: Requirements 5.1, 5.2, 5.7**
 
 ### Property 18: Component Ordering
 
-*For any* set of plugins registering components for the same UI location, components should render in order specified by their order property.
+_For any_ set of plugins registering components for the same UI location, components should render in order specified by their order property.
 
 **Validates: Requirements 5.3**
 
 ### Property 19: Component Lifecycle Round Trip
 
-*For any* plugin, disabling then enabling should unmount then remount all contributed components.
+_For any_ plugin, disabling then enabling should unmount then remount all contributed components.
 
 **Validates: Requirements 5.4, 5.5**
 
 ### Property 20: Component Style Isolation
 
-*For any* plugin component with styles, rendering should isolate the styles to prevent conflicts with the main application or other plugins.
+_For any_ plugin component with styles, rendering should isolate the styles to prevent conflicts with the main application or other plugins.
 
 **Validates: Requirements 5.6**
 
 ### Property 21: Tool Registration Validation
 
-*For any* tool registration, validation should verify the tool definition includes name, description, parameters, and handler, and that the handler file exists and exports a function.
+_For any_ tool registration, validation should verify the tool definition includes name, description, parameters, and handler, and that the handler file exists and exports a function.
 
 **Validates: Requirements 6.1, 6.3**
 
 ### Property 22: Tool Execution
 
-*For any* registered tool, when the AI invokes it, the handler function should be executed with the provided parameters.
+_For any_ registered tool, when the AI invokes it, the handler function should be executed with the provided parameters.
 
 **Validates: Requirements 6.4**
 
 ### Property 23: Tool Error Handling
 
-*For any* tool handler that throws an error, the error should be caught and returned to the AI as a tool execution failure.
+_For any_ tool handler that throws an error, the error should be caught and returned to the AI as a tool execution failure.
 
 **Validates: Requirements 6.5**
 
 ### Property 24: Tool Cleanup
 
-*For any* plugin that registers tools, disabling the plugin should unregister all its tools.
+_For any_ plugin that registers tools, disabling the plugin should unregister all its tools.
 
 **Validates: Requirements 6.6**
 
 ### Property 25: Settings Management
 
-*For any* plugin, registering a settings panel should store the metadata, and calling getSettings/updateSettings should retrieve/persist the correct settings data.
+_For any_ plugin, registering a settings panel should store the metadata, and calling getSettings/updateSettings should retrieve/persist the correct settings data.
 
 **Validates: Requirements 8.1, 8.2, 8.3, 8.4**
 
 ### Property 26: Event System Round Trip
 
-*For any* event name and callback, registering a listener via api.on() then emitting via api.emit() should invoke the callback.
+_For any_ event name and callback, registering a listener via api.on() then emitting via api.emit() should invoke the callback.
 
 **Validates: Requirements 9.1, 9.2**
 
 ### Property 27: Chat Message Events
 
-*For any* plugin that registers an onChatMessage callback, each new chat message should invoke the callback.
+_For any_ plugin that registers an onChatMessage callback, each new chat message should invoke the callback.
 
 **Validates: Requirements 9.4**
 
 ### Property 28: Event Namespace Isolation
 
-*For any* plugin, event operations should be isolated to prevent interference with system events.
+_For any_ plugin, event operations should be isolated to prevent interference with system events.
 
 **Validates: Requirements 9.5**
 
 ### Property 29: Version Compatibility Validation
 
-*For any* plugin with an auraVersion that is incompatible with the current Aura version, validation should reject the plugin with a clear version mismatch message.
+_For any_ plugin with an auraVersion that is incompatible with the current Aura version, validation should reject the plugin with a clear version mismatch message.
 
 **Validates: Requirements 10.6**
 
 ### Property 30: IPC Communication
 
-*For any* plugin operation that requires cross-process communication (registration, component data, API proxying, state changes), the appropriate IPC messages should be sent and validated.
+_For any_ plugin operation that requires cross-process communication (registration, component data, API proxying, state changes), the appropriate IPC messages should be sent and validated.
 
 **Validates: Requirements 11.1, 11.2, 11.3, 11.4, 11.5**
 
 ### Property 31: State Consistency Invariant
 
-*For any* plugin, if enabled is true, then loaded must also be true (but loaded can be true while enabled is false).
+_For any_ plugin, if enabled is true, then loaded must also be true (but loaded can be true while enabled is false).
 
 **Validates: Requirements 12.1, 12.2**
 
 ### Property 32: Query Consistency
 
-*For any* sequence of getInstalledPlugins() calls without intervening modifications, the results should be identical.
+_For any_ sequence of getInstalledPlugins() calls without intervening modifications, the results should be identical.
 
 **Validates: Requirements 12.3**
 
 ### Property 33: Reactive State Updates
 
-*For any* plugin state change in the Plugin_Store, the UI should automatically update to reflect the new state.
+_For any_ plugin state change in the Plugin_Store, the UI should automatically update to reflect the new state.
 
 **Validates: Requirements 12.4**
 
 ### Property 34: Uninstall Order
 
-*For any* plugin being uninstalled, the plugin must be disabled and unloaded before directory removal, storage deletion, and metadata cleanup.
+_For any_ plugin being uninstalled, the plugin must be disabled and unloaded before directory removal, storage deletion, and metadata cleanup.
 
 **Validates: Requirements 12.5, 14.1, 14.2, 14.4, 14.5**
 
 ### Property 35: Uninstall Completeness
 
-*For any* plugin, after uninstall completes successfully, the plugin should not appear in the installed plugins list and all associated data (storage, metadata) should be deleted.
+_For any_ plugin, after uninstall completes successfully, the plugin should not appear in the installed plugins list and all associated data (storage, metadata) should be deleted.
 
 **Validates: Requirements 7.4, 14.3, 14.6**
 
 ### Property 36: Parallel Discovery
 
-*For any* set of plugin directories, discovery should scan them in parallel rather than sequentially.
+_For any_ set of plugin directories, discovery should scan them in parallel rather than sequentially.
 
 **Validates: Requirements 13.1**
 
 ### Property 37: Lazy Loading
 
-*For any* discovered plugin that is disabled, the plugin code should not be loaded.
+_For any_ discovered plugin that is disabled, the plugin code should not be loaded.
 
 **Validates: Requirements 13.2**
 
 ### Property 38: Component Caching
 
-*For any* plugin component that is rendered multiple times, the compiled Vue component should be cached to avoid recompilation.
+_For any_ plugin component that is rendered multiple times, the compiled Vue component should be cached to avoid recompilation.
 
 **Validates: Requirements 13.3**
 
 ### Property 39: Async Loading
 
-*For any* set of plugins being loaded, loading should occur asynchronously without blocking the UI thread.
+_For any_ set of plugins being loaded, loading should occur asynchronously without blocking the UI thread.
 
 **Validates: Requirements 13.4**
 
 ### Property 40: Startup Performance
 
-*For any* system with up to 10 installed plugins, plugin discovery and loading should complete within 500ms.
+_For any_ system with up to 10 installed plugins, plugin discovery and loading should complete within 500ms.
 
-**Validates: Requirements
+\*\*Validates: Requirements
 
-
-*For any* plugin with 'network' permission that makes a network request, the request should be logged for security auditing.
+_For any_ plugin with 'network' permission that makes a network request, the request should be logged for security auditing.
 
 **Validates: Requirements 18.3**
 
 ### Property 44: Plugin Metadata Query
 
-*For any* installed plugin, getInstalledPlugins() should include it, getPluginById(id) should return its metadata, and getPluginById(invalid_id) should return null.
+_For any_ installed plugin, getInstalledPlugins() should include it, getPluginById(id) should return its metadata, and getPluginById(invalid_id) should return null.
 
 **Validates: Requirements 19.1, 19.2, 19.3**
 
 ### Property 45: Plugin Self-Query
 
-*For any* plugin that calls getPluginInfo(), the returned metadata should match the plugin's own id, name, version, and manifest.
+_For any_ plugin that calls getPluginInfo(), the returned metadata should match the plugin's own id, name, version, and manifest.
 
 **Validates: Requirements 19.4**
 
 ### Property 46: Sidebar Integration
 
-*For any* plugin that registers sidebar items, the items should be stored and rendered in the sidebar, and removed when the plugin is disabled.
+_For any_ plugin that registers sidebar items, the items should be stored and rendered in the sidebar, and removed when the plugin is disabled.
 
 **Validates: Requirements 20.1, 20.2, 20.4**

@@ -17,17 +17,19 @@ export const useChatStore = defineStore('chat', () => {
     // Show chips for messages that will be included as context
     if (!contextMessages.value.length) return []
 
-    return contextMessages.value.map(msgId => {
-      const msg = messages.value.find(m => m.id === msgId)
-      if (!msg) return null
-      const snippet = msg.text.slice(0, 50) + (msg.text.length > 50 ? '...' : '')
-      return {
-        id: msgId,
-        label: snippet,
-        messageId: msgId,
-        fullText: msg.text
-      }
-    }).filter(Boolean)
+    return contextMessages.value
+      .map((msgId) => {
+        const msg = messages.value.find((m) => m.id === msgId)
+        if (!msg) return null
+        const snippet = msg.text.slice(0, 50) + (msg.text.length > 50 ? '...' : '')
+        return {
+          id: msgId,
+          label: snippet,
+          messageId: msgId,
+          fullText: msg.text
+        }
+      })
+      .filter(Boolean)
   })
 
   const replyingTo = ref(null)
@@ -86,12 +88,12 @@ export const useChatStore = defineStore('chat', () => {
         toolName: data.toolName,
         args: data.args,
         result: null,
-        status: 'running',
+        status: 'running'
       })
     })
 
     window.api.auraChat.onToolResult((data) => {
-      const tc = pendingToolCalls.value.find(t => t.id === data.toolCallId)
+      const tc = pendingToolCalls.value.find((t) => t.id === data.toolCallId)
       if (tc) {
         tc.result = data.result
         tc.status = 'done'
@@ -121,9 +123,9 @@ export const useChatStore = defineStore('chat', () => {
     })
 
     // Build messages payload for AI
- const aiMessages = messages.value.map(m => ({
+    const aiMessages = messages.value.map((m) => ({
       role: m.role === 'ai' ? 'assistant' : m.role,
-      content: m.text,
+      content: m.text
     }))
 
     // Send via IPC
@@ -132,7 +134,7 @@ export const useChatStore = defineStore('chat', () => {
     window.api.auraChat.send({
       messages: aiMessages,
       role: 'chat',
-      settings: aiSettings,
+      settings: aiSettings
     })
   }
 
@@ -161,7 +163,7 @@ export const useChatStore = defineStore('chat', () => {
   }
 
   function removeContextMessage(messageId) {
-    contextMessages.value = contextMessages.value.filter(id => id !== messageId)
+    contextMessages.value = contextMessages.value.filter((id) => id !== messageId)
   }
 
   function clearContext() {
@@ -181,9 +183,9 @@ export const useChatStore = defineStore('chat', () => {
   }
 
   // ── Voice-to-voice state (for StateBar display) ───────────
-  const voiceStatus = ref('')       // recording | transcribing | thinking | speaking | done
-  const voiceTranscript = ref('')    // user's spoken text
-  const voiceAiText = ref('')        // AI's reply text
+  const voiceStatus = ref('') // recording | transcribing | thinking | speaking | done
+  const voiceTranscript = ref('') // user's spoken text
+  const voiceAiText = ref('') // AI's reply text
 
   // ── Question state ────────────────────────────────────────
   const pendingQuestion = ref(null)
@@ -261,6 +263,6 @@ export const useChatStore = defineStore('chat', () => {
     clearVoiceText,
     setPendingQuestion,
     answerQuestion,
-    clearPendingQuestion,
+    clearPendingQuestion
   }
 })

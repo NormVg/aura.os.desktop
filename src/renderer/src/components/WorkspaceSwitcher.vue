@@ -27,22 +27,46 @@ function cancelRename() {
 <template>
   <div class="ws-switcher">
     <!-- Workspace tabs -->
-    <div v-for="workspace in ws.state.workspaces" :key="workspace.id" class="ws-tab"
-      :class="{ active: ws.state.activeId === workspace.id }">
+    <div
+      v-for="workspace in ws.state.workspaces"
+      :key="workspace.id"
+      class="ws-tab"
+      :class="{ active: ws.state.activeId === workspace.id }"
+    >
       <!-- Inline rename input -->
-      <input v-if="editingId === workspace.id" class="ws-rename-input" v-model="editLabel"
-        @keydown.enter="commitRename(workspace.id)" @keydown.escape="cancelRename" @blur="commitRename(workspace.id)"
-        v-focus />
+      <input
+        v-if="editingId === workspace.id"
+        class="ws-rename-input"
+        v-model="editLabel"
+        @keydown.enter="commitRename(workspace.id)"
+        @keydown.escape="cancelRename"
+        @blur="commitRename(workspace.id)"
+        v-focus
+      />
       <!-- Label button -->
-      <button v-else class="ws-btn" @click="ws.setActive(workspace.id)" @dblclick="startRename(workspace)">
+      <button
+        v-else
+        class="ws-btn"
+        @click="ws.setActive(workspace.id)"
+        @dblclick="startRename(workspace)"
+      >
         {{ workspace.label }}
       </button>
 
       <!-- Delete button (only when active and more than 1 workspace) -->
-      <button v-if="ws.state.activeId === workspace.id && ws.state.workspaces.length > 1" class="ws-delete"
-        title="Delete workspace" @click.stop="ws.deleteWorkspace(workspace.id)">
+      <button
+        v-if="ws.state.activeId === workspace.id && ws.state.workspaces.length > 1"
+        class="ws-delete"
+        title="Delete workspace"
+        @click.stop="ws.deleteWorkspace(workspace.id)"
+      >
         <svg width="8" height="8" viewBox="0 0 10 10" fill="none">
-          <path d="M2 2l6 6M8 2l-6 6" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" />
+          <path
+            d="M2 2l6 6M8 2l-6 6"
+            stroke="currentColor"
+            stroke-width="1.6"
+            stroke-linecap="round"
+          />
         </svg>
       </button>
     </div>
@@ -58,8 +82,16 @@ function cancelRename() {
 
     <!-- Expand -->
     <button class="ws-btn expand-btn" title="Expand" @click="emit('expand')">
-      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"
-        stroke-linecap="round" stroke-linejoin="round">
+      <svg
+        width="13"
+        height="13"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2.2"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+      >
         <polyline points="18 15 12 9 6 15" />
       </svg>
     </button>
@@ -71,7 +103,10 @@ function cancelRename() {
 export default {
   directives: {
     focus: {
-      mounted(el) { el.focus(); el.select() }
+      mounted(el) {
+        el.focus()
+        el.select()
+      }
     }
   }
 }
@@ -148,7 +183,9 @@ export default {
   border-radius: 4px;
   color: rgba(205, 198, 247, 0.3);
   cursor: pointer;
-  transition: background 0.1s, color 0.1s;
+  transition:
+    background 0.1s,
+    color 0.1s;
   flex-shrink: 0;
 }
 
@@ -169,7 +206,9 @@ export default {
   border-radius: 6px;
   color: rgba(205, 198, 247, 0.35);
   cursor: pointer;
-  transition: background 0.12s, color 0.12s;
+  transition:
+    background 0.12s,
+    color 0.12s;
   margin-left: 2px;
 }
 

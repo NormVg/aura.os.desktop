@@ -12,15 +12,31 @@ const { state } = storeToRefs(store)
     <div class="setting-group">
       <label>Theme</label>
       <div class="theme-options">
-        <button class="theme-btn" :class="{ active: state.appearance.theme === 'Dark' }"
-          @click="state.appearance.theme = 'Dark'">Dark</button>
-        <button class="theme-btn" :class="{ active: state.appearance.theme === 'Light' }"
-          @click="state.appearance.theme = 'Light'">Light</button>
+        <button
+          class="theme-btn"
+          :class="{ active: state.appearance.theme === 'Dark' }"
+          @click="state.appearance.theme = 'Dark'"
+        >
+          Dark
+        </button>
+        <button
+          class="theme-btn"
+          :class="{ active: state.appearance.theme === 'Light' }"
+          @click="state.appearance.theme = 'Light'"
+        >
+          Light
+        </button>
       </div>
     </div>
     <div class="setting-group">
       <label>Transparency: {{ Math.round(state.appearance.transparency * 100) }}%</label>
-      <input type="range" min="0.5" max="1" step="0.05" v-model.number="state.appearance.transparency" />
+      <input
+        type="range"
+        min="0.5"
+        max="1"
+        step="0.05"
+        v-model.number="state.appearance.transparency"
+      />
     </div>
   </div>
 </template>
@@ -76,7 +92,7 @@ h2 {
 }
 
 /* Range Input (basic styling, might inherit or need specific) */
-input[type="range"] {
+input[type='range'] {
   width: 100%;
   accent-color: #cdc6f7;
 }

@@ -1,4 +1,3 @@
-
 # Node.js Quickstart
 
 The AI SDK is a powerful Typescript library designed to help developers build AI-powered applications.
@@ -69,42 +68,42 @@ Replace `xxxxxxxxx` with your actual Vercel AI Gateway API key.
 Create an `index.ts` file in the root of your project and add the following code:
 
 ```ts filename="index.ts"
-import { ModelMessage, streamText } from 'ai';
-__PROVIDER_IMPORT__;
-import 'dotenv/config';
-import * as readline from 'node:readline/promises';
+import { ModelMessage, streamText } from 'ai'
+__PROVIDER_IMPORT__
+import 'dotenv/config'
+import * as readline from 'node:readline/promises'
 
 const terminal = readline.createInterface({
   input: process.stdin,
-  output: process.stdout,
-});
+  output: process.stdout
+})
 
-const messages: ModelMessage[] = [];
+const messages: ModelMessage[] = []
 
 async function main() {
   while (true) {
-    const userInput = await terminal.question('You: ');
+    const userInput = await terminal.question('You: ')
 
-    messages.push({ role: 'user', content: userInput });
+    messages.push({ role: 'user', content: userInput })
 
     const result = streamText({
       model: __MODEL__,
-      messages,
-    });
+      messages
+    })
 
-    let fullResponse = '';
-    process.stdout.write('\nAssistant: ');
+    let fullResponse = ''
+    process.stdout.write('\nAssistant: ')
     for await (const delta of result.textStream) {
-      fullResponse += delta;
-      process.stdout.write(delta);
+      fullResponse += delta
+      process.stdout.write(delta)
     }
-    process.stdout.write('\n\n');
+    process.stdout.write('\n\n')
 
-    messages.push({ role: 'assistant', content: fullResponse });
+    messages.push({ role: 'assistant', content: fullResponse })
   }
 }
 
-main().catch(console.error);
+main().catch(console.error)
 ```
 
 Let's take a look at what is happening in this code:
@@ -134,19 +133,19 @@ The AI SDK supports dozens of model providers through [first-party](/providers/a
 This quickstart uses the [Vercel AI Gateway](https://vercel.com/ai-gateway) provider, which is the default [global provider](/docs/ai-sdk-core/provider-management#global-provider-configuration). This means you can access models using a simple string in the model configuration:
 
 ```ts
-model: __MODEL__;
+model: __MODEL__
 ```
 
 You can also explicitly import and use the gateway provider in two other equivalent ways:
 
 ```ts
 // Option 1: Import from 'ai' package (included by default)
-import { gateway } from 'ai';
-model: gateway('anthropic/claude-sonnet-4.5');
+import { gateway } from 'ai'
+model: gateway('anthropic/claude-sonnet-4.5')
 
 // Option 2: Install and import from '@ai-sdk/gateway' package
-import { gateway } from '@ai-sdk/gateway';
-model: gateway('anthropic/claude-sonnet-4.5');
+import { gateway } from '@ai-sdk/gateway'
+model: gateway('anthropic/claude-sonnet-4.5')
 ```
 
 ### Using other providers
@@ -173,9 +172,9 @@ To use a different provider, install its package and create a provider instance.
 </div>
 
 ```ts
-import { openai } from '@ai-sdk/openai';
+import { openai } from '@ai-sdk/openai'
 
-model: openai('gpt-5.1');
+model: openai('gpt-5.1')
 ```
 
 ## Enhance Your Agent with Tools
@@ -193,24 +192,24 @@ Let's enhance your agent by adding a simple weather tool.
 Modify your `index.ts` file to include the new weather tool:
 
 ```ts filename="index.ts" highlight="2,4,24-37"
-import { ModelMessage, streamText, tool } from 'ai';
-__PROVIDER_IMPORT__;
-import 'dotenv/config';
-import { z } from 'zod';
-import * as readline from 'node:readline/promises';
+import { ModelMessage, streamText, tool } from 'ai'
+__PROVIDER_IMPORT__
+import 'dotenv/config'
+import { z } from 'zod'
+import * as readline from 'node:readline/promises'
 
 const terminal = readline.createInterface({
   input: process.stdin,
-  output: process.stdout,
-});
+  output: process.stdout
+})
 
-const messages: ModelMessage[] = [];
+const messages: ModelMessage[] = []
 
 async function main() {
   while (true) {
-    const userInput = await terminal.question('You: ');
+    const userInput = await terminal.question('You: ')
 
-    messages.push({ role: 'user', content: userInput });
+    messages.push({ role: 'user', content: userInput })
 
     const result = streamText({
       model: __MODEL__,
@@ -219,41 +218,38 @@ async function main() {
         weather: tool({
           description: 'Get the weather in a location (fahrenheit)',
           inputSchema: z.object({
-            location: z
-              .string()
-              .describe('The location to get the weather for'),
+            location: z.string().describe('The location to get the weather for')
           }),
           execute: async ({ location }) => {
-            const temperature = Math.round(Math.random() * (90 - 32) + 32);
+            const temperature = Math.round(Math.random() * (90 - 32) + 32)
             return {
               location,
-              temperature,
-            };
-          },
-        }),
-      },
-    });
+              temperature
+            }
+          }
+        })
+      }
+    })
 
-    let fullResponse = '';
-    process.stdout.write('\nAssistant: ');
+    let fullResponse = ''
+    process.stdout.write('\nAssistant: ')
     for await (const delta of result.textStream) {
-      fullResponse += delta;
-      process.stdout.write(delta);
+      fullResponse += delta
+      process.stdout.write(delta)
     }
-    process.stdout.write('\n\n');
+    process.stdout.write('\n\n')
 
-    messages.push({ role: 'assistant', content: fullResponse });
+    messages.push({ role: 'assistant', content: fullResponse })
   }
 }
 
-main().catch(console.error);
+main().catch(console.error)
 ```
 
 In this updated code:
 
 1. You import the `tool` function from the `ai` package.
 2. You define a `tools` object with a `weather` tool. This tool:
-
    - Has a description that helps the agent understand when to use it.
    - Defines `inputSchema` using a Zod schema, specifying that it requires a `location` string to execute this tool. The agent will attempt to extract this input from the context of the conversation. If it can't, it will ask the user for the missing information.
    - Defines an `execute` function that simulates getting weather data (in this case, it returns a random temperature). This is an asynchronous function running on the server so you can fetch real data from an external API.
@@ -265,24 +261,24 @@ Try asking something like "What's the weather in New York?" and see how the agen
 Notice the blank "assistant" response? This is because instead of generating a text response, the agent generated a tool call. You can access the tool call and subsequent tool result in the `toolCall` and `toolResult` keys of the result object.
 
 ```typescript highlight="46-47"
-import { ModelMessage, streamText, tool } from 'ai';
-__PROVIDER_IMPORT__;
-import 'dotenv/config';
-import { z } from 'zod';
-import * as readline from 'node:readline/promises';
+import { ModelMessage, streamText, tool } from 'ai'
+__PROVIDER_IMPORT__
+import 'dotenv/config'
+import { z } from 'zod'
+import * as readline from 'node:readline/promises'
 
 const terminal = readline.createInterface({
   input: process.stdin,
-  output: process.stdout,
-});
+  output: process.stdout
+})
 
-const messages: ModelMessage[] = [];
+const messages: ModelMessage[] = []
 
 async function main() {
   while (true) {
-    const userInput = await terminal.question('You: ');
+    const userInput = await terminal.question('You: ')
 
-    messages.push({ role: 'user', content: userInput });
+    messages.push({ role: 'user', content: userInput })
 
     const result = streamText({
       model: __MODEL__,
@@ -291,36 +287,34 @@ async function main() {
         weather: tool({
           description: 'Get the weather in a location (fahrenheit)',
           inputSchema: z.object({
-            location: z
-              .string()
-              .describe('The location to get the weather for'),
+            location: z.string().describe('The location to get the weather for')
           }),
           execute: async ({ location }) => {
-            const temperature = Math.round(Math.random() * (90 - 32) + 32);
+            const temperature = Math.round(Math.random() * (90 - 32) + 32)
             return {
               location,
-              temperature,
-            };
-          },
-        }),
-      },
-    });
+              temperature
+            }
+          }
+        })
+      }
+    })
 
-    let fullResponse = '';
-    process.stdout.write('\nAssistant: ');
+    let fullResponse = ''
+    process.stdout.write('\nAssistant: ')
     for await (const delta of result.textStream) {
-      fullResponse += delta;
-      process.stdout.write(delta);
+      fullResponse += delta
+      process.stdout.write(delta)
     }
-    process.stdout.write('\n\n');
+    process.stdout.write('\n\n')
 
-    console.log(await result.toolCalls);
-    console.log(await result.toolResults);
-    messages.push({ role: 'assistant', content: fullResponse });
+    console.log(await result.toolCalls)
+    console.log(await result.toolResults)
+    messages.push({ role: 'assistant', content: fullResponse })
   }
 }
 
-main().catch(console.error);
+main().catch(console.error)
 ```
 
 Now, when you ask about the weather, you'll see the tool call and its result displayed in your chat interface.
@@ -336,24 +330,24 @@ To solve this, you can enable multi-step tool calls using `stopWhen`. This featu
 Modify your `index.ts` file to configure stopping conditions with `stopWhen`:
 
 ```ts filename="index.ts" highlight="38-41"
-import { ModelMessage, streamText, tool, stepCountIs } from 'ai';
-__PROVIDER_IMPORT__;
-import 'dotenv/config';
-import { z } from 'zod';
-import * as readline from 'node:readline/promises';
+import { ModelMessage, streamText, tool, stepCountIs } from 'ai'
+__PROVIDER_IMPORT__
+import 'dotenv/config'
+import { z } from 'zod'
+import * as readline from 'node:readline/promises'
 
 const terminal = readline.createInterface({
   input: process.stdin,
-  output: process.stdout,
-});
+  output: process.stdout
+})
 
-const messages: ModelMessage[] = [];
+const messages: ModelMessage[] = []
 
 async function main() {
   while (true) {
-    const userInput = await terminal.question('You: ');
+    const userInput = await terminal.question('You: ')
 
-    messages.push({ role: 'user', content: userInput });
+    messages.push({ role: 'user', content: userInput })
 
     const result = streamText({
       model: __MODEL__,
@@ -362,40 +356,38 @@ async function main() {
         weather: tool({
           description: 'Get the weather in a location (fahrenheit)',
           inputSchema: z.object({
-            location: z
-              .string()
-              .describe('The location to get the weather for'),
+            location: z.string().describe('The location to get the weather for')
           }),
           execute: async ({ location }) => {
-            const temperature = Math.round(Math.random() * (90 - 32) + 32);
+            const temperature = Math.round(Math.random() * (90 - 32) + 32)
             return {
               location,
-              temperature,
-            };
-          },
-        }),
+              temperature
+            }
+          }
+        })
       },
       stopWhen: stepCountIs(5),
       onStepFinish: async ({ toolResults }) => {
         if (toolResults.length) {
-          console.log(JSON.stringify(toolResults, null, 2));
+          console.log(JSON.stringify(toolResults, null, 2))
         }
-      },
-    });
+      }
+    })
 
-    let fullResponse = '';
-    process.stdout.write('\nAssistant: ');
+    let fullResponse = ''
+    process.stdout.write('\nAssistant: ')
     for await (const delta of result.textStream) {
-      fullResponse += delta;
-      process.stdout.write(delta);
+      fullResponse += delta
+      process.stdout.write(delta)
     }
-    process.stdout.write('\n\n');
+    process.stdout.write('\n\n')
 
-    messages.push({ role: 'assistant', content: fullResponse });
+    messages.push({ role: 'assistant', content: fullResponse })
   }
 }
 
-main().catch(console.error);
+main().catch(console.error)
 ```
 
 In this updated code:
@@ -412,24 +404,24 @@ By setting `stopWhen: stepCountIs(5)`, you're allowing the agent to use up to 5 
 Update your `index.ts` file to add a new tool to convert the temperature from Celsius to Fahrenheit:
 
 ```ts filename="index.ts" highlight="37-48"
-import { ModelMessage, streamText, tool, stepCountIs } from 'ai';
-__PROVIDER_IMPORT__;
-import 'dotenv/config';
-import { z } from 'zod';
-import * as readline from 'node:readline/promises';
+import { ModelMessage, streamText, tool, stepCountIs } from 'ai'
+__PROVIDER_IMPORT__
+import 'dotenv/config'
+import { z } from 'zod'
+import * as readline from 'node:readline/promises'
 
 const terminal = readline.createInterface({
   input: process.stdin,
-  output: process.stdout,
-});
+  output: process.stdout
+})
 
-const messages: ModelMessage[] = [];
+const messages: ModelMessage[] = []
 
 async function main() {
   while (true) {
-    const userInput = await terminal.question('You: ');
+    const userInput = await terminal.question('You: ')
 
-    messages.push({ role: 'user', content: userInput });
+    messages.push({ role: 'user', content: userInput })
 
     const result = streamText({
       model: __MODEL__,
@@ -438,54 +430,50 @@ async function main() {
         weather: tool({
           description: 'Get the weather in a location (fahrenheit)',
           inputSchema: z.object({
-            location: z
-              .string()
-              .describe('The location to get the weather for'),
+            location: z.string().describe('The location to get the weather for')
           }),
           execute: async ({ location }) => {
-            const temperature = Math.round(Math.random() * (90 - 32) + 32);
+            const temperature = Math.round(Math.random() * (90 - 32) + 32)
             return {
               location,
-              temperature,
-            };
-          },
+              temperature
+            }
+          }
         }),
         convertFahrenheitToCelsius: tool({
           description: 'Convert a temperature in fahrenheit to celsius',
           inputSchema: z.object({
-            temperature: z
-              .number()
-              .describe('The temperature in fahrenheit to convert'),
+            temperature: z.number().describe('The temperature in fahrenheit to convert')
           }),
           execute: async ({ temperature }) => {
-            const celsius = Math.round((temperature - 32) * (5 / 9));
+            const celsius = Math.round((temperature - 32) * (5 / 9))
             return {
-              celsius,
-            };
-          },
-        }),
+              celsius
+            }
+          }
+        })
       },
       stopWhen: stepCountIs(5),
       onStepFinish: async ({ toolResults }) => {
         if (toolResults.length) {
-          console.log(JSON.stringify(toolResults, null, 2));
+          console.log(JSON.stringify(toolResults, null, 2))
         }
-      },
-    });
+      }
+    })
 
-    let fullResponse = '';
-    process.stdout.write('\nAssistant: ');
+    let fullResponse = ''
+    process.stdout.write('\nAssistant: ')
     for await (const delta of result.textStream) {
-      fullResponse += delta;
-      process.stdout.write(delta);
+      fullResponse += delta
+      process.stdout.write(delta)
     }
-    process.stdout.write('\n\n');
+    process.stdout.write('\n\n')
 
-    messages.push({ role: 'assistant', content: fullResponse });
+    messages.push({ role: 'assistant', content: fullResponse })
   }
 }
 
-main().catch(console.error);
+main().catch(console.error)
 ```
 
 Now, when you ask "What's the weather in New York in celsius?", you should see a more complete interaction:
@@ -498,4 +486,3 @@ Now, when you ask "What's the weather in New York in celsius?", you should see a
 This multi-step approach allows the agent to gather information and use it to provide more accurate and contextual responses, making your agent considerably more useful.
 
 This example demonstrates how tools can expand your agent's capabilities. You can create more complex tools to integrate with real APIs, databases, or any other external systems, allowing the agent to access and process real-world data in real-time and perform actions that interact with the outside world. Tools bridge the gap between the agent's knowledge cutoff and current information, while also enabling it to take meaningful actions beyond just generating text responses.
-

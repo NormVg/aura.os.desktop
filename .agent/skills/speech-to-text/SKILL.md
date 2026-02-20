@@ -4,7 +4,7 @@ description: Transcribe audio to text using Sarvam AI's Saarika model. Use when 
 license: Apache-2.0
 metadata:
   author: sarvam-ai
-  version: "1.0"
+  version: '1.0'
   model: saarika:v2.5
 ---
 
@@ -37,14 +37,14 @@ print(response.transcript)
 
 ## Supported Languages
 
-| Code | Language | Code | Language |
-|------|----------|------|----------|
-| `hi-IN` | Hindi | `ta-IN` | Tamil |
-| `bn-IN` | Bengali | `te-IN` | Telugu |
-| `kn-IN` | Kannada | `ml-IN` | Malayalam |
-| `mr-IN` | Marathi | `gu-IN` | Gujarati |
-| `pa-IN` | Punjabi | `or-IN` | Odia |
-| `en-IN` | English (Indian) | `auto` | Auto-detect |
+| Code    | Language         | Code    | Language    |
+| ------- | ---------------- | ------- | ----------- |
+| `hi-IN` | Hindi            | `ta-IN` | Tamil       |
+| `bn-IN` | Bengali          | `te-IN` | Telugu      |
+| `kn-IN` | Kannada          | `ml-IN` | Malayalam   |
+| `mr-IN` | Marathi          | `gu-IN` | Gujarati    |
+| `pa-IN` | Punjabi          | `or-IN` | Odia        |
+| `en-IN` | English (Indian) | `auto`  | Auto-detect |
 
 ## API Options
 
@@ -122,20 +122,19 @@ asyncio.run(stream_audio())
 ## JavaScript
 
 ```javascript
-import { SarvamAI
-} from "sarvamai";
-import fs from "fs";
+import { SarvamAI } from 'sarvamai'
+import fs from 'fs'
 
-const client = new SarvamAI();
+const client = new SarvamAI()
 
 const response = await client.speechToText.transcribe({
-  file: fs.createReadStream("audio.wav"),
-  model: "saarika:v2.5",
-  languageCode: "hi-IN",
+  file: fs.createReadStream('audio.wav'),
+  model: 'saarika:v2.5',
+  languageCode: 'hi-IN',
   withTimestamps: true
-});
+})
 
-console.log(response.transcript);
+console.log(response.transcript)
 ```
 
 ## cURL
@@ -150,43 +149,42 @@ curl -X POST "https://api.sarvam.ai/speech-to-text" \
 
 ## Parameters
 
-| Parameter | Type | Required | Description |
-|-----------|------|----------|-------------|
-| `file` | File | Yes | Audio file (wav, mp3, flac, ogg, webm) |
-| `model` | string | Yes | `saarika:v2.5` or `saarika:v2` |
-| `language_code` | string | Yes | BCP-47 code or `auto` |
-| `with_timestamps` | bool | No | Return word timestamps |
-| `with_diarisation` | bool | No | Enable speaker identification |
+| Parameter          | Type   | Required | Description                            |
+| ------------------ | ------ | -------- | -------------------------------------- |
+| `file`             | File   | Yes      | Audio file (wav, mp3, flac, ogg, webm) |
+| `model`            | string | Yes      | `saarika:v2.5` or `saarika:v2`         |
+| `language_code`    | string | Yes      | BCP-47 code or `auto`                  |
+| `with_timestamps`  | bool   | No       | Return word timestamps                 |
+| `with_diarisation` | bool   | No       | Enable speaker identification          |
 
 ## Response
 
 ```json
 {
-    "request_id": "abc123",
-    "transcript": "नमस्ते, आप कैसे हैं?",
-    "language_code": "hi-IN",
-    "words": [
-        {
-            "word": "नमस्ते",
-            "start": 0.0,
-            "end": 0.5
-        },
-        {
-            "word": "आप",
-            "start": 0.6,
-            "end": 0.8
-        }
-    ],
-    "speaker_segments": [
-        {
-            "speaker": "SPEAKER_00",
-            "start": 0.0,
-            "end": 2.5
-        }
-    ]
+  "request_id": "abc123",
+  "transcript": "नमस्ते, आप कैसे हैं?",
+  "language_code": "hi-IN",
+  "words": [
+    {
+      "word": "नमस्ते",
+      "start": 0.0,
+      "end": 0.5
+    },
+    {
+      "word": "आप",
+      "start": 0.6,
+      "end": 0.8
+    }
+  ],
+  "speaker_segments": [
+    {
+      "speaker": "SPEAKER_00",
+      "start": 0.0,
+      "end": 2.5
+    }
+  ]
 }
 ```
 
 See [references/streaming.md
 ](references/streaming.md) for detailed WebSocket documentation.
-

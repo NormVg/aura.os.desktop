@@ -4,6 +4,26 @@
  */
 import { marked } from 'marked'
 import hljs from 'highlight.js/lib/core'
+import mermaid from 'mermaid'
+
+// Initialize mermaid
+mermaid.initialize({
+  startOnLoad: false,
+  theme: 'dark',
+  themeVariables: {
+    primaryColor: '#7c6aff',
+    primaryTextColor: '#cdc6f7',
+    primaryBorderColor: '#7c6aff',
+    lineColor: '#cdc6f7',
+    secondaryColor: '#1E1E20',
+    tertiaryColor: '#18171c',
+    background: '#18171c',
+    mainBkg: '#1E1E20',
+    secondBkg: '#18171c',
+    textColor: '#cdc6f7',
+    fontSize: '13px'
+  }
+})
 
 // Register commonly used languages
 import javascript from 'highlight.js/lib/languages/javascript'
@@ -45,19 +65,33 @@ hljs.registerLanguage('c', cpp)
 hljs.registerLanguage('rust', rust)
 hljs.registerLanguage('go', go)
 
-// Configure marked with highlight.js
+// Configure marked with highlight.js and mermaid
 marked.setOptions({
   breaks: true,
   gfm: true,
   highlight(code, lang) {
-    if (lang && hljs.getLanguage(lang)) {
-      try { return hljs.highlight(code, { language: lang }).value }
-      catch (_) { /* fall through */ }
+    // Handle mermaid diagrams
+    if (lang === 'mermaid') {
+      const id = `mermaid-${Math.random().toString(36).substr(2, 9)}`
+      // Store the code for later rendering
+      const escapedCode = code.replace(/</g, '&lt;').replace(/>/g, '&gt;')
+      return `<div class="mermaid-diagram" data-mermaid-code="${escapedCode}" data-mermaid-id="${id}">${code}</div>`
     }
-    try { return hljs.highlightAuto(code).value }
-    catch (_) { /* fall through */ }
+
+    if (lang && hljs.getLanguage(lang)) {
+      try {
+        return hljs.highlight(code, { language: lang }).value
+      } catch (_) {
+        /* fall through */
+      }
+    }
+    try {
+      return hljs.highlightAuto(code).value
+    } catch (_) {
+      /* fall through */
+    }
     return code
-  },
+  }
 })
 
 /**

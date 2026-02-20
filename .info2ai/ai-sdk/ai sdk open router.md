@@ -1,4 +1,3 @@
-
 # OpenRouter
 
 [OpenRouter](https://openrouter.ai/) is a unified API gateway that provides access to hundreds of AI models from leading providers like Anthropic, Google, Meta, Mistral, and more. The OpenRouter provider for the AI SDK enables seamless integration with all these models while offering unique advantages:
@@ -17,15 +16,15 @@ Learn more about OpenRouter's capabilities in the [OpenRouter Documentation](htt
 The OpenRouter provider is available in the `@openrouter/ai-sdk-provider` module. You can install it with:
 
 <Tabs items={['pnpm', 'npm', 'yarn', 'bun']}>
-  <Tab>
-    <Snippet text="pnpm add @openrouter/ai-sdk-provider" dark />
-  </Tab>
-  <Tab>
-    <Snippet text="npm install @openrouter/ai-sdk-provider" dark />
-  </Tab>
-  <Tab>
-    <Snippet text="yarn add @openrouter/ai-sdk-provider" dark />
-  </Tab>
+<Tab>
+<Snippet text="pnpm add @openrouter/ai-sdk-provider" dark />
+</Tab>
+<Tab>
+<Snippet text="npm install @openrouter/ai-sdk-provider" dark />
+</Tab>
+<Tab>
+<Snippet text="yarn add @openrouter/ai-sdk-provider" dark />
+</Tab>
 
   <Tab>
     <Snippet text="bun add @openrouter/ai-sdk-provider" dark />
@@ -37,11 +36,11 @@ The OpenRouter provider is available in the `@openrouter/ai-sdk-provider` module
 To create an OpenRouter provider instance, use the `createOpenRouter` function:
 
 ```typescript
-import { createOpenRouter } from '@openrouter/ai-sdk-provider';
+import { createOpenRouter } from '@openrouter/ai-sdk-provider'
 
 const openrouter = createOpenRouter({
-  apiKey: 'YOUR_OPENROUTER_API_KEY',
-});
+  apiKey: 'YOUR_OPENROUTER_API_KEY'
+})
 ```
 
 You can obtain your OpenRouter API key from the [OpenRouter Dashboard](https://openrouter.ai/keys).
@@ -52,12 +51,10 @@ OpenRouter supports both chat and completion models. Use `openrouter.chat()` for
 
 ```typescript
 // Chat models (recommended)
-const chatModel = openrouter.chat('anthropic/claude-3.5-sonnet');
+const chatModel = openrouter.chat('anthropic/claude-3.5-sonnet')
 
 // Completion models
-const completionModel = openrouter.completion(
-  'meta-llama/llama-3.1-405b-instruct',
-);
+const completionModel = openrouter.completion('meta-llama/llama-3.1-405b-instruct')
 ```
 
 You can find the full list of available models in the [OpenRouter Models documentation](https://openrouter.ai/docs#models).
@@ -69,38 +66,38 @@ Here are examples of using OpenRouter with the AI SDK:
 ### `generateText`
 
 ```javascript
-import { createOpenRouter } from '@openrouter/ai-sdk-provider';
-import { generateText } from 'ai';
+import { createOpenRouter } from '@openrouter/ai-sdk-provider'
+import { generateText } from 'ai'
 
 const openrouter = createOpenRouter({
-  apiKey: 'YOUR_OPENROUTER_API_KEY',
-});
+  apiKey: 'YOUR_OPENROUTER_API_KEY'
+})
 
 const { text } = await generateText({
   model: openrouter.chat('anthropic/claude-3.5-sonnet'),
-  prompt: 'What is OpenRouter?',
-});
+  prompt: 'What is OpenRouter?'
+})
 
-console.log(text);
+console.log(text)
 ```
 
 ### `streamText`
 
 ```javascript
-import { createOpenRouter } from '@openrouter/ai-sdk-provider';
-import { streamText } from 'ai';
+import { createOpenRouter } from '@openrouter/ai-sdk-provider'
+import { streamText } from 'ai'
 
 const openrouter = createOpenRouter({
-  apiKey: 'YOUR_OPENROUTER_API_KEY',
-});
+  apiKey: 'YOUR_OPENROUTER_API_KEY'
+})
 
 const result = streamText({
   model: openrouter.chat('meta-llama/llama-3.1-405b-instruct'),
-  prompt: 'Write a short story about AI.',
-});
+  prompt: 'Write a short story about AI.'
+})
 
 for await (const chunk of result) {
-  console.log(chunk);
+  console.log(chunk)
 }
 ```
 

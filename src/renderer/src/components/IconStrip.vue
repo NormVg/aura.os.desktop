@@ -13,7 +13,7 @@ import { useChatStore } from '../stores/chat'
 import { storeToRefs } from 'pinia'
 
 const props = defineProps({
-  isOpen: Boolean,
+  isOpen: Boolean
 })
 const emit = defineEmits(['toggle', 'openSettings', 'voiceStart', 'voiceEnd'])
 
@@ -25,8 +25,15 @@ const { voiceStatus } = storeToRefs(chatStore)
 const trayOpen = ref(false)
 let trayCloseTimer = null
 
-function openTray() { clearTimeout(trayCloseTimer); trayOpen.value = true }
-function closeTray() { trayCloseTimer = setTimeout(() => { trayOpen.value = false }, 200) }
+function openTray() {
+  clearTimeout(trayCloseTimer)
+  trayOpen.value = true
+}
+function closeTray() {
+  trayCloseTimer = setTimeout(() => {
+    trayOpen.value = false
+  }, 200)
+}
 
 // ── Voice-to-voice ──────────────────────────────────────────
 const voiceActive = ref(false)
@@ -58,7 +65,7 @@ async function startVoice() {
     }
 
     mediaRecorder.onstop = async () => {
-      stream.getTracks().forEach(t => t.stop())
+      stream.getTracks().forEach((t) => t.stop())
       const blob = new Blob(chunks, { type: 'audio/webm' })
       const reader = new FileReader()
 
@@ -89,11 +96,43 @@ function sendVoiceConvo(audioBase64) {
 
   window.api.auraVoice.removeListeners()
 
+  // Track tool calls during voice conversation
+  const voiceToolCalls = []
+
+  // Listen for tool calls (reuse chat events since voice sends to same channel)
+  window.api.auraChat.onToolCall((data) => {
+    const toolCall = {
+      id: data.toolCallId,
+      toolName: data.toolName,
+      args: data.args,
+      result: null,
+      status: 'running'
+    }
+    voiceToolCalls.push(toolCall)
+    // Update chat store for live display in StateBar
+    chatStore.pendingToolCalls.push(toolCall)
+  })
+
+  window.api.auraChat.onToolResult((data) => {
+    const tc = voiceToolCalls.find((t) => t.id === data.toolCallId)
+    if (tc) {
+      tc.result = data.result
+      tc.status = 'done'
+    }
+    // Update in chat store as well
+    const storeTc = chatStore.pendingToolCalls.find((t) => t.id === data.toolCallId)
+    if (storeTc) {
+      storeTc.result = data.result
+      storeTc.status = 'done'
+    }
+  })
+
   window.api.auraVoice.onStatus((s) => {
     if (s === 'done') {
       // Ignore 'done' status update here.
       // Wait for audio.onended to clear state.
       window.api.auraVoice.removeListeners()
+      window.api.auraChat.removeListeners()
       return
     }
 
@@ -109,7 +148,10 @@ function sendVoiceConvo(audioBase64) {
 
   window.api.auraVoice.onAiText((text) => {
     chatStore.setVoiceState({ aiText: text })
-    chatStore.addMessage('ai', text)
+    // Add AI message with accumulated tool calls
+    chatStore.addMessage('ai', text, [...voiceToolCalls])
+    // Clear pending tool calls after adding to message
+    chatStore.pendingToolCalls = []
   })
 
   window.api.auraVoice.onAudio((base64Audio) => {
@@ -121,14 +163,16 @@ function sendVoiceConvo(audioBase64) {
     voiceActive.value = false
     chatStore.clearVoiceState()
     chatStore.setEmotion('normal')
+    chatStore.pendingToolCalls = []
     emit('voiceEnd')
     window.api.auraVoice.removeListeners()
+    window.api.auraChat.removeListeners()
   })
 
   const aiSettings = JSON.parse(JSON.stringify(settingsStore.state.ai))
-  const chatMessages = chatStore.messages.map(m => ({
+  const chatMessages = chatStore.messages.map((m) => ({
     role: m.role === 'ai' ? 'assistant' : m.role,
-    content: m.text,
+    content: m.text
   }))
   window.api.auraVoice.convo({ audioBase64, settings: aiSettings, messages: chatMessages })
 }
@@ -158,7 +202,12 @@ function playBase64Audio(base64) {
 <template>
   <div class="icon-strip">
     <!-- Toggle button -->
-    <button class="strip-btn toggle-btn" :class="{ open: isOpen }" @click="emit('toggle')" title="Toggle chat">
+    <button
+      class="strip-btn toggle-btn"
+      :class="{ open: isOpen }"
+      @click="emit('toggle')"
+      title="Toggle chat"
+    >
       <img :src="isOpen ? iconSidebar : iconSidebarClose" class="strip-icon" alt="toggle" />
     </button>
 
@@ -166,14 +215,28 @@ function playBase64Audio(base64) {
 
     <!-- Voice button -->
     <div class="voice-wrap">
-      <button class="strip-btn voice-btn" :class="{ active: voiceActive }" @click="toggleVoice" title="Voice convo">
-        <img :src="voiceActive ? iconVoiceStop : iconVoice" class="strip-icon voice-icon" alt="voice" />
+      <button
+        class="strip-btn voice-btn"
+        :class="{ active: voiceActive }"
+        @click="toggleVoice"
+        title="Voice convo"
+      >
+        <img
+          :src="voiceActive ? iconVoiceStop : iconVoice"
+          class="strip-icon voice-icon"
+          alt="voice"
+        />
       </button>
     </div>
 
     <!-- Cube button with hover tray -->
     <div class="cube-wrap" @mouseenter="openTray" @mouseleave="closeTray">
-      <div class="app-tray" :class="{ visible: trayOpen }" @mouseenter="openTray" @mouseleave="closeTray">
+      <div
+        class="app-tray"
+        :class="{ visible: trayOpen }"
+        @mouseenter="openTray"
+        @mouseleave="closeTray"
+      >
         <AppTray />
       </div>
       <button class="strip-btn cube-btn">
@@ -239,7 +302,10 @@ function playBase64Audio(base64) {
   border-radius: 10px;
   color: rgba(205, 198, 247, 0.3);
   cursor: pointer;
-  transition: background 0.15s, color 0.15s, box-shadow 0.15s;
+  transition:
+    background 0.15s,
+    color 0.15s,
+    box-shadow 0.15s;
 }
 
 .strip-btn:hover {
@@ -317,7 +383,9 @@ function playBase64Audio(base64) {
   transform: translateY(-50%) translateX(12px);
   opacity: 0;
   pointer-events: none;
-  transition: opacity 0.2s ease, transform 0.22s cubic-bezier(0.34, 1.56, 0.64, 1);
+  transition:
+    opacity 0.2s ease,
+    transform 0.22s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 
 .app-tray.visible {

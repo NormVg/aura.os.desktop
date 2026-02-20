@@ -1,5 +1,5 @@
 <script setup>
-import { ref, onMounted, onUnmounted } from 'vue'
+import { ref, onMounted, onUnmounted, computed } from 'vue'
 
 const time = ref('')
 let timer = null
@@ -30,11 +30,15 @@ onUnmounted(() => clearInterval(timer))
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 32px;
-  font-weight: 300;
+  font-size: 64px;
+  /* Massive digital clock size */
+  font-weight: 200;
+  /* Ultra-light */
   color: #fff;
-  background: rgba(30, 30, 34, 0.4);
+  background: transparent;
+  /* Rely entirely on wrapper glass */
   font-family: 'Inter', sans-serif;
-  letter-spacing: 0.05em;
+  letter-spacing: -0.02em;
+  text-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
 }
 </style>

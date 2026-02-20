@@ -4,7 +4,7 @@ description: Convert text to natural speech using Sarvam AI's Bulbul model. Use 
 license: Apache-2.0
 metadata:
   author: sarvam-ai
-  version: "1.0"
+  version: '1.0'
   model: bulbul:v2
 ---
 
@@ -44,10 +44,8 @@ The API returns audio as **base64-encoded strings** in the `audios` array:
 
 ```json
 {
-    "request_id": "abc123",
-    "audios": [
-        "UklGRiQAAABXQVZFZm10IBAAAAABAAEA..."
-    ]
+  "request_id": "abc123",
+  "audios": ["UklGRiQAAABXQVZFZm10IBAAAAABAAEA..."]
 }
 ```
 
@@ -76,25 +74,25 @@ with open("output.wav",
 
 ## Supported Languages
 
-| Code | Language | Code | Language |
-|------|----------|------|----------|
-| `hi-IN` | Hindi | `ta-IN` | Tamil |
-| `bn-IN` | Bengali | `te-IN` | Telugu |
-| `kn-IN` | Kannada | `ml-IN` | Malayalam |
-| `mr-IN` | Marathi | `gu-IN` | Gujarati |
-| `pa-IN` | Punjabi | `or-IN` | Odia |
-| `en-IN` | English (Indian) | | |
+| Code    | Language         | Code    | Language  |
+| ------- | ---------------- | ------- | --------- |
+| `hi-IN` | Hindi            | `ta-IN` | Tamil     |
+| `bn-IN` | Bengali          | `te-IN` | Telugu    |
+| `kn-IN` | Kannada          | `ml-IN` | Malayalam |
+| `mr-IN` | Marathi          | `gu-IN` | Gujarati  |
+| `pa-IN` | Punjabi          | `or-IN` | Odia      |
+| `en-IN` | English (Indian) |         |           |
 
 ## Available Voices
 
-| Voice | Type | Best For |
-|-------|------|----------|
-| `anushka` | Female | General, warm tone |
-| `manisha` | Female | Professional, clear |
-| `vidya` | Female | Friendly, conversational |
-| `arjun` | Male | Authoritative, news |
-| `amol` | Male | Casual, storytelling |
-| `amartya` | Male | Deep, formal |
+| Voice     | Type   | Best For                 |
+| --------- | ------ | ------------------------ |
+| `anushka` | Female | General, warm tone       |
+| `manisha` | Female | Professional, clear      |
+| `vidya`   | Female | Friendly, conversational |
+| `arjun`   | Male   | Authoritative, news      |
+| `amol`    | Male   | Casual, storytelling     |
+| `amartya` | Male   | Deep, formal             |
 
 ## Voice Control
 
@@ -116,16 +114,16 @@ response = client.text_to_speech.convert(
 
 Set output format with `output_audio_codec`:
 
-| Format | Description |
-|--------|-------------|
-| `wav` | Uncompressed (default) |
-| `mp3` | MPEG Layer-3 |
-| `aac` | Advanced Audio Coding |
-| `opus` | Optimized for speech |
-| `flac` | Lossless |
-| `linear16` | Raw PCM |
-| `mulaw` | Telephony (8-bit) |
-| `alaw` | Telephony (8-bit) |
+| Format     | Description            |
+| ---------- | ---------------------- |
+| `wav`      | Uncompressed (default) |
+| `mp3`      | MPEG Layer-3           |
+| `aac`      | Advanced Audio Coding  |
+| `opus`     | Optimized for speech   |
+| `flac`     | Lossless               |
+| `linear16` | Raw PCM                |
+| `mulaw`    | Telephony (8-bit)      |
+| `alaw`     | Telephony (8-bit)      |
 
 ```python
 response = client.text_to_speech.convert(
@@ -139,11 +137,11 @@ response = client.text_to_speech.convert(
 
 ## Sample Rates
 
-| Rate | Use Case |
-|------|----------|
-| `8000` | Telephony |
-| `16000` | Voice assistants |
-| `22050` | Standard audio |
+| Rate    | Use Case               |
+| ------- | ---------------------- |
+| `8000`  | Telephony              |
+| `16000` | Voice assistants       |
+| `22050` | Standard audio         |
 | `24000` | High quality (default) |
 
 ```python
@@ -159,25 +157,21 @@ response = client.text_to_speech.convert(
 ## JavaScript
 
 ```javascript
-import { SarvamAI
-} from "sarvamai";
-import fs from "fs";
+import { SarvamAI } from 'sarvamai'
+import fs from 'fs'
 
-const client = new SarvamAI();
+const client = new SarvamAI()
 
 const response = await client.textToSpeech.convert({
-  text: "नमस्ते",
-  targetLanguageCode: "hi-IN",
-  model: "bulbul:v2",
-  speaker: "anushka"
-});
+  text: 'नमस्ते',
+  targetLanguageCode: 'hi-IN',
+  model: 'bulbul:v2',
+  speaker: 'anushka'
+})
 
 // Decode base64 and save
-const audioBuffer = Buffer.from(response.audios[
-    0
-],
-"base64");
-fs.writeFileSync("output.wav", audioBuffer);
+const audioBuffer = Buffer.from(response.audios[0], 'base64')
+fs.writeFileSync('output.wav', audioBuffer)
 ```
 
 ## cURL
@@ -198,29 +192,26 @@ curl -X POST "https://api.sarvam.ai/text-to-speech" \
 
 ## Parameters
 
-| Parameter | Type | Required | Description |
-|-----------|------|----------|-------------|
-| `text` / `inputs` | string/array | Yes | Text to synthesize |
-| `target_language_code` | string | Yes | BCP-47 language code |
-| `model` | string | Yes | `bulbul:v2` or `bulbul:v1` |
-| `speaker` | string | Yes | Voice name |
-| `pitch` | float | No | -1.0 to 1.0 |
-| `pace` | float | No | 0.5 to 2.0 |
-| `loudness` | float | No | 0.5 to 2.0 |
-| `output_audio_codec` | string | No | Audio format |
-| `sample_rate` | int | No | Output sample rate |
+| Parameter              | Type         | Required | Description                |
+| ---------------------- | ------------ | -------- | -------------------------- |
+| `text` / `inputs`      | string/array | Yes      | Text to synthesize         |
+| `target_language_code` | string       | Yes      | BCP-47 language code       |
+| `model`                | string       | Yes      | `bulbul:v2` or `bulbul:v1` |
+| `speaker`              | string       | Yes      | Voice name                 |
+| `pitch`                | float        | No       | -1.0 to 1.0                |
+| `pace`                 | float        | No       | 0.5 to 2.0                 |
+| `loudness`             | float        | No       | 0.5 to 2.0                 |
+| `output_audio_codec`   | string       | No       | Audio format               |
+| `sample_rate`          | int          | No       | Output sample rate         |
 
 ## Response
 
 ```json
 {
-    "request_id": "20241115_abc123",
-    "audios": [
-        "UklGRiQAAABXQVZFZm10IBAAAAABAAEA..."
-    ]
+  "request_id": "20241115_abc123",
+  "audios": ["UklGRiQAAABXQVZFZm10IBAAAAABAAEA..."]
 }
 ```
 
 See [references/voices.md
 ](references/voices.md) for voice samples and recommendations.
-

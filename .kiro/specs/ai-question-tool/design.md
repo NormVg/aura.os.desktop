@@ -22,7 +22,7 @@ graph TD
 
 ## Main Workflow Sequence
 
-```mermaid
+````mermaid
 sequenceDiagram
     participant AI as AI Service
     participant Tool as askQuestion Tool
@@ -64,9 +64,10 @@ sequenceDiagram
   }),
   execute: async ({ question, options, allowCustom, customPlaceholder }) => Promise<QuestionResponse>
 }
-```
+````
 
 **Responsibilities**:
+
 - Register as an AI tool in the tools registry
 - Create pending question state with unique ID
 - Send question data to renderer via IPC
@@ -79,6 +80,7 @@ sequenceDiagram
 **Purpose**: Manages pending questions and response routing
 
 **Interface**:
+
 ```javascript
 class QuestionManager {
   createQuestion(questionData): { id, promise }
@@ -90,6 +92,7 @@ class QuestionManager {
 ```
 
 **Responsibilities**:
+
 - Generate unique question IDs
 - Store pending question promises
 - Route responses to correct promise resolvers
@@ -101,6 +104,7 @@ class QuestionManager {
 **Purpose**: Renders interactive MCQ interface in chat
 
 **Interface**:
+
 ```vue
 <template>
   <QuestionCard
@@ -114,6 +118,7 @@ class QuestionManager {
 ```
 
 **Responsibilities**:
+
 - Display question text prominently
 - Render clickable option buttons
 - Show custom input field if enabled
@@ -127,6 +132,7 @@ class QuestionManager {
 **Purpose**: Manages question state in chat context
 
 **Interface**:
+
 ```javascript
 {
   // State
@@ -140,6 +146,7 @@ class QuestionManager {
 ```
 
 **Responsibilities**:
+
 - Store active question data
 - Trigger IPC response when answered
 - Clear question after submission
@@ -161,6 +168,7 @@ interface QuestionData {
 ```
 
 **Validation Rules**:
+
 - `id` must be unique UUID v4
 - `question` must be non-empty string (max 500 chars)
 - `options` must have at least 2 items, each non-empty (max 200 chars each)
@@ -179,6 +187,7 @@ interface QuestionResponse {
 ```
 
 **Validation Rules**:
+
 - `answer` must be non-empty string
 - `isCustom` must be boolean
 - `selectedIndex` required if `isCustom` is false
@@ -198,6 +207,7 @@ interface QuestionState {
 ```
 
 **Validation Rules**:
+
 - All fields required
 - `promise` must be pending (not resolved/rejected)
 - `createdAt` must be valid timestamp
@@ -259,12 +269,14 @@ END
 ```
 
 **Preconditions**:
+
 - `questionParams.question` is non-empty string
 - `questionParams.options` is array with at least 2 elements
 - IPC channel is available and connected
 - Renderer process is ready
 
 **Postconditions**:
+
 - Returns valid QuestionResponse object
 - Question state is cleaned up from manager
 - User has seen and responded to question
@@ -321,12 +333,14 @@ END
 ```
 
 **Preconditions**:
+
 - `responseData.questionId` exists in question manager
 - `responseData.answer` is non-empty
 - If not custom, `selectedIndex` is valid
 - Question promise is still pending (not timed out)
 
 **Postconditions**:
+
 - Pending promise is resolved with response
 - Question remains in manager (cleaned by execute function)
 - Response data is validated and consistent
@@ -424,17 +438,20 @@ END PROCEDURE
 ```
 
 **Preconditions**:
+
 - `questionData` is valid QuestionData object
 - Vue component is mounted and reactive
 - Event handlers are properly bound
 
 **Postconditions**:
+
 - UI is rendered with all options visible
 - User can interact with buttons/input
 - After answer, UI is disabled
 - Answer event is emitted exactly once
 
 **Loop Invariants**:
+
 - During option rendering loop: All previously rendered buttons are functional
 - Button indices match option array indices
 
@@ -449,17 +466,17 @@ function createQuestion(questionData) {
 ```
 
 **Preconditions:**
+
 - `questionData` is non-null object
--
+- **Preconditions:**
 
-
-**Preconditions:**
 - `id` is valid UUID string
 - `id` exists in pending questions map
 - `answer` is valid QuestionResponse object
 - Associated promise is still pending (not resolved/rejected)
 
 **Postconditions:**
+
 - Promise associated with `id` is resolved with `answer`
 - Question state remains in map (caller responsible for cleanup)
 - No errors thrown
@@ -475,37 +492,40 @@ function validateQuestionParams(params) {
 ```
 
 **Preconditions:**
+
 - `params` is defined object (may be invalid)
 
 **Postconditions:**
+
 - Returns valid
-],
+  ],
   allowCustom: true
-})
+  })
 
 console.log(response)
 // { answer: "JavaScript", isCustom: false, selectedIndex: 0, timestamp: 1234567890 }
 
 // Example 2: Yes/No question without custom option
 const confirmation = await askQuestion({
-  question: "Do you want to proceed with this action?",
-  options: ["Yes", "No"],
-  allowCustom: false
+question: "Do you want to proceed with this action?",
+options: ["Yes", "No"],
+allowCustom: false
 })
 
 // Example 3: Question with custom placeholder
 const feedback = await askQuestion({
-  question: "How would you rate this feature?",
-  options: ["Excellent", "Good", "Fair", "Poor"],
-  allowCustom: true,
-  customPlaceholder: "Or describe your experience..."
+question: "How would you rate this feature?",
+options: ["Excellent", "Good", "Fair", "Poor"],
+allowCustom: true,
+customPlaceholder: "Or describe your experience..."
 })
 
 // Example 4: AI using the tool in conversation
 // AI Service automatically calls tool during streaming
 // User sees interactive question UI in chat
 // AI receives response and continues conversation
-```
+
+````
 
 ## Correctness Properties
 
@@ -514,9 +534,10 @@ const feedback = await askQuestion({
 // For all questions q1, q2 created by createQuestion():
 // q1.id !== q2.id
 // Ensures no ID collisions in question manager
-```
+````
 
 ### Property 2: Response Consistency
+
 ```javascript
 // For all responses r where r.isCustom === false:
 // r.selectedIndex must be valid index in original options array
@@ -525,6 +546,7 @@ const feedback = await askQuestion({
 ```
 
 ### Property 3: Single Answer Guarantee
+
 ```javascript
 // For all questions q:
 // q.promise resolves exactly once
@@ -534,6 +556,7 @@ const feedback = await askQuestion({
 ```
 
 ### Property 4: Timeout Safety
+
 ```javascript
 // For all questions q with timeout T:
 // If no response within T milliseconds:
@@ -543,6 +566,7 @@ const feedback = await askQuestion({
 ```
 
 ### Property 5: Custom Answer Validation
+
 ```javascript
 // For all responses r where r.isCustom === true:
 // originalQuestion.allowCustom === true
@@ -589,25 +613,27 @@ const feedback = await askQuestion({
 Test each component in isolation with mocked dependencies:
 
 **Question Manager Tests**:
+
 - Test question creation generates unique IDs
 - Test promise resolution/rejection
 - Test concurrent question handling
 - Test cleanup after resolution
 - Test timeout scenarios
 
-**Tool Execution Tests*
+\*_Tool Execution Tests_
 N questions, verify all IDs are unique
 fc.assert(
-  fc.property(fc.arra
+fc.property(fc.arra
 string(), {minLength: 2, maxLength: 10}) }),
-    fc.nat(),
-    (questionData, index) => {
-      fc.pre(index < questionData.options.length)
-      const response = { answer: questionData.options[index], isCustom: false, selectedIndex: index }
-      return validateResponse(response, questionData).valid === true
-    }
-  )
+fc.nat(),
+(questionData, index) => {
+fc.pre(index < questionData.options.length)
+const response = { answer: questionData.options[index], isCustom: false, selectedIndex: index }
+return validateResponse(response, questionData).valid === true
+}
 )
+)
+
 ```
 
 ### Integration Testing Approach
@@ -644,3 +670,4 @@ Test full flow from AI tool call to user response:
 - **pinia**: State management for question state
 - **uuid** (v9.x): Generate unique question IDs
 - **lucide-vue-next**: Icons for UI components (optional)
+```

@@ -20,13 +20,13 @@ function addModel() {
     id,
     provider: newModel.value.provider,
     modelId: newModel.value.modelId,
-    label: newModel.value.label,
+    label: newModel.value.label
   })
   newModel.value = { provider: 'openrouter', modelId: '', label: '' }
 }
 
 function removeModel(id) {
-  state.value.ai.models = state.value.ai.models.filter(m => m.id !== id)
+  state.value.ai.models = state.value.ai.models.filter((m) => m.id !== id)
   // Clear any roles pointing to this model
   for (const role in state.value.ai.roles) {
     if (state.value.ai.roles[role] === id) state.value.ai.roles[role] = ''
@@ -36,13 +36,13 @@ function removeModel(id) {
 const providers = [
   { id: 'openrouter', label: 'OpenRouter' },
   { id: 'google', label: 'Google' },
-  { id: 'ollama', label: 'Ollama (Local)' },
+  { id: 'ollama', label: 'Ollama (Local)' }
 ]
 
 const roleLabels = {
   chat: 'Chat (Conversation)',
   tools: 'Tool Calling',
-  summary: 'Summarization',
+  summary: 'Summarization'
 }
 
 const speakers = [
@@ -55,7 +55,7 @@ const speakers = [
   { id: 'neha', label: 'Neha (Female)' },
   { id: 'pooja', label: 'Pooja (Female)' },
   { id: 'simran', label: 'Simran (Female)' },
-  { id: 'kavya', label: 'Kavya (Female)' },
+  { id: 'kavya', label: 'Kavya (Female)' }
 ]
 
 const edgeVoices = [
@@ -70,7 +70,7 @@ const edgeVoices = [
   { id: 'hi-IN-SwaraNeural', label: 'Swara (Female - Hindi)' },
   { id: 'hi-IN-MadhurNeural', label: 'Madhur (Male - Hindi)' },
   { id: 'en-AU-NatashaNeural', label: 'Natasha (Female - AU)' },
-  { id: 'en-AU-WilliamNeural', label: 'William (Male - AU)' },
+  { id: 'en-AU-WilliamNeural', label: 'William (Male - AU)' }
 ]
 </script>
 
@@ -81,11 +81,15 @@ const edgeVoices = [
     <!-- API Keys -->
     <div class="section">
       <h3>API Keys</h3>
-      <div class="key-row" v-for="p in providers.filter(p => p.id !== 'ollama')" :key="p.id">
+      <div class="key-row" v-for="p in providers.filter((p) => p.id !== 'ollama')" :key="p.id">
         <label>{{ p.label }}</label>
         <div class="key-input-wrap">
-          <input :type="showKeys[p.id] ? 'text' : 'password'" v-model="state.ai.keys[p.id]"
-            :placeholder="`Enter ${p.label} API key`" class="key-input" />
+          <input
+            :type="showKeys[p.id] ? 'text' : 'password'"
+            v-model="state.ai.keys[p.id]"
+            :placeholder="`Enter ${p.label} API key`"
+            class="key-input"
+          />
           <button class="key-toggle" @click="showKeys[p.id] = !showKeys[p.id]">
             <component :is="showKeys[p.id] ? EyeOff : Eye" :size="14" />
           </button>
@@ -94,15 +98,23 @@ const edgeVoices = [
       <div class="key-row">
         <label>Ollama Base URL</label>
         <div class="key-input-wrap">
-          <input type="text" v-model="state.ai.keys.ollamaBaseURL"
-            placeholder="http://localhost:11434/api" class="key-input" />
+          <input
+            type="text"
+            v-model="state.ai.keys.ollamaBaseURL"
+            placeholder="http://localhost:11434/api"
+            class="key-input"
+          />
         </div>
       </div>
       <div class="key-row" v-if="state.ai.tts.provider === 'sarvam'">
         <label>Sarvam AI (Voice)</label>
         <div class="key-input-wrap">
-          <input :type="showKeys.sarvam ? 'text' : 'password'" v-model="state.ai.keys.sarvam"
-            placeholder="Enter Sarvam API key" class="key-input" />
+          <input
+            :type="showKeys.sarvam ? 'text' : 'password'"
+            v-model="state.ai.keys.sarvam"
+            placeholder="Enter Sarvam API key"
+            class="key-input"
+          />
           <button class="key-toggle" @click="showKeys.sarvam = !showKeys.sarvam">
             <component :is="showKeys.sarvam ? EyeOff : Eye" :size="14" />
           </button>
@@ -131,9 +143,18 @@ const edgeVoices = [
         <select v-model="newModel.provider" class="add-select">
           <option v-for="p in providers" :key="p.id" :value="p.id">{{ p.label }}</option>
         </select>
-        <input v-model="newModel.modelId" type="text" placeholder="Model ID (e.g. anthropic/claude-3.5-sonnet)"
-          class="add-input" />
-        <input v-model="newModel.label" type="text" placeholder="Display name" class="add-input add-input-sm" />
+        <input
+          v-model="newModel.modelId"
+          type="text"
+          placeholder="Model ID (e.g. anthropic/claude-3.5-sonnet)"
+          class="add-input"
+        />
+        <input
+          v-model="newModel.label"
+          type="text"
+          placeholder="Display name"
+          class="add-input add-input-sm"
+        />
         <button class="add-btn" @click="addModel" :disabled="!newModel.modelId || !newModel.label">
           <Plus :size="16" />
         </button>
@@ -184,8 +205,6 @@ const edgeVoices = [
         </select>
       </div>
     </div>
-
-
   </div>
 </template>
 
@@ -264,7 +283,9 @@ h3 {
   border-radius: 8px;
   color: rgba(255, 255, 255, 0.4);
   cursor: pointer;
-  transition: background 0.12s, color 0.12s;
+  transition:
+    background 0.12s,
+    color 0.12s;
 }
 
 .key-toggle:hover {
@@ -324,7 +345,9 @@ h3 {
   border-radius: 6px;
   color: rgba(255, 255, 255, 0.2);
   cursor: pointer;
-  transition: background 0.12s, color 0.12s;
+  transition:
+    background 0.12s,
+    color 0.12s;
 }
 
 .model-remove:hover {
@@ -458,7 +481,7 @@ h3 {
   width: 100px;
 }
 
-.slider-row input[type=range] {
+.slider-row input[type='range'] {
   flex: 1;
   accent-color: #cdc6f7;
 }

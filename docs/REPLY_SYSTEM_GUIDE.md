@@ -47,6 +47,7 @@ Input box:
 ## Canceling a Reply
 
 ### Option 1: Click X in Reply Context
+
 ```
 ┌─────────────────────────────────────┐
 │ Replying to: Message... [✕]  ← Click│
@@ -54,6 +55,7 @@ Input box:
 ```
 
 ### Option 2: Click X on Reply Chip
+
 ```
 ┌─────────────────────────────────────┐
 │ [replying Message... ✕]  ← Click    │
@@ -63,6 +65,7 @@ Input box:
 ## What Happens When You Reply
 
 ### User's Perspective
+
 ```
 You see:
 ┌─────────────────────────────────────┐
@@ -72,6 +75,7 @@ You see:
 ```
 
 ### AI's Perspective
+
 ```
 AI receives:
 [Replying to: "Quantum computing uses qubits..."]
@@ -80,6 +84,7 @@ What are the applications?
 ```
 
 The AI understands:
+
 - ✅ Which message you're referring to
 - ✅ Context from that message
 - ✅ Your specific question
@@ -87,6 +92,7 @@ The AI understands:
 ## Examples
 
 ### Example 1: Clarification
+
 ```
 AI: "Python is great for data science because..."
 
@@ -100,6 +106,7 @@ AI responds: "R is also excellent for data science..."
 ```
 
 ### Example 2: Follow-up Question
+
 ```
 AI: "The capital of France is Paris."
 
@@ -113,6 +120,7 @@ AI responds: "Paris has a population of about 2.2 million..."
 ```
 
 ### Example 3: Correction Request
+
 ```
 AI: "The Earth is flat."
 
@@ -128,23 +136,28 @@ AI responds: "You're right, I apologize. The Earth is spherical..."
 ## Tips & Tricks
 
 ### 1. Quick Reply to Last Message
+
 - After AI responds, a chip appears automatically
 - Just click and type - fastest way to continue conversation
 
 ### 2. Reply to Older Messages
+
 - Scroll up to find the message
 - Click reply button
 - Helps AI understand context in long conversations
 
 ### 3. Cancel Anytime
+
 - Changed your mind? Click X
 - Reply context disappears
 - Type a new message normally
 
 ### 4. Multiple Replies
+
 - Currently:
 
-    Hover to see
+  Hover to see
+
 ```
 
 ## Keyboard Shortcuts
@@ -210,6 +223,7 @@ tons
 
 ### 1. Use Replies for Clarity
 ```
+
 ❌ Without reply
 :
 "What about that?"
@@ -217,62 +231,77 @@ tons
 ✅ With reply:
 [Replying to: "Python is great..."]
 "What about R?"
+
 ```
 
 ### 2. Reply to Specific Points
 ```
+
 ❌ Vague:
 "Tell me more"
 
 ✅ Specific:
 [Replying to: "Quantum computing..."]
 "Tell me more about qubits"
+
 ```
 
 ### 3. Use Chips for Quick Follow-ups
 ```
+
 AI responds → Chip appears → Click → Type → Send
 Fastest way to continue conversation!
+
 ```
 
 ### 4. Cancel When Needed
 ```
+
 Changed your mind? Click X
 No penalty, just start fresh
+
 ```
 
 ## Advanced Usage
 
 ### Threading Conversations
 ```
+
 1. AI explains concept A
 2. You reply asking about B
 3. AI explai
-ns B
+   ns B
 4. You reply to original message about A
 5. AI understands you're back to A
+
 ```
 
 ### Context Preservation
 ```
+
 Long conversation:
+
 - Message 1: "Explain X"
 - Message 2: "Now Y"
 - Message 3: "And Z"
 
 Reply to Message 1:
 AI remembers X context even after Y and Z!
+
 ```
 
 ### Multi-turn Clarification
 ```
+
 AI: "Here's how it works..."
 You: [Reply] "What about edge case A?"
 AI: "Edge case A is handled by..."
 You: [Reply to original] "What about edge case B?"
 AI: "Edge case B is handled by..."
+
 ```
 
 ---
 
 **Pro Tip**: Use reply chips for quick follow-ups, and reply buttons for specific clarifications on older messages!
+```

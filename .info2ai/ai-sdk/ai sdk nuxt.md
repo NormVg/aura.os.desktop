@@ -1,4 +1,3 @@
-
 # Vue.js (Nuxt) Quickstart
 
 The AI SDK is a powerful TypeScript library designed to help developers build AI-powered applications.
@@ -74,9 +73,9 @@ Replace `xxxxxxxxx` with your actual Vercel AI Gateway API key and configure the
 export default defineNuxtConfig({
   // rest of your nuxt config
   runtimeConfig: {
-    aiGatewayApiKey: '',
-  },
-});
+    aiGatewayApiKey: ''
+  }
+})
 ```
 
 <Note className="mb-4">
@@ -92,31 +91,26 @@ export default defineNuxtConfig({
 Create an API route, `server/api/chat.ts` and add the following code:
 
 ```typescript filename="server/api/chat.ts"
-import {
-  streamText,
-  UIMessage,
-  convertToModelMessages,
-  createGateway,
-} from 'ai';
+import { streamText, UIMessage, convertToModelMessages, createGateway } from 'ai'
 
 export default defineLazyEventHandler(async () => {
-  const apiKey = useRuntimeConfig().aiGatewayApiKey;
-  if (!apiKey) throw new Error('Missing AI Gateway API key');
+  const apiKey = useRuntimeConfig().aiGatewayApiKey
+  if (!apiKey) throw new Error('Missing AI Gateway API key')
   const gateway = createGateway({
-    apiKey: apiKey,
-  });
+    apiKey: apiKey
+  })
 
   return defineEventHandler(async (event: any) => {
-    const { messages }: { messages: UIMessage[] } = await readBody(event);
+    const { messages }: { messages: UIMessage[] } = await readBody(event)
 
     const result = streamText({
       model: gateway('anthropic/claude-sonnet-4.5'),
-      messages: await convertToModelMessages(messages),
-    });
+      messages: await convertToModelMessages(messages)
+    })
 
-    return result.toUIMessageStreamResponse();
-  });
-});
+    return result.toUIMessageStreamResponse()
+  })
+})
 ```
 
 Let's take a look at what is happening in this code:
@@ -134,19 +128,19 @@ The AI SDK supports dozens of model providers through [first-party](/providers/a
 This quickstart uses the [Vercel AI Gateway](https://vercel.com/ai-gateway) provider, which is the default [global provider](/docs/ai-sdk-core/provider-management#global-provider-configuration). This means you can access models using a simple string in the model configuration:
 
 ```ts
-model: __MODEL__;
+model: __MODEL__
 ```
 
 You can also explicitly import and use the gateway provider in two other equivalent ways:
 
 ```ts
 // Option 1: Import from 'ai' package (included by default)
-import { gateway } from 'ai';
-model: gateway('anthropic/claude-sonnet-4.5');
+import { gateway } from 'ai'
+model: gateway('anthropic/claude-sonnet-4.5')
 
 // Option 2: Install and import from '@ai-sdk/gateway' package
-import { gateway } from '@ai-sdk/gateway';
-model: gateway('anthropic/claude-sonnet-4.5');
+import { gateway } from '@ai-sdk/gateway'
+model: gateway('anthropic/claude-sonnet-4.5')
 ```
 
 ### Using other providers
@@ -173,9 +167,9 @@ To use a different provider, install its package and create a provider instance.
 </div>
 
 ```ts
-import { openai } from '@ai-sdk/openai';
+import { openai } from '@ai-sdk/openai'
 
-model: openai('gpt-5.1');
+model: openai('gpt-5.1')
 ```
 
 ## Wire up the UI
@@ -255,24 +249,18 @@ Let's enhance your chatbot by adding a simple weather tool.
 Modify your `server/api/chat.ts` file to include the new weather tool:
 
 ```typescript filename="server/api/chat.ts" highlight="1,16-32"
-import {
-  createGateway,
-  streamText,
-  UIMessage,
-  convertToModelMessages,
-  tool,
-} from 'ai';
-import { z } from 'zod';
+import { createGateway, streamText, UIMessage, convertToModelMessages, tool } from 'ai'
+import { z } from 'zod'
 
 export default defineLazyEventHandler(async () => {
-  const apiKey = useRuntimeConfig().aiGatewayApiKey;
-  if (!apiKey) throw new Error('Missing AI Gateway API key');
+  const apiKey = useRuntimeConfig().aiGatewayApiKey
+  if (!apiKey) throw new Error('Missing AI Gateway API key')
   const gateway = createGateway({
-    apiKey: apiKey,
-  });
+    apiKey: apiKey
+  })
 
   return defineEventHandler(async (event: any) => {
-    const { messages }: { messages: UIMessage[] } = await readBody(event);
+    const { messages }: { messages: UIMessage[] } = await readBody(event)
 
     const result = streamText({
       model: gateway('anthropic/claude-sonnet-4.5'),
@@ -281,31 +269,28 @@ export default defineLazyEventHandler(async () => {
         weather: tool({
           description: 'Get the weather in a location (fahrenheit)',
           inputSchema: z.object({
-            location: z
-              .string()
-              .describe('The location to get the weather for'),
+            location: z.string().describe('The location to get the weather for')
           }),
           execute: async ({ location }) => {
-            const temperature = Math.round(Math.random() * (90 - 32) + 32);
+            const temperature = Math.round(Math.random() * (90 - 32) + 32)
             return {
               location,
-              temperature,
-            };
-          },
-        }),
-      },
-    });
+              temperature
+            }
+          }
+        })
+      }
+    })
 
-    return result.toUIMessageStreamResponse();
-  });
-});
+    return result.toUIMessageStreamResponse()
+  })
+})
 ```
 
 In this updated code:
 
 1. You import the `tool` function from the `ai` package and `z` from `zod` for schema validation.
 2. You define a `tools` object with a `weather` tool. This tool:
-
    - Has a description that helps the model understand when to use it.
    - Defines `inputSchema` using a Zod schema, specifying that it requires a `location` string to execute this tool. The model will attempt to extract this input from the context of the conversation. If it can't, it will ask the user for the missing information.
    - Defines an `execute` function that simulates getting weather data (in this case, it returns a random temperature). This is an asynchronous function running on the server so you can fetch real data from an external API.
@@ -376,25 +361,18 @@ To solve this, you can enable multi-step tool calls using `stopWhen`. By default
 Modify your `server/api/chat.ts` file to include the `stopWhen` condition:
 
 ```typescript filename="server/api/chat.ts" highlight="22"
-import {
-  createGateway,
-  streamText,
-  UIMessage,
-  convertToModelMessages,
-  tool,
-  stepCountIs,
-} from 'ai';
-import { z } from 'zod';
+import { createGateway, streamText, UIMessage, convertToModelMessages, tool, stepCountIs } from 'ai'
+import { z } from 'zod'
 
 export default defineLazyEventHandler(async () => {
-  const apiKey = useRuntimeConfig().aiGatewayApiKey;
-  if (!apiKey) throw new Error('Missing AI Gateway API key');
+  const apiKey = useRuntimeConfig().aiGatewayApiKey
+  if (!apiKey) throw new Error('Missing AI Gateway API key')
   const gateway = createGateway({
-    apiKey: apiKey,
-  });
+    apiKey: apiKey
+  })
 
   return defineEventHandler(async (event: any) => {
-    const { messages }: { messages: UIMessage[] } = await readBody(event);
+    const { messages }: { messages: UIMessage[] } = await readBody(event)
 
     const result = streamText({
       model: gateway('anthropic/claude-sonnet-4.5'),
@@ -404,24 +382,22 @@ export default defineLazyEventHandler(async () => {
         weather: tool({
           description: 'Get the weather in a location (fahrenheit)',
           inputSchema: z.object({
-            location: z
-              .string()
-              .describe('The location to get the weather for'),
+            location: z.string().describe('The location to get the weather for')
           }),
           execute: async ({ location }) => {
-            const temperature = Math.round(Math.random() * (90 - 32) + 32);
+            const temperature = Math.round(Math.random() * (90 - 32) + 32)
             return {
               location,
-              temperature,
-            };
-          },
-        }),
-      },
-    });
+              temperature
+            }
+          }
+        })
+      }
+    })
 
-    return result.toUIMessageStreamResponse();
-  });
-});
+    return result.toUIMessageStreamResponse()
+  })
+})
 ```
 
 Head back to the browser and ask about the weather in a location. You should now see the model using the weather tool results to answer your question.
@@ -433,25 +409,18 @@ By setting `stopWhen: stepCountIs(5)`, you're allowing the model to use up to 5 
 Update your `server/api/chat.ts` file to add a new tool to convert the temperature from Fahrenheit to Celsius:
 
 ```typescript filename="server/api/chat.ts" highlight="32-45"
-import {
-  createGateway,
-  streamText,
-  UIMessage,
-  convertToModelMessages,
-  tool,
-  stepCountIs,
-} from 'ai';
-import { z } from 'zod';
+import { createGateway, streamText, UIMessage, convertToModelMessages, tool, stepCountIs } from 'ai'
+import { z } from 'zod'
 
 export default defineLazyEventHandler(async () => {
-  const apiKey = useRuntimeConfig().aiGatewayApiKey;
-  if (!apiKey) throw new Error('Missing AI Gateway API key');
+  const apiKey = useRuntimeConfig().aiGatewayApiKey
+  if (!apiKey) throw new Error('Missing AI Gateway API key')
   const gateway = createGateway({
-    apiKey: apiKey,
-  });
+    apiKey: apiKey
+  })
 
   return defineEventHandler(async (event: any) => {
-    const { messages }: { messages: UIMessage[] } = await readBody(event);
+    const { messages }: { messages: UIMessage[] } = await readBody(event)
 
     const result = streamText({
       model: gateway('anthropic/claude-sonnet-4.5'),
@@ -461,38 +430,34 @@ export default defineLazyEventHandler(async () => {
         weather: tool({
           description: 'Get the weather in a location (fahrenheit)',
           inputSchema: z.object({
-            location: z
-              .string()
-              .describe('The location to get the weather for'),
+            location: z.string().describe('The location to get the weather for')
           }),
           execute: async ({ location }) => {
-            const temperature = Math.round(Math.random() * (90 - 32) + 32);
+            const temperature = Math.round(Math.random() * (90 - 32) + 32)
             return {
               location,
-              temperature,
-            };
-          },
+              temperature
+            }
+          }
         }),
         convertFahrenheitToCelsius: tool({
           description: 'Convert a temperature in fahrenheit to celsius',
           inputSchema: z.object({
-            temperature: z
-              .number()
-              .describe('The temperature in fahrenheit to convert'),
+            temperature: z.number().describe('The temperature in fahrenheit to convert')
           }),
           execute: async ({ temperature }) => {
-            const celsius = Math.round((temperature - 32) * (5 / 9));
+            const celsius = Math.round((temperature - 32) * (5 / 9))
             return {
-              celsius,
-            };
-          },
-        }),
-      },
-    });
+              celsius
+            }
+          }
+        })
+      }
+    })
 
-    return result.toUIMessageStreamResponse();
-  });
-});
+    return result.toUIMessageStreamResponse()
+  })
+})
 ```
 
 ### Update Your Frontend

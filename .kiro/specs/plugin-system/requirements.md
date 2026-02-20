@@ -270,4 +270,3 @@ This document specifies the requirements for Aura's plugin system, which enables
 2. WHEN rendering the sidebar, THE Plugin_UI SHALL include all registered plugin sidebar items
 3. WHEN a user clicks a plugin sidebar item, THE Plugin_UI SHALL navigate to or display the associated plugin component
 4. WHEN a plugin is disabled, THE Plugin_UI SHALL remove all sidebar items contributed by that plugin
-

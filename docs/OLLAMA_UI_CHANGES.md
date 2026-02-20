@@ -3,6 +3,7 @@
 ## Settings → AI Tab
 
 ### Before
+
 ```
 API Keys
 ├── OpenRouter
@@ -16,6 +17,7 @@ Models
 ```
 
 ### After
+
 ```
 API Keys
 ├── OpenRouter
@@ -32,6 +34,7 @@ Models
 ## New Field Details
 
 ### Ollama Base URL
+
 - **Type**: Text input (not password)
 - **Default**: `http://localhost:11434/api`
 - **Purpose**: Configure where Ollama is running
@@ -41,6 +44,7 @@ Models
   - Using Ollama behind proxy
 
 ### Provider Dropdown
+
 - **New Option**: "Ollama (Local)"
 - **Behavior**: Same as other providers
 - **Model ID Examples**:
@@ -52,6 +56,7 @@ Models
 ## Usage Example
 
 1. **Add Ollama Model**:
+
    ```
    Provider: Ollama (Local)
    Model ID: llama3.2:3b
@@ -59,6 +64,7 @@ Models
    ```
 
 2. **Assign to Role**:
+
    ```
    Model Routing
    ├── Chat (Conversation): Llama 3.2 Local
@@ -94,11 +100,13 @@ Stream response back to UI
 ## Configuration Storage
 
 Settings are persisted in:
+
 ```
 ~/Library/Application Support/aura-desktop/aura-state.json
 ```
 
 Example saved state:
+
 ```json
 {
   "settings": {
@@ -128,7 +136,9 @@ Example saved state:
 ## Error Handling
 
 ### Connection Failed
+
 If Ollama is not running, user sees:
+
 ```
 ⚠️ Error: fetch failed
 ```
@@ -136,7 +146,9 @@ If Ollama is not running, user sees:
 **Solution**: Start Ollama with `ollama serve`
 
 ### Model Not Found
+
 If model isn't pulled:
+
 ```
 ⚠️ Error: model 'llama3.2:3b' not found
 ```
@@ -144,7 +156,9 @@ If model isn't pulled:
 **Solution**: Pull model with `ollama pull llama3.2:3b`
 
 ### Invalid Base URL
+
 If URL is malformed:
+
 ```
 ⚠️ Error: Invalid URL
 ```

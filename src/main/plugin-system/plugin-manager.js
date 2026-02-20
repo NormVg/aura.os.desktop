@@ -42,7 +42,7 @@ export class PluginManager {
   async discoverPlugins() {
     try {
       const entries = await fs.readdir(this.pluginsDir, { withFileTypes: true })
-      const pluginDirs = entries.filter(e => e.isDirectory())
+      const pluginDirs = entries.filter((e) => e.isDirectory())
 
       for (const dir of pluginDirs) {
         const pluginPath = path.join(this.pluginsDir, dir.name)
@@ -186,7 +186,7 @@ export class PluginManager {
       if (!validation.valid) {
         return {
           success: false,
-          error: validation.errors.map(e => `${e.field}: ${e.message}`).join(', ')
+          error: validation.errors.map((e) => `${e.field}: ${e.message}`).join(', ')
         }
       }
 

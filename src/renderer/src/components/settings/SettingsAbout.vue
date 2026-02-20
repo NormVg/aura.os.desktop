@@ -14,9 +14,7 @@ const { state } = storeToRefs(store)
       Experimental desktop environment.<br />
       Designed for focus and flow.
     </p>
-    <div class="credits">
-      Made with ❤️ by Vishnu
-    </div>
+    <div class="credits">Made with ❤️ by Vishnu</div>
   </div>
 </template>
 

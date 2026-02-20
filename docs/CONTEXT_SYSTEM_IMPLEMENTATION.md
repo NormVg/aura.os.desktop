@@ -58,17 +58,19 @@ const contextMessages = ref([])
 const suggestions = computed(() => {
   if (!contextMessages.value.length) return []
 
-  return contextMessages.value.map(msgId => {
-    const msg = messages.value.find(m => m.id === msgId)
-    if (!msg) return null
-    const snippet = msg.text.slice(0, 50) + (msg.text.length > 50 ? '...' : '')
-    return {
-      id: msgId,
-      label: snippet,
-      messageId: msgId,
-      fullText: msg.text
-    }
-  }).filter(Boolean)
+  return contextMessages.value
+    .map((msgId) => {
+      const msg = messages.value.find((m) => m.id === msgId)
+      if (!msg) return null
+      const snippet = msg.text.slice(0, 50) + (msg.text.length > 50 ? '...' : '')
+      return {
+        id: msgId,
+        label: snippet,
+        messageId: msgId,
+        fullText: msg.text
+      }
+    })
+    .filter(Boolean)
 })
 
 // Actions
@@ -79,7 +81,7 @@ function addContextMessage(messageId) {
 }
 
 function removeContextMessage(messageId) {
-  contextMessages.value = contextMessages.value.filter(id => id !== messageId)
+  contextMessages.value = contextMessages.value.filter((id) => id !== messageId)
 }
 
 function clearContext() {
@@ -88,6 +90,7 @@ function clearContext() {
 ```
 
 **Key Changes:**
+
 - Added `contextMessages` ref to track message IDs
 - Modified `suggestions` to generate from context messages
 - Added context management functions
@@ -113,16 +116,20 @@ function handleAddToContext(msg) {
 ```
 
 **Template:**
+
 ```vue
-<button class="msg-act-btn"
+<button
+  class="msg-act-btn"
   :class="{ active: contextMessages.includes(msg.id) }"
   @click="handleAddToContext(msg)"
-  :title="contextMessages.includes(msg.id) ? 'Remove from context' : 'Add to context'">
+  :title="contextMessages.includes(msg.id) ? 'Remove from context' : 'Add to context'"
+>
   <svg><!-- Reply icon --></svg>
 </button>
 ```
 
 **CSS:**
+
 ```css
 .msg-act-btn.active {
   background: rgba(205, 198, 247, 0.12);
@@ -162,6 +169,7 @@ function removeContextMessage(messageId) {
 ```
 
 **Key Changes:**
+
 - Changed "replying" to "context"
 - Removed click handler on chip (not clickable)
 - X button calls `removeContextMessage()`
@@ -169,6 +177,7 @@ function removeContextMessage(messageId) {
 #### ChatInput (`src/renderer/src/components/ChatInput.vue`)
 
 **Simplified:**
+
 - Removed reply context bar
 - Removed all reply-related imports and state
 - Kept clean and minimal
@@ -241,6 +250,7 @@ function removeContextMessage(messageId) {
 ## Technical Flow
 
 ### Adding to Context
+
 ```
 User clicks reply button
     ↓
@@ -258,6 +268,7 @@ Chips render
 ```
 
 ### Removing from Context
+
 ```
 User clicks X on chip
     ↓
@@ -271,6 +282,7 @@ Chip disappears
 ```
 
 ### Sending Message
+
 ```
 User types and sends
     ↓

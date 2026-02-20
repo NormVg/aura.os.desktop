@@ -1,52 +1,123 @@
 <script setup>
-import { ref, computed } from 'vue'
+import { ref, computed, onMounted, watch, nextTick } from 'vue'
 import { renderMarkdown } from '../utils/markdown'
+import mermaid from 'mermaid'
 
 const props = defineProps({
-  text: { type: String, default: '' },
+  text: { type: String, default: '' }
 })
 
 const emit = defineEmits(['reply', 'close'])
 
 const copied = ref(false)
+const textBodyRef = ref(null)
 
 const html = computed(() => renderMarkdown(props.text))
+
+async function renderMermaidDiagrams() {
+  await nextTick()
+  if (!textBodyRef.value) return
+
+  const mermaidElements = textBodyRef.value.querySelectorAll('.mermaid-diagram[data-mermaid-code]')
+
+  for (const element of mermaidElements) {
+    const code = element.getAttribute('data-mermaid-code')
+    const id = element.getAttribute('data-mermaid-id')
+
+    if (!code || !id) continue
+
+    try {
+      // Decode HTML entities
+      const decodedCode = code.replace(/&lt;/g, '<').replace(/&gt;/g, '>')
+      const { svg } = await mermaid.render(`${id}-svg`, decodedCode)
+      element.innerHTML = svg
+    } catch (err) {
+      console.error('Mermaid rendering error:', err)
+      element.innerHTML = `<pre style="color: #e06c75;">Mermaid Error: ${err.message}</pre>`
+    }
+  }
+}
 
 function copy() {
   navigator.clipboard.writeText(props.text)
   copied.value = true
   setTimeout(() => (copied.value = false), 1500)
 }
+
+onMounted(() => {
+  renderMermaidDiagrams()
+})
+
+watch(
+  () => props.text,
+  () => {
+    renderMermaidDiagrams()
+  }
+)
 </script>
 
 <template>
   <div class="text-block">
-    <div class="text-body" v-html="html" />
+    <div ref="textBodyRef" class="text-body" v-html="html" />
 
     <div class="actions">
       <button class="action-btn" title="Reply" @click="emit('reply')">
-        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-          stroke-linecap="round" stroke-linejoin="round">
+        <svg
+          width="15"
+          height="15"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        >
           <polyline points="9 17 4 12 9 7" />
           <path d="M20 18v-2a4 4 0 0 0-4-4H4" />
         </svg>
       </button>
 
       <button class="action-btn" :class="{ copied }" title="Copy" @click="copy">
-        <svg v-if="!copied" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-          stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <svg
+          v-if="!copied"
+          width="15"
+          height="15"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        >
           <rect x="9" y="9" width="13" height="13" rx="2" />
           <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
         </svg>
-        <svg v-else width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
-          stroke-linecap="round" stroke-linejoin="round">
+        <svg
+          v-else
+          width="15"
+          height="15"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2.5"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        >
           <polyline points="20 6 9 17 4 12" />
         </svg>
       </button>
 
       <button class="action-btn" title="Collapse" @click="emit('close')">
-        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"
-          stroke-linecap="round" stroke-linejoin="round">
+        <svg
+          width="15"
+          height="15"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2.2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        >
           <polyline points="6 9 12 15 18 9" />
         </svg>
       </button>
@@ -142,6 +213,57 @@ function copy() {
   color: #a89fd4;
 }
 
+/* ── Tables ── */
+.text-body :deep(table) {
+  border-collapse: collapse;
+  width: 100%;
+  margin: 10px 0;
+  font-size: 13px;
+  background: rgba(205, 198, 247, 0.03);
+  border-radius: 6px;
+  overflow: hidden;
+}
+
+.text-body :deep(thead) {
+  background: rgba(205, 198, 247, 0.08);
+}
+
+.text-body :deep(th) {
+  padding: 8px 12px;
+  text-align: left;
+  font-weight: 600;
+  color: #e8e4ff;
+  border-bottom: 1px solid rgba(205, 198, 247, 0.15);
+}
+
+.text-body :deep(td) {
+  padding: 8px 12px;
+  border-bottom: 1px solid rgba(205, 198, 247, 0.08);
+}
+
+.text-body :deep(tr:last-child td) {
+  border-bottom: none;
+}
+
+.text-body :deep(tbody tr:hover) {
+  background: rgba(205, 198, 247, 0.05);
+}
+
+/* ── Mermaid Diagrams ── */
+.text-body :deep(.mermaid-diagram) {
+  margin: 12px 0;
+  padding: 16px;
+  background: rgba(205, 198, 247, 0.03);
+  border-radius: 8px;
+  overflow-x: auto;
+  text-align: center;
+}
+
+.text-body :deep(.mermaid-diagram svg) {
+  max-width: 100%;
+  height: auto;
+}
+
 .actions {
   display: flex;
   justify-content: flex-end;
@@ -159,7 +281,9 @@ function copy() {
   border-radius: 7px;
   color: rgba(205, 198, 247, 0.35);
   cursor: pointer;
-  transition: background 0.12s ease, color 0.12s ease;
+  transition:
+    background 0.12s ease,
+    color 0.12s ease;
 }
 
 .action-btn:hover {

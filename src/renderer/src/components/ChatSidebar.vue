@@ -7,17 +7,52 @@ import ChatInput from './ChatInput.vue'
 import ReplyChips from './ReplyChips.vue'
 import QuestionCard from './QuestionCard.vue'
 import AuraLogo from './AuraLogo.vue'
-import { Wrench, Clock, Calculator, Cloud, Globe, Bell, Timer, ChevronDown, ChevronRight, Loader2 } from 'lucide-vue-next'
+import {
+  Wrench,
+  Clock,
+  Calculator,
+  Cloud,
+  Globe,
+  Bell,
+  Timer,
+  ChevronDown,
+  ChevronRight,
+  Loader2
+} from 'lucide-vue-next'
 
 const chatStore = useChatStore()
-const { messages, suggestions, contextMessages, replyingTo, isStreaming, streamingText, pendingToolCalls, pendingQuestion } = storeToRefs(chatStore)
+const {
+  messages,
+  suggestions,
+  contextMessages,
+  replyingTo,
+  isStreaming,
+  streamingText,
+  pendingToolCalls,
+  pendingQuestion
+} = storeToRefs(chatStore)
 
 // ── Tool UI helpers ─────────────────────────────────────────
-const toolIcons = { getCurrentTime: Clock, calculate: Calculator, getWeather: Cloud, openUrl: Globe, setReminder: Bell, wait: Timer }
+const toolIcons = {
+  getCurrentTime: Clock,
+  calculate: Calculator,
+  getWeather: Cloud,
+  openUrl: Globe,
+  setReminder: Bell,
+  wait: Timer
+}
 const expandedTools = ref({}) // reactive object: { [id]: bool }
-function toggleTool(id) { expandedTools.value[id] = !expandedTools.value[id] }
-function toolIcon(name) { return toolIcons[name] || Wrench }
-function formatArgs(args) { return Object.entries(args || {}).map(([k, v]) => `${k}: ${JSON.stringify(v)}`).join(', ') }
+function toggleTool(id) {
+  expandedTools.value[id] = !expandedTools.value[id]
+}
+function toolIcon(name) {
+  return toolIcons[name] || Wrench
+}
+function formatArgs(args) {
+  return Object.entries(args || {})
+    .map(([k, v]) => `${k}: ${JSON.stringify(v)}`)
+    .join(', ')
+}
 
 // ── DOM refs ────────────────────────────────────────────────
 const messagesEl = ref(null)
@@ -49,8 +84,7 @@ async function send(text) {
 }
 
 function scrollToBottom() {
-  if (messagesEl.value)
-    messagesEl.value.scrollTop = messagesEl.value.scrollHeight
+  if (messagesEl.value) messagesEl.value.scrollTop = messagesEl.value.scrollHeight
 }
 
 // Auto-scroll while streaming
@@ -78,7 +112,6 @@ function handleAnswer(response) {
   chatStore.answerQuestion(response)
 }
 
-
 // ── Markdown ───────────────────────────────────────────────
 function renderMd(text) {
   // Strip emotion tags for display
@@ -105,7 +138,9 @@ function copy(msg) {
           <AuraLogo />
         </div>
         <h3 class="empty-title">Hi there! I'm Aura.</h3>
-        <p class="empty-desc">I can help you write code, plan projects, or just chat. How can I help you today?</p>
+        <p class="empty-desc">
+          I can help you write code, plan projects, or just chat. How can I help you today?
+        </p>
       </div>
 
       <div v-for="msg in messages" :key="msg.id" class="msg-row" :class="msg.role">
@@ -122,9 +157,14 @@ function copy(msg) {
               <div class="tool-header" @click="toggleTool(tc.id)">
                 <component :is="toolIcon(tc.toolName)" :size="14" class="tool-icon" />
                 <span class="tool-name">{{ tc.toolName }}</span>
-                <span class="tool-args" v-if="formatArgs(tc.args)">({{ formatArgs(tc.args) }})</span>
-                <component :is="expandedTools[tc.id] ? ChevronDown : ChevronRight" :size="14"
-                  class="tool-status-icon" />
+                <span class="tool-args" v-if="formatArgs(tc.args)"
+                  >({{ formatArgs(tc.args) }})</span
+                >
+                <component
+                  :is="expandedTools[tc.id] ? ChevronDown : ChevronRight"
+                  :size="14"
+                  class="tool-status-icon"
+                />
               </div>
               <div v-if="expandedTools[tc.id]" class="tool-result">
                 <pre>{{ JSON.stringify(tc.result, null, 2) }}</pre>
@@ -135,23 +175,51 @@ function copy(msg) {
           <div class="msg-actions">
             <!-- Copy -->
             <button class="msg-act-btn" :class="{ copied: copiedId === msg.id }" @click="copy(msg)">
-              <svg v-if="copiedId !== msg.id" width="14" height="14" viewBox="0 0 24 24" fill="none"
-                stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <svg
+                v-if="copiedId !== msg.id"
+                width="14"
+                height="14"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
                 <rect x="9" y="9" width="13" height="13" rx="2" />
                 <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
               </svg>
-              <svg v-else width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+              <svg
+                v-else
+                width="14"
+                height="14"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2.5"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
                 <polyline points="20 6 9 17 4 12" />
               </svg>
             </button>
             <!-- Reply -->
-            <button class="msg-act-btn"
+            <button
+              class="msg-act-btn"
               :class="{ active: contextMessages.includes(msg.id) }"
               @click="handleAddToContext(msg)"
-              :title="contextMessages.includes(msg.id) ? 'Remove from context' : 'Add to context'">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                stroke-linecap="round" stroke-linejoin="round">
+              :title="contextMessages.includes(msg.id) ? 'Remove from context' : 'Add to context'"
+            >
+              <svg
+                width="14"
+                height="14"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
                 <polyline points="9 17 4 12 9 7" />
                 <path d="M20 18v-2a4 4 0 0 0-4-4H4" />
               </svg>
@@ -162,13 +230,28 @@ function copy(msg) {
 
       <!-- Live tool call cards while streaming -->
       <div v-if="pendingToolCalls.length" class="tool-calls-wrap">
-        <div v-for="tc in pendingToolCalls" :key="tc.id" class="tool-card" :class="{ done: tc.status === 'done' }">
+        <div
+          v-for="tc in pendingToolCalls"
+          :key="tc.id"
+          class="tool-card"
+          :class="{ done: tc.status === 'done' }"
+        >
           <div class="tool-header" @click="toggleTool(tc.id)">
             <component :is="toolIcon(tc.toolName)" :size="14" class="tool-icon" />
             <span class="tool-name">{{ tc.toolName }}</span>
             <span class="tool-args" v-if="formatArgs(tc.args)">({{ formatArgs(tc.args) }})</span>
-            <component :is="tc.status === 'running' ? Loader2 : (expandedTools[tc.id] ? ChevronDown : ChevronRight)"
-              :size="14" class="tool-status-icon" :class="{ spin: tc.status === 'running' }" />
+            <component
+              :is="
+                tc.status === 'running'
+                  ? Loader2
+                  : expandedTools[tc.id]
+                    ? ChevronDown
+                    : ChevronRight
+              "
+              :size="14"
+              class="tool-status-icon"
+              :class="{ spin: tc.status === 'running' }"
+            />
           </div>
           <div v-if="tc.status === 'done' && expandedTools[tc.id]" class="tool-result">
             <pre>{{ JSON.stringify(tc.result, null, 2) }}</pre>
@@ -318,6 +401,42 @@ function copy(msg) {
   white-space: pre;
 }
 
+/* ── Tables ── */
+.ai-text :deep(table) {
+  border-collapse: collapse;
+  width: 100%;
+  margin: 10px 0;
+  font-size: 13px;
+  background: rgba(205, 198, 247, 0.03);
+  border-radius: 6px;
+  overflow: hidden;
+}
+
+.ai-text :deep(thead) {
+  background: rgba(205, 198, 247, 0.08);
+}
+
+.ai-text :deep(th) {
+  padding: 8px 12px;
+  text-align: left;
+  font-weight: 600;
+  color: #e8e4ff;
+  border-bottom: 1px solid rgba(205, 198, 247, 0.15);
+}
+
+.ai-text :deep(td) {
+  padding: 8px 12px;
+  border-bottom: 1px solid rgba(205, 198, 247, 0.08);
+}
+
+.ai-text :deep(tr:last-child td) {
+  border-bottom: none;
+}
+
+.ai-text :deep(tbody tr:hover) {
+  background: rgba(205, 198, 247, 0.05);
+}
+
 /* ── Syntax Highlighting Manual Overrides (Atom One Darkish) ── */
 .ai-text :deep(.hljs-comment),
 .ai-text :deep(.hljs-quote) {
@@ -401,7 +520,10 @@ function copy(msg) {
   border-radius: 7px;
   color: rgba(205, 198, 247, 0.25);
   cursor: pointer;
-  transition: background 0.12s, color 0.12s, border-color 0.12s;
+  transition:
+    background 0.12s,
+    color 0.12s,
+    border-color 0.12s;
 }
 
 .msg-act-btn:hover {
@@ -506,7 +628,9 @@ function copy(msg) {
   border-radius: 50%;
   color: rgba(205, 198, 247, 0.3);
   cursor: pointer;
-  transition: background 0.12s, color 0.12s;
+  transition:
+    background 0.12s,
+    color 0.12s;
 }
 
 .in-btn:hover {
@@ -547,7 +671,6 @@ function copy(msg) {
 }
 
 @keyframes blink {
-
   0%,
   100% {
     opacity: 1;

@@ -1,7 +1,7 @@
 /**
  * Hello Plugin - Example plugin for testing
  */
-export default function(api) {
+export default function (api) {
   api.log('Hello Plugin initializing...')
 
   return {

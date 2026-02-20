@@ -17,14 +17,48 @@ const showSettings = ref(false)
 const isResizing = ref(false)
 
 let _syncing = false
-watch(isOpen, v => { if (!_syncing) { _syncing = true; wsStore.updateSidePanel(v, undefined); _syncing = false } })
-watch(panelWidth, v => { if (!_syncing) { _syncing = true; wsStore.updateSidePanel(undefined, v); _syncing = false } })
-watch(() => wsStore.state.sidePanelOpen, v => { if (!_syncing && v !== undefined) { _syncing = true; isOpen.value = v; _syncing = false } })
-watch(() => wsStore.state.sidePanelWidth, v => { if (!_syncing && v !== undefined) { _syncing = true; panelWidth.value = v; _syncing = false } })
+watch(isOpen, (v) => {
+  if (!_syncing) {
+    _syncing = true
+    wsStore.updateSidePanel(v, undefined)
+    _syncing = false
+  }
+})
+watch(panelWidth, (v) => {
+  if (!_syncing) {
+    _syncing = true
+    wsStore.updateSidePanel(undefined, v)
+    _syncing = false
+  }
+})
+watch(
+  () => wsStore.state.sidePanelOpen,
+  (v) => {
+    if (!_syncing && v !== undefined) {
+      _syncing = true
+      isOpen.value = v
+      _syncing = false
+    }
+  }
+)
+watch(
+  () => wsStore.state.sidePanelWidth,
+  (v) => {
+    if (!_syncing && v !== undefined) {
+      _syncing = true
+      panelWidth.value = v
+      _syncing = false
+    }
+  }
+)
 
-function toggle() { isOpen.value = !isOpen.value }
+function toggle() {
+  isOpen.value = !isOpen.value
+}
 
-function closeSidebar() { isOpen.value = false }
+function closeSidebar() {
+  isOpen.value = false
+}
 defineExpose({ closeSidebar, isOpen })
 
 function startResize(e) {
@@ -69,8 +103,13 @@ onUnmounted(() => {
     <div class="curve-left" />
   </div>
 
-  <IconStrip :isOpen="isOpen" @toggle="toggle" @openSettings="showSettings = true" @voiceStart="$emit('voiceStart')"
-    @voiceEnd="$emit('voiceEnd')" />
+  <IconStrip
+    :isOpen="isOpen"
+    @toggle="toggle"
+    @openSettings="showSettings = true"
+    @voiceStart="$emit('voiceStart')"
+    @voiceEnd="$emit('voiceEnd')"
+  />
 
   <SettingsModal :isOpen="showSettings" @close="showSettings = false" />
 </template>
@@ -97,7 +136,8 @@ onUnmounted(() => {
   user-select: none;
   overflow: hidden;
   transform: translateX(0);
-  transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1),
+  transition:
+    transform 0.35s cubic-bezier(0.4, 0, 0.2, 1),
     opacity 0.3s ease;
   opacity: 1;
 }

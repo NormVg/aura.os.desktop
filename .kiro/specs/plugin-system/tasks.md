@@ -13,7 +13,7 @@ This plan implements a comprehensive plugin system for Aura that enables third-p
     - Create `src/renderer/src/plugin-system/` directory for renderer components
     - _Requirements: 2.1, 2.2, 2.3, 2.4, 2.5_
 
-  - [ ]* 1.2 Write property test for manifest validation
+  - [ ]\* 1.2 Write property test for manifest validation
     - **Property 6: Manifest Validation Completeness**
     - **Validates: Requirements 2.1, 2.2, 2.3, 2.4, 2.5, 2.6, 2.7**
     - Test that validation verifies JSON validity, required fields, ID format, version format, main file existence, auraVersion compatibility, and permission validity
@@ -34,7 +34,7 @@ This plan implements a comprehensive plugin system for Aura that enables third-p
     - Add validation for optional renderer entry point and component files
     - _Requirements: 2.5, 2.7, 2.8, 2.9_
 
-  - [ ]* 2.3 Write property tests for validator
+  - [ ]\* 2.3 Write property tests for validator
     - **Property 3: Failed Validation Preserves System State**
     - **Validates: Requirements 1.4, 10.3, 10.4**
     - **Property 7: Conditional File Validation**
@@ -55,7 +55,7 @@ This plan implements a comprehensive plugin system for Aura that enables third-p
     - Add error handling with automatic plugin disable on crash
     - _Requirements: 3.5, 3.6, 3.7, 10.1, 10.2_
 
-  - [ ]* 3.3 Write property tests for loader
+  - [ ]\* 3.3 Write property tests for loader
     - **Property 8: Plugin Loading Isolation**
     - **Validates: Requirements 3.1, 3.2, 3.3**
     - **Property 9: Lifecycle Hook Execution**
@@ -100,7 +100,7 @@ This plan implements a comprehensive plugin system for Aura that enables third-p
     - Implement `sendChatMessage()` for AI interaction
     - _Requirements: 8.2, 8.3, 15.1, 15.2_
 
-  - [ ]* 4.6 Write property tests for Plugin API
+  - [ ]\* 4.6 Write property tests for Plugin API
     - **Property 13: Permission Enforcement**
     - **Validates: Requirements 4.2, 4.3, 4.7, 4.8, 4.9, 15.2, 16.1, 16.2, 17.3, 18.1, 18.2**
     - **Property 15: Storage Isolation**
@@ -151,7 +151,7 @@ This plan implements a comprehensive plugin system for Aura that enables third-p
     - Add user approval prompts for sensitive permissions
     - _Requirements: 4.1, 4.4, 4.5_
 
-  - [ ]* 6.6 Write property tests for Plugin Manager
+  - [ ]\* 6.6 Write property tests for Plugin Manager
     - **Property 1: Validation Before Installation**
     - **Validates: Requirements 1.1**
     - **Property 2: Valid Plugin Installation**
@@ -184,7 +184,7 @@ This plan implements a comprehensive plugin system for Aura that enables third-p
     - Integrate with existing AI tools system in `src/main/tools.js`
     - _Requirements: 6.4, 6.5, 6.6_
 
-  - [ ]* 7.3 Write property tests for tool system
+  - [ ]\* 7.3 Write property tests for tool system
     - **Property 21: Tool Registration Validation**
     - **Validates: Requirements 6.1, 6.3**
     - **Property 22: Tool Execution**
@@ -208,7 +208,7 @@ This plan implements a comprehensive plugin system for Aura that enables third-p
     - Add event listeners for plugin state updates
     - _Requirements: 11.1, 11.2, 11.5_
 
-  - [ ]* 8.3 Write property test for IPC communication
+  - [ ]\* 8.3 Write property test for IPC communication
     - **Property 30: IPC Communication**
     - **Validates: Requirements 11.1, 11.2, 11.3, 11.4, 11.5**
 
@@ -236,7 +236,7 @@ This plan implements a comprehensive plugin system for Aura that enables third-p
     - Add permission grant state management
     - _Requirements: 8.1, 8.2, 8.3, 8.4_
 
-  - [ ]* 10.4 Write property tests for Plugin Store
+  - [ ]\* 10.4 Write property tests for Plugin Store
     - **Property 32: Query Consistency**
     - **Validates: Requirements 12.3**
     - **Property 33: Reactive State Updates**
@@ -264,7 +264,7 @@ This plan implements a comprehensive plugin system for Aura that enables third-p
     - Add error boundaries for plugin component crashes
     - _Requirements: 5.4, 5.5_
 
-  - [ ]* 11.4 Write property tests for UI integration
+  - [ ]\* 11.4 Write property tests for UI integration
     - **Property 17: Component Registration and Rendering**
     - **Validates: Requirements 5.1, 5.2, 5.7**
     - **Property 18: Component Ordering**
@@ -296,7 +296,7 @@ This plan implements a comprehensive plugin system for Aura that enables third-p
     - Add settings validation
     - _Requirements: 8.1, 8.2, 8.3, 8.4_
 
-  - [ ]* 12.4 Write property test for settings management
+  - [ ]\* 12.4 Write property test for settings management
     - **Property 25: Settings Management**
     - **Validates: Requirements 8.1, 8.2, 8.3, 8.4**
 
@@ -312,7 +312,7 @@ This plan implements a comprehensive plugin system for Aura that enables third-p
     - Implement sidebar item removal on plugin disable
     - _Requirements: 20.4_
 
-  - [ ]* 13.3 Write property test for sidebar integration
+  - [ ]\* 13.3 Write property test for sidebar integration
     - **Property 46: Sidebar Integration**
     - **Validates: Requirements 20.1, 20.2, 20.4**
 
@@ -333,7 +333,7 @@ This plan implements a comprehensive plugin system for Aura that enables third-p
     - Add request logging for security auditing
     - _Requirements: 18.1, 18.2, 18.3_
 
-  - [ ]* 14.4 Write property tests for advanced permissions
+  - [ ]\* 14.4 Write property tests for advanced permissions
     - **Property 14: Permission Updates**
     - **Validates: Requirements 4.5**
 
@@ -357,7 +357,7 @@ This plan implements a comprehensive plugin system for Aura that enables third-p
     - Ensure non-blocking async operations
     - _Requirements: 13.4_
 
-  - [ ]* 16.4 Write property tests for performance
+  - [ ]\* 16.4 Write property tests for performance
     - **Property 36: Parallel Discovery**
     - **Validates: Requirements 13.1**
     - **Property 37: Lazy Loading**
@@ -396,7 +396,7 @@ This plan implements a comprehensive plugin system for Aura that enables third-p
     - Create SettingsPanel.vue for API key configuration
     - _Requirements: All requirements (integration test)_
 
-  - [ ]* 18.2 Write integration tests with example plugin
+  - [ ]\* 18.2 Write integration tests with example plugin
     - Test complete installation flow
     - Test component rendering in UI
     - Test tool registration and execution

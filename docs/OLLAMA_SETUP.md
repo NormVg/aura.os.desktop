@@ -9,12 +9,15 @@ Ollama support has been added to Aura Desktop, allowing you to run AI models loc
    - Or use Homebrew on macOS: `brew install ollama`
 
 2. **Start Ollama service**:
+
    ```bash
    ollama serve
    ```
+
    This starts the Ollama API server on `http://localhost:11434`
 
 3. **Pull a model** (examples):
+
    ```bash
    # Lightweight models
    ollama pull llama3.2:3b
@@ -53,16 +56,19 @@ Ollama support has been added to Aura Desktop, allowing you to run AI models loc
 ## Recommended Models
 
 ### For Chat
+
 - **llama3.2:3b** - Fast, good quality, low memory (~2GB)
 - **phi3:mini** - Very fast, compact (~2GB)
 - **mistral:7b** - Higher quality, needs more RAM (~4GB)
 
 ### For Tool Calling
+
 - **llama3.1:8b** - Excellent tool calling support
 - **qwen2.5:7b** - Good at structured outputs
 - **mistral:7b** - Reliable tool execution
 
 ### For Summarization
+
 - **llama3.2:3b** - Fast and concise
 - **phi3:mini** - Quick summaries
 
@@ -77,25 +83,30 @@ Ollama support has been added to Aura Desktop, allowing you to run AI models loc
 ## Troubleshooting
 
 ### "Connection refused" error
+
 - Make sure Ollama is running: `ollama serve`
 - Check the base URL in settings matches your Ollama server
 
 ### Model not found
+
 - Pull the model first: `ollama pull <model-name>`
 - Verify model name matches exactly (case-sensitive)
 
 ### Slow responses
+
 - Try a smaller model (3B parameters instead of 7B+)
 - Check system resources (RAM, CPU usage)
 - Consider using GPU acceleration if available
 
 ### Tool calling not working
+
 - Use models with good tool support (llama3.1, qwen2.5)
 - Some smaller models may not support tools reliably
 
 ## Mixing Providers
 
 You can use different providers for different tasks:
+
 - **Ollama** for general chat (fast, private)
 - **OpenRouter/Google** for complex reasoning or tool calling
 - **Edge TTS** for voice (free, no API key needed)
@@ -105,16 +116,19 @@ This gives you the best of both worlds: privacy + power when needed.
 ## Model Management
 
 List installed models:
+
 ```bash
 ollama list
 ```
 
 Remove a model:
+
 ```bash
 ollama rm <model-name>
 ```
 
 Update a model:
+
 ```bash
 ollama pull <model-name>
 ```

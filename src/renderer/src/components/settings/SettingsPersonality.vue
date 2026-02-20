@@ -13,12 +13,16 @@ const { state } = storeToRefs(store)
     <div class="section">
       <h3>System Prompt</h3>
       <p class="section-desc">
-        Define Aura's core personality, tone, and rules. This prompt is sent with every conversation start.
+        Define Aura's core personality, tone, and rules. This prompt is sent with every conversation
+        start.
       </p>
 
       <div class="prompt-container">
-        <textarea v-model="state.ai.systemPrompt" class="sys-prompt"
-          placeholder="You are Aura, a helpful and witty AI assistant. You speak casually but professionally..." />
+        <textarea
+          v-model="state.ai.systemPrompt"
+          class="sys-prompt"
+          placeholder="You are Aura, a helpful and witty AI assistant. You speak casually but professionally..."
+        />
         <div class="prompt-footer">
           <span>{{ state.ai.systemPrompt.length }} characters</span>
         </div>

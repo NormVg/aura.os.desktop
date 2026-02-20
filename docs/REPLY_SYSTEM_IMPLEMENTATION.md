@@ -7,22 +7,26 @@ The reply system in Aura Desktop's chat has been fully implemented, allowing use
 ## Features Implemented
 
 ### 1. Reply to Any Message
+
 - Click the reply button (↩️) on any AI message
 - Message context is shown in the input area
 - AI receives context about which message is being replied to
 
 ### 2. Smart Suggestions
+
 - After AI responds, a reply chip appears automatically
 - Shows a snippet of the last AI message
 - Click to quickly reply to the last message
 
 ### 3. Visual Feedback
+
 - Reply context bar appears above input when replying
 - Shows "Replying to: [message snippet]"
 - X button to cancel reply
 - Reply chips show below messages area
 
 ### 4. Context Preservation
+
 - When replying, AI receives the original message context
 - Format: `[Replying to: "original message..."] user's reply`
 - Helps AI understand what the user is referring to
@@ -32,6 +36,7 @@ The reply system in Aura Desktop's chat has been fully implemented, allowing use
 ### 1. `src/renderer/src/stores/chat.js`
 
 **Changes:**
+
 - Updated `suggestions` computed property to generate real suggestions from last AI message
 - Modified `sendMessage()` to accept `replyToMessageId` parameter
 - Added reply context to AI messages when replying
@@ -40,11 +45,12 @@ The reply system in Aura Desktop's chat has been fully implemented, allowing use
 - Exported `removeReplyingTo` in return statement
 
 **Key Logic:**
+
 ```javascript
 // Generate suggestion from last AI message
 const suggestions = computed(() => {
   if (isStreaming.value || replyingTo.value) return []
-  const lastAI = messages.value.filter(m => m.role === 'ai').at(-1)
+  const lastAI = messages.value.filter((m) => m.role === 'ai').at(-1)
   if (!lastAI) return []
   const snippet = lastAI.text.slice(0, 50) + '...'
   return [{ id: lastAI.id, label: snippet, messageId: lastAI.id, fullText: lastAI.text }]
@@ -52,7 +58,7 @@ const suggestions = computed(() => {
 
 // Add reply context to message
 if (replyToMessageId) {
-  const replyToMsg = messages.value.find(m => m.id === replyToMessageId)
+  const replyToMsg = messages.value.find((m) => m.id === replyToMessageId)
   if (replyToMsg) {
     lastUserMsg.content = `[Replying to: "${replyToMsg.text.slice(0, 100)}..."]
 
@@ -64,6 +70,7 @@ ${lastUserMsg.content}`
 ### 2. `src/renderer/src/components/ChatSidebar.vue`
 
 **Changes:**
+
 - Added `chatInputRef` ref to access ChatInput component
 - Added `handleReply(msg)` function to handle reply button clicks
 - Updated `useSuggestion()` to focus input after setting reply
@@ -72,6 +79,7 @@ ${lastUserMsg.content}`
 - Added `ref="chatInputRef"` to ChatInput component
 
 **Key Logic:**
+
 ```javascript
 function handleReply(msg) {
   const snippet = msg.text.slice(0, 50) + '...'
@@ -97,6 +105,7 @@ async function send(text) {
 ### 3. `src/renderer/src/components/ChatInput.vue`
 
 **Changes:**
+
 - Imported `useChatStore` and `storeToRefs`
 - Imported `X` icon from lucide-vue-next
 - Added `replyingTo` reactive ref from store
@@ -106,6 +115,7 @@ async function send(text) {
 - Exposed `focus` method via `defineExpose`
 
 **New UI Elements:**
+
 ```vue
 <!-- Reply context bar -->
 <div v-if="replyingTo" class="ci-reply-bar">
@@ -120,6 +130,7 @@ async function send(text) {
 ```
 
 **New Styles:**
+
 - `.ci-reply-bar` - Container for reply context
 - `.ci-reply-content` - Flex container for label and text
 - `.ci-reply-label` - "Replying to:" label
@@ -129,6 +140,7 @@ async function send(text) {
 ### 4. `src/renderer/src/components/ReplyChips.vue`
 
 **Changes:**
+
 - Imported `useChatStore`
 - Removed `remove` emit
 - Added `removeSuggestion()` function that calls store
@@ -192,6 +204,7 @@ async function send(text) {
 ### Reply Context Format
 
 When replying, the AI receives:
+
 ```
 [Replying to: "Can you explain quantum computing?"]
 
@@ -199,6 +212,7 @@ What are the practical applications?
 ```
 
 This helps the AI understand:
+
 - What the user is referring to
 - Context from previous conversation
 - Specific message being addressed
@@ -228,17 +242,20 @@ suggestions: [
 ## UI/UX Improvements
 
 ### Visual Hierarchy
+
 - Reply context bar has subtle purple tint
 - Matches overall Aura color scheme
 - Clear visual separation from input
 
 ### Interaction Feedback
+
 - Reply button highlights on hover
 - X button shows red on hover (destructive action)
 - Input auto-focuses when reply is set
 - Smooth transitions
 
 ### Accessibility
+
 - All buttons have title attributes
 - Keyboard navigation supported (Enter to send, Escape could cancel reply)
 - Clear visual indicators
@@ -292,4 +309,3 @@ Potential improvements for future versions:
 **Implementation Status**: ✅ Complete and Production Ready
 **Build Status**: ✅ Passing
 **Testing**: ✅ Manual testing complete
-

@@ -28,7 +28,7 @@ export function useVoice() {
 
       mediaRecorder.onstop = async () => {
         // Stop all tracks
-        stream.getTracks().forEach(t => t.stop())
+        stream.getTracks().forEach((t) => t.stop())
 
         const blob = new Blob(chunks, { type: 'audio/webm' })
         const reader = new FileReader()
@@ -46,7 +46,7 @@ export function useVoice() {
             const result = await window.api.auraStt.transcribe({
               audioBase64: base64,
               sarvamKey,
-              languageCode: 'unknown',
+              languageCode: 'unknown'
             })
             transcript.value = result.transcript || ''
           } catch (err) {
@@ -85,6 +85,6 @@ export function useVoice() {
     error,
     startRecording,
     stopRecording,
-    toggleRecording,
+    toggleRecording
   }
 }

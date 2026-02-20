@@ -97,7 +97,7 @@ app.whenReady().then(() => {
       messages: payload.messages,
       role: payload.role || 'chat',
       settings: payload.settings,
-      sender: event.sender,
+      sender: event.sender
     })
   })
 
@@ -106,7 +106,27 @@ app.whenReady().then(() => {
     return await handleSTT({
       audioBase64: payload.audioBase64,
       sarvamKey: payload.sarvamKey,
-      languageCode: payload.languageCode,
+      languageCode: payload.languageCode
+    })
+  })
+
+  // ── Edge TTS ──────────────────────────────────────────────
+  ipcMain.handle('aura:edge:tts', async (_, payload) => {
+    const { handleEdgeTTS } = await import('./ai-service.js')
+    return await handleEdgeTTS({
+      text: payload.text,
+      voice: payload.voice
+    })
+  })
+
+  // ── Sarvam TTS ────────────────────────────────────────────
+  ipcMain.handle('aura:sarvam:tts', async (_, payload) => {
+    const { handleTTS } = await import('./ai-service.js')
+    return await handleTTS({
+      text: payload.text,
+      sarvamKey: payload.sarvamKey,
+      languageCode: 'en-IN',
+      speaker: payload.speaker
     })
   })
 
@@ -116,7 +136,7 @@ app.whenReady().then(() => {
       audioBase64: payload.audioBase64,
       settings: payload.settings,
       messages: payload.messages || [],
-      sender: event.sender,
+      sender: event.sender
     })
   })
 
@@ -128,13 +148,13 @@ app.whenReady().then(() => {
 
   // ── Plugin System ─────────────────────────────────────────
   // Initialize plugins
-  pluginManager.initialize().catch(err => {
+  pluginManager.initialize().catch((err) => {
     console.error('[Main] Failed to initialize plugins:', err)
   })
 
   // Plugin IPC handlers
   ipcMain.handle('plugin:list', async () => {
-    return pluginManager.getInstalledPlugins().map(p => ({
+    return pluginManager.getInstalledPlugins().map((p) => ({
       id: p.id,
       name: p.manifest.name,
       version: p.manifest.version,
@@ -194,7 +214,7 @@ app.whenReady().then(() => {
 // explicitly with Cmd + Q.
 app.on('window-all-closed', () => {
   // Shutdown plugins
-  pluginManager.shutdown().catch(err => {
+  pluginManager.shutdown().catch((err) => {
     console.error('[Main] Failed to shutdown plugins:', err)
   })
 

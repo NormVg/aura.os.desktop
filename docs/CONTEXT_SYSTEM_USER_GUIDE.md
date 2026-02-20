@@ -50,11 +50,13 @@ Click reply on Message 3:
 ### Removing Messages from Context
 
 **Option 1: Click X on the chip**
+
 ```
 [context Message... ✕]  ← Click the X
 ```
 
 **Option 2: Click reply button again**
+
 ```
 Click the highlighted reply button to remove from context
 ```
@@ -166,6 +168,7 @@ When no messages in context:
 ## Tips & Tricks
 
 ### 1. Add Context Before Asking
+
 ```
 ✅ Good:
 1. Add relevant messages to context
@@ -178,6 +181,7 @@ When no messages in context:
 ```
 
 ### 2. Remove Irrelevant Context
+
 ```
 Added too many messages?
 Click X on chips you don't need
@@ -185,6 +189,7 @@ Keep only relevant ones
 ```
 
 ### 3. Toggle Context
+
 ```
 Changed your mind?
 Click reply button again
@@ -192,6 +197,7 @@ Message removed from context
 ```
 
 ### 4. Context Clears Automatically
+
 ```
 After Aura responds:
 - Context automatically clears
@@ -202,41 +208,51 @@ After Aura responds:
 ## Common Questions
 
 ### Q: Why use context?
+
 A: Helps Aura understand exactly what you're referring to, especially in long conversations.
 
 ### Q: How many messages can I add?
+
 A: As many as you want, but keep it relevant. Too much context can be overwhelming.
 
 ### Q: Do I always need to add context?
+
 A: No! Aura remembers the full conversation. Use context when you want to highlight specific messages.
 
 ### Q: What happens to context after I send?
+
 A: It automatically clears after Aura responds, so you start fresh.
 
 ### Q: Can I add my own messages to context?
+
 A: Currently only AI messages. You can add multiple AI messages though.
 
 ### Q: Can I edit context?
+
 A: You can add/remove messages, but not edit the message text itself.
 
 ## Troubleshooting
 
 ### Chips not appearing
+
 - ✅ Make sure you clicked the reply button
 - ✅ Look below the messages area
 - ✅ Check if you're in the right chat
 
 ### Reply button not highlighting
+
 - ✅ Click directly on the button
 - ✅ Wait a moment for the highlight
 - ✅ Try clicking again
 
 ### Context not clearing
+
 - ✅ Wait for Aura to finish responding
 - ✅ Context clears automatically after response
 - ✅ You can manually remove chips with X
 
 ### Too many chips
+
 - ✅ Click X on chips you don't need
 - ✅ Or click reply buttons to toggle off
 - ✅ Keep only relevant context
@@ -244,12 +260,14 @@ A: You can add/remove messages, but not edit the message text itself.
 ## Best Practices
 
 ### 1. Be Selective
+
 ```
 ❌ Don't add every message
 ✅ Add only relevant ones
 ```
 
 ### 2. Use for Comparisons
+
 ```
 ✅ Add multiple options
 ✅ Ask "which is better?"
@@ -257,6 +275,7 @@ A: You can add/remove messages, but not edit the message text itself.
 ```
 
 ### 3. Use for Clarifications
+
 ```
 ✅ Add the confusing message
 ✅ Ask for clarification
@@ -264,6 +283,7 @@ A: You can add/remove messages, but not edit the message text itself.
 ```
 
 ### 4. Use for Follow-ups
+
 ```
 ✅ Add the original message
 ✅ Ask follow-up question
@@ -273,6 +293,7 @@ A: You can add/remove messages, but not edit the message text itself.
 ## Keyboard Shortcuts (Future)
 
 Coming soon:
+
 - `Ctrl/Cmd + Click` - Add to context
 - `Escape` - Clear all context
 - `Ctrl/Cmd + R` - Reply to last message
@@ -280,6 +301,7 @@ Coming soon:
 ## Advanced Usage
 
 ### Threading Conversations
+
 ```
 1. Add Message A to context
 2. Ask question about A
@@ -290,6 +312,7 @@ Coming soon:
 ```
 
 ### Building Context Gradually
+
 ```
 1. Add Message 1
 2. Add Message 2
@@ -300,6 +323,7 @@ Coming soon:
 ```
 
 ### Context for Complex Questions
+
 ```
 For complex questions:
 1. Add all relevant background

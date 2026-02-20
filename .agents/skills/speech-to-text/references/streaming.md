@@ -22,24 +22,24 @@ async with client.speech_to_text_streaming.connect(
 
 ## Connection Parameters
 
-| Parameter | Type | Default | Description |
-|-----------|------|---------|-------------|
-| `language_code` | string | required | BCP-47 language code |
-| `model` | string | `saarika:v2.5` | Model version |
-| `high_vad_sensitivity` | bool | `False` | Better voice activity detection |
-| `vad_signals` | bool | `False` | Emit speech start/end events |
-| `flush_signal` | bool | `False` | Enable manual flush control |
+| Parameter              | Type   | Default        | Description                     |
+| ---------------------- | ------ | -------------- | ------------------------------- |
+| `language_code`        | string | required       | BCP-47 language code            |
+| `model`                | string | `saarika:v2.5` | Model version                   |
+| `high_vad_sensitivity` | bool   | `False`        | Better voice activity detection |
+| `vad_signals`          | bool   | `False`        | Emit speech start/end events    |
+| `flush_signal`         | bool   | `False`        | Enable manual flush control     |
 
 ## Audio Input Format
 
 Audio must be **base64 encoded**. Only these formats are supported:
 
-| Format | Description |
-|--------|-------------|
-| `audio/wav` | WAV files |
+| Format      | Description                     |
+| ----------- | ------------------------------- |
+| `audio/wav` | WAV files                       |
 | `pcm_s16le` | Signed 16-bit little-endian PCM |
-| `pcm_l16` | Linear 16-bit PCM |
-| `pcm_raw` | Raw PCM (must be 16kHz) |
+| `pcm_l16`   | Linear 16-bit PCM               |
+| `pcm_raw`   | Raw PCM (must be 16kHz)         |
 
 **Not supported for streaming:** MP3, AAC, OGG, FLAC, WebM
 
@@ -113,36 +113,35 @@ async with client.speech_to_text_streaming.connect(
 ## JavaScript WebSocket
 
 ```javascript
-import { SarvamAIClient
-} from "sarvamai";
-import * as fs from "fs";
+import { SarvamAIClient } from 'sarvamai'
+import * as fs from 'fs'
 
-const client = new SarvamAIClient();
+const client = new SarvamAIClient()
 
 const socket = await client.speechToTextStreaming.connect({
-    "language-code": "hi-IN",
-  model: "saarika:v2.5",
-  high_vad_sensitivity: "true"
-});
+  'language-code': 'hi-IN',
+  model: 'saarika:v2.5',
+  high_vad_sensitivity: 'true'
+})
 
 // Convert audio to base64
-const audioData = fs.readFileSync("audio.wav").toString("base64");
+const audioData = fs.readFileSync('audio.wav').toString('base64')
 
-socket.on("open", () => {
+socket.on('open', () => {
   socket.transcribe({
     audio: audioData,
     sample_rate: 16000,
-    encoding: "audio/wav"
-    });
-});
+    encoding: 'audio/wav'
+  })
+})
 
-socket.on("message", (event) => {
-  console.log("Transcript:", event);
-});
+socket.on('message', (event) => {
+  console.log('Transcript:', event)
+})
 
-socket.on("error", (error) => {
-  console.error("Error:", error);
-});
+socket.on('error', (error) => {
+  console.error('Error:', error)
+})
 ```
 
 ## Best Practices
@@ -152,4 +151,3 @@ socket.on("error", (error) => {
 3. **Handle reconnection** for long-running sessions
 4. **Use flush signals** for turn-based conversations
 5. **Enable VAD signals** for voice activity tracking
-

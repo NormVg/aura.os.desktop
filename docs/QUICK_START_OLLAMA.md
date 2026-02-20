@@ -5,11 +5,13 @@ Get up and running with local AI in under 5 minutes.
 ## Step 1: Install Ollama (2 min)
 
 **macOS:**
+
 ```bash
 brew install ollama
 ```
 
 **Linux:**
+
 ```bash
 curl -fsSL https://ollama.com/install.sh | sh
 ```
@@ -24,6 +26,7 @@ ollama serve
 ```
 
 Keep this terminal open. You should see:
+
 ```
 Ollama is running
 ```
@@ -67,6 +70,7 @@ Wait for download to complete.
 ## Verify It's Working
 
 You should see:
+
 - ✅ Response appears within 1-2 seconds
 - ✅ Text streams smoothly
 - ✅ No API key errors
@@ -75,12 +79,14 @@ You should see:
 ## Troubleshooting
 
 ### "Connection refused"
+
 ```bash
 # Make sure Ollama is running:
 ollama serve
 ```
 
 ### "Model not found"
+
 ```bash
 # Pull the model first:
 ollama pull llama3.2:3b
@@ -90,6 +96,7 @@ ollama list
 ```
 
 ### Slow responses
+
 ```bash
 # Try a smaller model:
 ollama pull phi3:mini
@@ -98,21 +105,25 @@ ollama pull phi3:mini
 ## Next Steps
 
 ### Try Tool Calling
+
 1. Add a tool-capable model:
    ```bash
    ollama pull llama3.1:8b
    ```
 2. In Settings → AI → Models, add it
 3. Assign to "Tool Calling" role
-4. Ask: "What's 42 * 17?" (uses calculator tool)
+4. Ask: "What's 42 \* 17?" (uses calculator tool)
 
 ### Mix Providers
+
 Use Ollama for chat, cloud for complex tasks:
+
 - **Chat**: Ollama (fast, private)
 - **Tool Calling**: OpenRouter (reliable)
 - **Summarization**: Ollama (good enough)
 
 ### Voice Mode
+
 1. Configure Sarvam or Edge TTS
 2. Click microphone icon
 3. Speak your question
@@ -120,12 +131,12 @@ Use Ollama for chat, cloud for complex tasks:
 
 ## Model Recommendations
 
-| Model | Size | Speed | Quality | Best For |
-|-------|------|-------|---------|----------|
-| phi3:mini | 2GB | ⚡⚡⚡ | ⭐⭐ | Quick questions |
-| llama3.2:3b | 4GB | ⚡⚡ | ⭐⭐⭐ | General chat |
-| mistral:7b | 8GB | ⚡ | ⭐⭐⭐⭐ | Complex tasks |
-| llama3.1:8b | 8GB | ⚡ | ⭐⭐⭐⭐ | Tool calling |
+| Model       | Size | Speed  | Quality  | Best For        |
+| ----------- | ---- | ------ | -------- | --------------- |
+| phi3:mini   | 2GB  | ⚡⚡⚡ | ⭐⭐     | Quick questions |
+| llama3.2:3b | 4GB  | ⚡⚡   | ⭐⭐⭐   | General chat    |
+| mistral:7b  | 8GB  | ⚡     | ⭐⭐⭐⭐ | Complex tasks   |
+| llama3.1:8b | 8GB  | ⚡     | ⭐⭐⭐⭐ | Tool calling    |
 
 ## Common Commands
 

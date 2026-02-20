@@ -5,16 +5,19 @@ Detailed documentation for Bulbul voices and voice selection.
 ## Female Voices
 
 ### Anushka
+
 - **Tone:** Warm, friendly
 - **Best for:** General purpose, greetings, conversational
 - **Languages:** All supported languages
 
 ### Manisha
+
 - **Tone:** Professional, clear
 - **Best for:** Announcements, instructions, business
 - **Languages:** All supported languages
 
 ### Vidya
+
 - **Tone:** Energetic, upbeat
 - **Best for:** Marketing, promotional content
 - **Languages:** All supported languages
@@ -22,30 +25,33 @@ Detailed documentation for Bulbul voices and voice selection.
 ## Male Voices
 
 ### Arjun
+
 - **Tone:** Authoritative, confident
 - **Best for:** News, formal announcements
 - **Languages:** All supported languages
 
 ### Amol
+
 - **Tone:** Casual, warm
 - **Best for:** Storytelling, informal content
 - **Languages:** All supported languages
 
 ### Amartya
+
 - **Tone:** Deep, mature
 - **Best for:** Documentary, formal narration
 - **Languages:** All supported languages
 
 ## Voice Selection by Use Case
 
-| Use Case | Recommended Voice |
-|----------|-------------------|
-| Customer service | Anushka, Manisha |
-| IVR systems | Manisha, Arjun |
-| Audiobooks | Amol, Vidya |
-| News reading | Arjun |
-| Educational | Anushka, Amartya |
-| Entertainment | Vidya, Amol |
+| Use Case         | Recommended Voice |
+| ---------------- | ----------------- |
+| Customer service | Anushka, Manisha  |
+| IVR systems      | Manisha, Arjun    |
+| Audiobooks       | Amol, Vidya       |
+| News reading     | Arjun             |
+| Educational      | Anushka, Amartya  |
+| Entertainment    | Vidya, Amol       |
 
 ## Voice Control Examples
 
@@ -96,12 +102,12 @@ response = client.text_to_speech.convert(
 All voices work with all supported languages. However, native speakers recommend:
 
 | Language | Recommended Voice |
-|----------|-------------------|
-| Hindi | Anushka, Arjun |
-| Tamil | Manisha, Amartya |
-| Bengali | Vidya, Amol |
-| Telugu | Anushka, Arjun |
-| Kannada | Manisha, Amartya |
+| -------- | ----------------- |
+| Hindi    | Anushka, Arjun    |
+| Tamil    | Manisha, Amartya  |
+| Bengali  | Vidya, Amol       |
+| Telugu   | Anushka, Arjun    |
+| Kannada  | Manisha, Amartya  |
 
 ## Text Preprocessing
 
@@ -121,4 +127,3 @@ text = "The CEO met with 500 employees on 1/1/2024"
 # Write
 text = "The C E O met with five hundred employees on January first, twenty twenty-four"
 ```
-

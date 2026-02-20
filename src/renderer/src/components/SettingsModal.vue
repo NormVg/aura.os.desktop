@@ -2,7 +2,16 @@
 import { ref, computed } from 'vue'
 import { useSettingsStore } from '../stores/settings'
 import { storeToRefs } from 'pinia'
-import { Plus, X, Settings as IconSettings, Palette as IconPalette, Info as IconInfo, Sparkles as IconBot, Brain as IconBrain, Package as IconPackage } from 'lucide-vue-next'
+import {
+  Plus,
+  X,
+  Settings as IconSettings,
+  Palette as IconPalette,
+  Info as IconInfo,
+  Sparkles as IconBot,
+  Brain as IconBrain,
+  Package as IconPackage
+} from 'lucide-vue-next'
 import SettingsGeneral from './settings/SettingsGeneral.vue'
 import SettingsAppearance from './settings/SettingsAppearance.vue'
 import SettingsAbout from './settings/SettingsAbout.vue'
@@ -24,7 +33,7 @@ const tabs = [
   { id: 'ai', label: 'Models & Voice', icon: IconBot, component: SettingsAI },
   { id: 'personality', label: 'Personality', icon: IconBrain, component: SettingsPersonality },
   { id: 'plugins', label: 'Plugins', icon: IconPackage, component: SettingsPlugins },
-  { id: 'about', label: 'About', icon: IconInfo, component: SettingsAbout },
+  { id: 'about', label: 'About', icon: IconInfo, component: SettingsAbout }
 ]
 
 function close() {
@@ -39,8 +48,13 @@ function close() {
         <!-- Sidebar -->
         <div class="modal-sidebar">
           <div class="sidebar-header">Settings</div>
-          <button v-for="tab in tabs" :key="tab.id" class="sidebar-item" :class="{ active: activeTab === tab.id }"
-            @click="activeTab = tab.id">
+          <button
+            v-for="tab in tabs"
+            :key="tab.id"
+            class="sidebar-item"
+            :class="{ active: activeTab === tab.id }"
+            @click="activeTab = tab.id"
+          >
             <component :is="tab.icon" :size="16" class="tab-icon" />
             <span class="tab-label">{{ tab.label }}</span>
           </button>
@@ -52,9 +66,8 @@ function close() {
             <X :size="18" />
           </button>
 
-
           <Transition name="fade" mode="out-in">
-            <component :is="tabs.find(t => t.id === activeTab)?.component" :key="activeTab" />
+            <component :is="tabs.find((t) => t.id === activeTab)?.component" :key="activeTab" />
           </Transition>
         </div>
       </div>

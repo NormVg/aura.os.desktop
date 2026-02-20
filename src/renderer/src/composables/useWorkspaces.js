@@ -11,9 +11,7 @@ const state = reactive({
       panX: 0,
       panY: 0,
       scale: 1,
-      widgets: [
-        { id: 1, x: 100, y: 100, w: 0, h: 0 },
-      ],
+      widgets: [{ id: 1, x: 100, y: 100, w: 0, h: 0 }]
     },
     {
       id: 2,
@@ -21,7 +19,7 @@ const state = reactive({
       panX: 0,
       panY: 0,
       scale: 1,
-      widgets: [],
+      widgets: []
     },
     {
       id: 3,
@@ -29,15 +27,13 @@ const state = reactive({
       panX: 0,
       panY: 0,
       scale: 1,
-      widgets: [],
-    },
-  ],
+      widgets: []
+    }
+  ]
 })
 
 export function useWorkspaces() {
-  const active = computed(() =>
-    state.workspaces.find(w => w.id === state.activeId)
-  )
+  const active = computed(() => state.workspaces.find((w) => w.id === state.activeId))
 
   function setActive(id) {
     state.switchDirection = id > state.activeId ? 1 : -1
@@ -47,15 +43,15 @@ export function useWorkspaces() {
   function updateCanvas({ panX, panY, scale }) {
     const ws = active.value
     if (!ws) return
-    if (panX  !== undefined) ws.panX  = panX
-    if (panY  !== undefined) ws.panY  = panY
+    if (panX !== undefined) ws.panX = panX
+    if (panY !== undefined) ws.panY = panY
     if (scale !== undefined) ws.scale = scale
   }
 
   function updateWidget(widgetId, { x, y, w, h }) {
     const ws = active.value
     if (!ws) return
-    const widget = ws.widgets.find(wg => wg.id === widgetId)
+    const widget = ws.widgets.find((wg) => wg.id === widgetId)
     if (!widget) return
     if (x !== undefined) widget.x = x
     if (y !== undefined) widget.y = y
@@ -77,6 +73,6 @@ export function useWorkspaces() {
     setActive,
     updateCanvas,
     updateWidget,
-    addWidget,
+    addWidget
   }
 }
