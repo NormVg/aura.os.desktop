@@ -12,8 +12,7 @@ import {
   Brain as IconBrain,
   Package as IconPackage
 } from 'lucide-vue-next'
-import SettingsGeneral from './settings/SettingsGeneral.vue'
-import SettingsAppearance from './settings/SettingsAppearance.vue'
+
 import SettingsAbout from './settings/SettingsAbout.vue'
 import SettingsAI from './settings/SettingsAI.vue'
 import SettingsPersonality from './settings/SettingsPersonality.vue'
@@ -25,11 +24,9 @@ const emit = defineEmits(['close'])
 const store = useSettingsStore()
 const { state } = storeToRefs(store)
 
-const activeTab = ref('general')
+const activeTab = ref('ai')
 
 const tabs = [
-  { id: 'general', label: 'General', icon: IconSettings, component: SettingsGeneral },
-  { id: 'appearance', label: 'Appearance', icon: IconPalette, component: SettingsAppearance },
   { id: 'ai', label: 'Models & Voice', icon: IconBot, component: SettingsAI },
   { id: 'personality', label: 'Personality', icon: IconBrain, component: SettingsPersonality },
   { id: 'plugins', label: 'Plugins', icon: IconPackage, component: SettingsPlugins },
