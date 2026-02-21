@@ -147,6 +147,20 @@ app.whenReady().then(() => {
     questionManager.resolveQuestion(payload.questionId, payload.response)
   })
 
+  // ── Browser Agent ─────────────────────────────────────────
+  ipcMain.handle('aura:browser:agent', async (event, payload) => {
+    const { runBrowserAgent } = await import('./browser-agent.js')
+    const { resolveModel } = await import('./ai-service.js')
+    return await runBrowserAgent({
+      task: payload.task,
+      startUrl: payload.startUrl,
+      headless: payload.headless || false,
+      settings: payload.settings,
+      resolveModel,
+      sender: event.sender
+    })
+  })
+
   // ── Plugin System ─────────────────────────────────────────
   // Initialize plugins
   pluginManager.initialize().catch((err) => {

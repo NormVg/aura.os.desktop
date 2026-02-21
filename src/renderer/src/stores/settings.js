@@ -23,7 +23,8 @@ export const useSettingsStore = defineStore('settings', () => {
       roles: {
         chat: '',
         tools: '',
-        summary: ''
+        summary: '',
+        vision: ''
       },
       tts: {
         provider: 'sarvam',

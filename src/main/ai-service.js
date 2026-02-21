@@ -5,7 +5,7 @@ import { createOllama } from 'ollama-ai-provider-v2'
 import { EdgeTTS } from 'edge-tts-universal'
 
 // ── Provider factory ──────────────────────────────────────────
-function createProvider(modelEntry, keys) {
+export function createProvider(modelEntry, keys) {
   if (modelEntry.provider === 'openrouter') {
     const openrouter = createOpenRouter({
       apiKey: keys.openrouter
@@ -31,7 +31,7 @@ function createProvider(modelEntry, keys) {
 }
 
 // ── Resolve model from role ───────────────────────────────────
-function resolveModel(role, settings) {
+export function resolveModel(role, settings) {
   const modelId = settings.roles[role]
   if (!modelId) throw new Error(`No model assigned to role "${role}"`)
 

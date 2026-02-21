@@ -304,5 +304,40 @@ export const auraTools = {
         ipcMain.once('aura:tool:webviewRun:result', listener)
       })
     }
+  }),
+
+  browserAgent: tool({
+    description:
+      'Launch an autonomous browser agent that opens a real browser window, navigates websites, clicks buttons, fills forms, and extracts information. The agent uses vision (screenshots) to understand pages and acts autonomously until the task is complete. Use this for complex web automation tasks.',
+    inputSchema: z.object({
+      task: z
+        .string()
+        .describe(
+          'Detailed description of what the browser agent should accomplish. Be specific about URLs, actions, and expected outcomes.'
+        ),
+      startUrl: z.string().optional().describe('Optional starting URL to navigate to immediately'),
+      headless: z
+        .boolean()
+        .optional()
+        .default(false)
+        .describe('If true, run without a visible browser window')
+    }),
+    execute: async ({ task, startUrl, headless }) => {
+      const { BrowserWindow } = await import('electron')
+
+      const win = BrowserWindow.getFocusedWindow()
+      if (!win) {
+        return { error: 'No active window found to stream status updates' }
+      }
+
+      // Delegate to the browser agent via IPC — the actual execution
+      // happens through the handler registered in index.js
+      win.webContents.send('aura:browser:agent:launch', { task, startUrl, headless })
+
+      return {
+        success: true,
+        message: `Browser agent launched. Task: "${task}". The agent is now running autonomously and will report back when done.`
+      }
+    }
   })
 }

@@ -54,6 +54,15 @@ const api = {
     disable: (pluginId) => ipcRenderer.invoke('plugin:disable', pluginId),
     install: () => ipcRenderer.invoke('plugin:install')
   },
+  auraBrowserAgent: {
+    run: (payload) => ipcRenderer.invoke('aura:browser:agent', payload),
+    onStatus: (cb) => ipcRenderer.on('aura:browser:agent:status', (_, data) => cb(data)),
+    onDone: (cb) => ipcRenderer.on('aura:browser:agent:done', (_, data) => cb(data)),
+    removeListeners: () => {
+      ipcRenderer.removeAllListeners('aura:browser:agent:status')
+      ipcRenderer.removeAllListeners('aura:browser:agent:done')
+    }
+  },
   // Generic event listener for tool events
   on: (channel, callback) => {
     ipcRenderer.on(channel, (_, data) => callback(data))

@@ -42,7 +42,8 @@ const providers = [
 const roleLabels = {
   chat: 'Chat (Conversation)',
   tools: 'Tool Calling',
-  summary: 'Summarization'
+  summary: 'Summarization',
+  vision: 'Vision (Browser Agent)'
 }
 
 const speakers = [
