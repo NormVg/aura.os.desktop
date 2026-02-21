@@ -424,10 +424,11 @@ ${pageInfo.inputs || '(none found)'}`
             // Stream the tool requests immediately
             if (toolCalls && toolCalls.length > 0) {
               for (const tc of toolCalls) {
+                const argsStr = JSON.stringify(tc.args) || ''
                 sender.send('aura:browser:agent:status', {
                   step: step + 1,
                   phase: 'acting',
-                  message: `Running: ${tc.toolName}(${JSON.stringify(tc.args).substring(0, 50)})`,
+                  message: `Running: ${tc.toolName}(${argsStr.substring(0, 50)})`,
                   toolName: tc.toolName,
                   args: tc.args
                 })

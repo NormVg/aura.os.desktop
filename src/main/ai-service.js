@@ -22,7 +22,9 @@ export function createProvider(modelEntry, keys) {
 
   if (modelEntry.provider === 'ollama') {
     // ai-sdk-ollama expects the root URL, not the /api endpoint
-    let baseUrl = keys.ollamaBaseURL || 'http://localhost:11434'
+    let baseUrl = !keys.ollamaBaseURL || keys.ollamaBaseURL.trim() === ''
+      ? 'http://localhost:11434'
+      : keys.ollamaBaseURL
     if (baseUrl.endsWith('/api')) {
       baseUrl = baseUrl.substring(0, baseUrl.length - 4)
     }
