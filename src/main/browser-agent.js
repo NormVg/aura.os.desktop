@@ -194,7 +194,7 @@ export async function runBrowserAgent({
         description:
           'Get a snapshot of all interactive elements on the current page. Returns a list of elements with ref IDs (e.g. "e1"), tags, labels, and URLs. ALWAYS call this first when arriving on a new page before clicking anything.',
         parameters: z.object({
-          _note: z.string().optional().describe('Optional note, ignored')
+          reason: z.string().describe('Brief reason why you are taking a snapshot')
         }),
         execute: async () => {
           try {
@@ -234,14 +234,9 @@ export async function runBrowserAgent({
         description:
           'Click an element by its ref ID from snapshot() (e.g. "e3"). Get refs by calling snapshot() first.',
         parameters: z.object({
-          ref: z.string().describe('Element ref from snapshot, e.g. "e3"'),
-          waitMs: z
-            .number()
-            .optional()
-            .default(800)
-            .describe('How long to wait after clicking (ms)')
+          ref: z.string().describe('Element ref from snapshot, e.g. "e3"')
         }),
-        execute: async ({ ref, waitMs }) => {
+        execute: async ({ ref }) => {
           try {
             const result = await browserWin.webContents.executeJavaScript(`
               (() => {
@@ -261,7 +256,7 @@ export async function runBrowserAgent({
                 }
               })()
             `)
-            await new Promise((r) => setTimeout(r, waitMs || 800))
+            await new Promise((r) => setTimeout(r, 800))
             return result
           } catch (err) {
             return { error: err.message }
@@ -271,17 +266,14 @@ export async function runBrowserAgent({
 
       fill: tool({
         description:
-          'Type text into an input or textarea element by its ref ID. Clears existing value first. Use pressEnter:true to submit forms.',
+          'Type text into an input or textarea element by its ref ID. Clears existing value first.',
         parameters: z.object({
           ref: z.string().describe('Element ref from snapshot, e.g. "e2"'),
           text: z.string().describe('Text to type into the element'),
-          pressEnter: z
-            .boolean()
-            .optional()
-            .default(false)
-            .describe('Press Enter after typing to submit')
+          submit: z.boolean().describe('Set true to press Enter after typing to submit the form, false otherwise')
         }),
-        execute: async ({ ref, text, pressEnter }) => {
+        execute: async ({ ref, text, submit }) => {
+          const pressEnter = submit === true
           try {
             // Focus and clear the element via JS
             const focusResult = await browserWin.webContents.executeJavaScript(`
@@ -334,9 +326,9 @@ export async function runBrowserAgent({
 
       getPageText: tool({
         description:
-          'Read the text content of the current page — including body text and links. Use this to extract information from pages (search results, articles, etc.).',
+          'Read the text content of the current page including body text and links. Use this to extract information from pages.',
         parameters: z.object({
-          _note: z.string().optional().describe('Optional note, ignored')
+          reason: z.string().describe('Brief reason why you are reading the page')
         }),
         execute: async () => {
           try {
@@ -356,10 +348,11 @@ export async function runBrowserAgent({
         description: 'Scroll the page up or down to reveal more content.',
         parameters: z.object({
           direction: z.enum(['up', 'down']).describe('Direction to scroll'),
-          amount: z.number().optional().default(400).describe('Pixels to scroll')
+          pixels: z.number().describe('Number of pixels to scroll, e.g. 400')
         }),
-        execute: async ({ direction, amount }) => {
+        execute: async ({ direction, pixels }) => {
           try {
+            const amount = pixels || 400
             const delta = direction === 'down' ? amount : -amount
             await browserWin.webContents.executeJavaScript(
               `window.scrollBy({ top: ${delta}, behavior: 'smooth' })`
@@ -398,12 +391,12 @@ export async function runBrowserAgent({
       }),
 
       waitFor: tool({
-        description: 'Wait for a duration (milliseconds). Use after navigation or to let animations finish.',
+        description: 'Wait for a specified number of milliseconds. Use after navigation or to let pages load.',
         parameters: z.object({
-          ms: z.number().describe('Milliseconds to wait (max 8000)')
+          milliseconds: z.number().describe('Number of milliseconds to wait, max 8000')
         }),
-        execute: async ({ ms }) => {
-          const duration = Math.min(ms, 8000)
+        execute: async ({ milliseconds }) => {
+          const duration = Math.min(milliseconds || 2000, 8000)
           await new Promise((r) => setTimeout(r, duration))
           return { waited: duration, url: browserWin.webContents.getURL() }
         }
