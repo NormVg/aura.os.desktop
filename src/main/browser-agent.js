@@ -193,7 +193,9 @@ export async function runBrowserAgent({
       snapshot: tool({
         description:
           'Get a snapshot of all interactive elements on the current page. Returns a list of elements with ref IDs (e.g. "e1"), tags, labels, and URLs. ALWAYS call this first when arriving on a new page before clicking anything.',
-        parameters: z.object({}),
+        parameters: z.object({
+          _note: z.string().optional().describe('Optional note, ignored')
+        }),
         execute: async () => {
           try {
             // Wait briefly for any pending navigation
@@ -333,7 +335,9 @@ export async function runBrowserAgent({
       getPageText: tool({
         description:
           'Read the text content of the current page — including body text and links. Use this to extract information from pages (search results, articles, etc.).',
-        parameters: z.object({}),
+        parameters: z.object({
+          _note: z.string().optional().describe('Optional note, ignored')
+        }),
         execute: async () => {
           try {
             await new Promise((r) => setTimeout(r, 400))
