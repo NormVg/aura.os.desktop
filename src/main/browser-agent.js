@@ -434,25 +434,37 @@ ${pageInfo.inputs || '(none found)'}`
           messages,
           tools: browserTools,
           maxSteps: 3,
-          onStepFinish: ({ text, toolCalls }) => {
-            // Stream the model's inner thoughts natively
+          onStepFinish: ({ text, toolCalls, toolResults }) => {
+            // Stream the model's inner thoughts natively without truncation
             if (text) {
               sender.send('aura:browser:agent:status', {
                 step: step + 1,
                 phase: 'thinking',
-                message: text.substring(0, 150) + (text.length > 150 ? '...' : '')
+                message: text
               })
             }
-            // Stream the tool requests immediately
+            // Stream the tool requests immediately without truncation
             if (toolCalls && toolCalls.length > 0) {
               for (const tc of toolCalls) {
                 const argsStr = JSON.stringify(tc.args) || ''
                 sender.send('aura:browser:agent:status', {
                   step: step + 1,
                   phase: 'acting',
-                  message: `Running: ${tc.toolName}(${argsStr.substring(0, 50)})`,
+                  message: `Call: ${tc.toolName}(${argsStr})`,
                   toolName: tc.toolName,
                   args: tc.args
+                })
+              }
+            }
+            // Stream the tool results back to the ui
+            if (toolResults && toolResults.length > 0) {
+              for (const tr of toolResults) {
+                const resStr = typeof tr.result === 'object' ? JSON.stringify(tr.result) : String(tr.result)
+                sender.send('aura:browser:agent:status', {
+                  step: step + 1,
+                  phase: 'acting',
+                  message: `Result (${tr.toolName}): ${resStr}`,
+                  toolName: tr.toolName
                 })
               }
             }
