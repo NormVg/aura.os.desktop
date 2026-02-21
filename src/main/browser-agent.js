@@ -403,6 +403,28 @@ ${pageInfo.inputs || '(none found)'}`
         }
       }
 
+      // To prevent Ollama's "Total number of images exceeds the maximum allowed of 8" error,
+      // we scan backwards and prune old screenshots from the history, keeping only the 3 most recent ones.
+      let imageCount = 0
+      for (let i = messages.length - 1; i >= 0; i--) {
+        const msg = messages[i]
+        if (msg.role === 'user' && Array.isArray(msg.content)) {
+          for (let j = msg.content.length - 1; j >= 0; j--) {
+            const part = msg.content[j]
+            if (part && (part.type === 'file' || part.type === 'image')) {
+              imageCount++
+              if (imageCount > 3) {
+                // Replace the old image with a text placeholder
+                msg.content[j] = {
+                  type: 'text',
+                  text: '[Previous screenshot removed to conserve model limits]'
+                }
+              }
+            }
+          }
+        }
+      }
+
       messages.push(stepMessage)
 
       try {
