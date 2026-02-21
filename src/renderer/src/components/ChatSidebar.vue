@@ -159,6 +159,10 @@ function copyText(text, id) {
   copiedId.value = id
   setTimeout(() => (copiedId.value = null), 1500)
 }
+function copyAllLogs(logs) {
+  const str = logs.map(l => `[${l.step}] ${l.phase.toUpperCase()}: ${l.message}`).join('\n')
+  copyText(str, 'all-logs')
+}
 </script>
 
 <template>
@@ -328,6 +332,16 @@ function copyText(text, id) {
             class="agent-logs"
             ref="browserAgentLogsEl"
           >
+            <button
+              class="copy-all-logs-btn"
+              :class="{ copied: copiedId === 'all-logs' }"
+              @click.stop="copyAllLogs(browserAgentLogs)"
+              title="Copy all logs"
+            >
+              <component :is="copiedId === 'all-logs' ? Check : Copy" :size="12" />
+              Copy All Logs
+            </button>
+
             <div
               v-for="(log, i) in browserAgentLogs"
               :key="i"
