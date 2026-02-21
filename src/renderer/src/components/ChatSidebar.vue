@@ -43,9 +43,21 @@ const toolIcons = {
   setReminder: Bell,
   wait: Timer
 }
+
+const friendlyToolNames = {
+  widgetControl: 'Updating workspace widgets',
+  browserAgent: 'Browsing the web',
+  planTask: 'Creating a plan of action',
+  askQuestion: 'Asking a question',
+  webviewRun: 'Running script in webview',
+  speak: 'Speaking aloud',
+  listen: 'Listening to your voice'
+}
+
 const expandedTools = ref({}) // reactive object: { [id]: bool }
 function toggleTool(id) {
-  expandedTools.value[id] = !expandedTools.value[id]
+  // If undefined (default closed), set to true. Else toggle.
+  expandedTools.value[id] = !expandedTools[id]
 }
 function toolIcon(name) {
   return toolIcons[name] || Wrench
@@ -184,12 +196,8 @@ function copyAllLogs(logs) {
         <!-- User bubble -->
         <div v-if="msg.role === 'user'" class="user-bubble">
           <span class="user-text">{{ msg.text }}</span>
-          <button
-            class="inline-copy-btn"
-            :class="{ copied: copiedId === 'user-' + msg.id }"
-            @click="copyText(msg.text, 'user-' + msg.id)"
-            title="Copy"
-          >
+          <button class="inline-copy-btn" :class="{ copied: copiedId === 'user-' + msg.id }"
+            @click="copyText(msg.text, 'user-' + msg.id)" title="Copy">
             <component :is="copiedId === 'user-' + msg.id ? Check : Copy" :size="12" />
           </button>
         </div>
@@ -201,23 +209,16 @@ function copyAllLogs(logs) {
             <div v-for="tc in msg.toolCalls" :key="tc.id" class="tool-card done">
               <div class="tool-header" @click="toggleTool(tc.id)">
                 <component :is="toolIcon(tc.toolName)" :size="14" class="tool-icon" />
-                <span class="tool-name">{{ tc.toolName }}</span>
-                <span class="tool-args" v-if="formatArgs(tc.args)">
+                <span class="tool-name">{{ friendlyToolNames[tc.toolName] || 'Using ' + tc.toolName }}</span>
+                <span class="tool-args" v-if="expandedTools[tc.id] && formatArgs(tc.args)">
                   ({{ formatArgs(tc.args) }})
-                  <button
-                    class="inline-copy-btn"
-                    :class="{ copied: copiedId === 'args-' + tc.id }"
-                    @click.stop="copyText(formatArgs(tc.args), 'args-' + tc.id)"
-                    title="Copy arguments"
-                  >
+                  <button class="inline-copy-btn" :class="{ copied: copiedId === 'args-' + tc.id }"
+                    @click.stop="copyText(formatArgs(tc.args), 'args-' + tc.id)" title="Copy arguments">
                     <component :is="copiedId === 'args-' + tc.id ? Check : Copy" :size="12" />
                   </button>
                 </span>
-                <component
-                  :is="expandedTools[tc.id] ? ChevronDown : ChevronRight"
-                  :size="14"
-                  class="tool-status-icon"
-                />
+                <component :is="expandedTools[tc.id] ? ChevronDown : ChevronRight" :size="14"
+                  class="tool-status-icon" />
               </div>
               <div v-if="expandedTools[tc.id]" class="tool-result">
                 <pre>{{ JSON.stringify(tc.result, null, 2) }}</pre>
@@ -228,51 +229,22 @@ function copyAllLogs(logs) {
           <div class="msg-actions">
             <!-- Copy -->
             <button class="msg-act-btn" :class="{ copied: copiedId === msg.id }" @click="copy(msg)">
-              <svg
-                v-if="copiedId !== msg.id"
-                width="14"
-                height="14"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                stroke-width="2"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-              >
+              <svg v-if="copiedId !== msg.id" width="14" height="14" viewBox="0 0 24 24" fill="none"
+                stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                 <rect x="9" y="9" width="13" height="13" rx="2" />
                 <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
               </svg>
-              <svg
-                v-else
-                width="14"
-                height="14"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                stroke-width="2.5"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-              >
+              <svg v-else width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
                 <polyline points="20 6 9 17 4 12" />
               </svg>
             </button>
             <!-- Reply -->
-            <button
-              class="msg-act-btn"
-              :class="{ active: contextMessages.includes(msg.id) }"
+            <button class="msg-act-btn" :class="{ active: contextMessages.includes(msg.id) }"
               @click="handleAddToContext(msg)"
-              :title="contextMessages.includes(msg.id) ? 'Remove from context' : 'Add to context'"
-            >
-              <svg
-                width="14"
-                height="14"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                stroke-width="2"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-              >
+              :title="contextMessages.includes(msg.id) ? 'Remove from context' : 'Add to context'">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                stroke-linecap="round" stroke-linejoin="round">
                 <polyline points="9 17 4 12 9 7" />
                 <path d="M20 18v-2a4 4 0 0 0-4-4H4" />
               </svg>
@@ -283,80 +255,45 @@ function copyAllLogs(logs) {
 
       <!-- Live tool call cards while streaming -->
       <div v-if="pendingToolCalls.length" class="tool-calls-wrap">
-        <div
-          v-for="tc in pendingToolCalls"
-          :key="tc.id"
-          class="tool-card"
-          :class="{ done: tc.status === 'done' }"
-        >
+        <div v-for="tc in pendingToolCalls" :key="tc.id" class="tool-card" :class="{ done: tc.status === 'done' }">
           <div class="tool-header" @click="toggleTool(tc.id)">
             <component :is="toolIcon(tc.toolName)" :size="14" class="tool-icon" />
-            <span class="tool-name">{{ tc.toolName }}</span>
-            <span class="tool-args" v-if="formatArgs(tc.args)">
+            <span class="tool-name">{{ friendlyToolNames[tc.toolName] || 'Using ' + tc.toolName }}...</span>
+            <span class="tool-args" v-if="expandedTools[tc.id] && formatArgs(tc.args)">
               ({{ formatArgs(tc.args) }})
-              <button
-                class="inline-copy-btn"
-                :class="{ copied: copiedId === 'args-' + tc.id }"
-                @click.stop="copyText(formatArgs(tc.args), 'args-' + tc.id)"
-                title="Copy arguments"
-              >
+              <button class="inline-copy-btn" :class="{ copied: copiedId === 'args-' + tc.id }"
+                @click.stop="copyText(formatArgs(tc.args), 'args-' + tc.id)" title="Copy arguments">
                 <component :is="copiedId === 'args-' + tc.id ? Check : Copy" :size="12" />
               </button>
             </span>
 
-            <component
-              v-if="tc.status === 'running'"
-              :is="Loader2"
-              :size="14"
-              class="tool-status-icon spin"
-              style="margin-right: 4px;"
-            />
+            <component v-if="tc.status === 'running'" :is="Loader2" :size="14" class="tool-status-icon spin"
+              style="margin-right: 4px;" />
 
-            <component
-              :is="expandedTools[tc.id] !== false ? ChevronDown : ChevronRight"
-              :size="14"
-              class="tool-status-icon"
-            />
+            <component :is="expandedTools[tc.id] ? ChevronDown : ChevronRight" :size="14" class="tool-status-icon" />
           </div>
           <div v-if="tc.status === 'done' && expandedTools[tc.id]" class="tool-result">
             <pre>{{ JSON.stringify(tc.result, null, 2) }}</pre>
           </div>
 
           <!-- Live Browser Agent Logs -->
-          <div
-            v-if="
-              tc.toolName === 'browserAgent' &&
-              browserAgentLogs.length > 0 &&
-              expandedTools[tc.id] !== false
-            "
-            class="agent-logs"
-            ref="browserAgentLogsEl"
-          >
-            <button
-              class="copy-all-logs-btn"
-              :class="{ copied: copiedId === 'all-logs' }"
-              @click.stop="copyAllLogs(browserAgentLogs)"
-              title="Copy all logs"
-            >
+          <div v-if="
+            tc.toolName === 'browserAgent' &&
+            browserAgentLogs.length > 0 &&
+            expandedTools[tc.id]
+          " class="agent-logs" ref="browserAgentLogsEl">
+            <button class="copy-all-logs-btn" :class="{ copied: copiedId === 'all-logs' }"
+              @click.stop="copyAllLogs(browserAgentLogs)" title="Copy all logs">
               <component :is="copiedId === 'all-logs' ? Check : Copy" :size="12" />
               Copy All Logs
             </button>
 
-            <div
-              v-for="(log, i) in browserAgentLogs"
-              :key="i"
-              class="agent-log-line"
-              :class="log.phase"
-            >
+            <div v-for="(log, i) in browserAgentLogs" :key="i" class="agent-log-line" :class="log.phase">
               <span class="log-step">[{{ log.step }}]</span>
               <span class="log-phase">{{ log.phase.toUpperCase() }}</span>
               <span class="log-msg">{{ log.message }}</span>
-              <button
-                class="inline-copy-btn"
-                :class="{ copied: copiedId === 'log-' + i }"
-                @click.stop="copyText(log.message, 'log-' + i)"
-                title="Copy log text"
-              >
+              <button class="inline-copy-btn" :class="{ copied: copiedId === 'log-' + i }"
+                @click.stop="copyText(log.message, 'log-' + i)" title="Copy log text">
                 <component :is="copiedId === 'log-' + i ? Check : Copy" :size="12" />
               </button>
             </div>
@@ -377,13 +314,9 @@ function copyAllLogs(logs) {
 
       <!-- Pending Question -->
       <div v-if="pendingQuestion" class="msg-row ai">
-        <QuestionCard
-          :question="pendingQuestion.question"
-          :options="pendingQuestion.options"
-          :allowCustom="pendingQuestion.allowCustom"
-          :customPlaceholder="pendingQuestion.customPlaceholder"
-          @answer="handleAnswer"
-        />
+        <QuestionCard :question="pendingQuestion.question" :options="pendingQuestion.options"
+          :allowCustom="pendingQuestion.allowCustom" :customPlaceholder="pendingQuestion.customPlaceholder"
+          @answer="handleAnswer" />
       </div>
     </div>
 
@@ -474,7 +407,7 @@ function copyAllLogs(logs) {
 }
 
 .ai-text :deep(p) {
-  margin: 0 0 6px;
+  margin: 0 0 10px;
 }
 
 .ai-text :deep(p:last-child) {
@@ -484,6 +417,49 @@ function copyAllLogs(logs) {
 .ai-text :deep(strong) {
   color: #e0daf7;
   font-weight: 600;
+}
+
+.ai-text :deep(h1),
+.ai-text :deep(h2),
+.ai-text :deep(h3),
+.ai-text :deep(h4),
+.ai-text :deep(h5),
+.ai-text :deep(h6) {
+  color: #fff;
+  margin-top: 1.5em;
+  margin-bottom: 0.75em;
+  font-weight: 600;
+  line-height: 1.3;
+}
+
+.ai-text :deep(h1) {
+  font-size: 1.4em;
+}
+
+.ai-text :deep(h2) {
+  font-size: 1.3em;
+}
+
+.ai-text :deep(h3) {
+  font-size: 1.2em;
+}
+
+.ai-text :deep(ul),
+.ai-text :deep(ol) {
+  margin: 0 0 10px 0;
+  padding-left: 24px;
+}
+
+.ai-text :deep(li) {
+  margin-bottom: 4px;
+}
+
+.ai-text :deep(blockquote) {
+  border-left: 3px solid rgba(124, 106, 255, 0.5);
+  margin: 10px 0;
+  padding: 4px 14px;
+  background: rgba(124, 106, 255, 0.05);
+  border-radius: 0 6px 6px 0;
 }
 
 /* Inline code */
@@ -834,6 +810,7 @@ function copyAllLogs(logs) {
 }
 
 @keyframes blink {
+
   0%,
   100% {
     opacity: 1;
@@ -962,6 +939,7 @@ function copyAllLogs(logs) {
   word-break: break-all;
   opacity: 0.8;
 }
+
 .agent-logs {
   position: relative;
   background: rgba(0, 0, 0, 0.4);
@@ -985,15 +963,19 @@ function copyAllLogs(logs) {
 .agent-log-line.thinking .log-phase {
   color: #8a63d2;
 }
+
 .agent-log-line.acting .log-phase {
   color: #56b6c2;
 }
+
 .agent-log-line.error .log-phase {
   color: #e06c75;
 }
+
 .agent-log-line.fallback .log-phase {
   color: #e6c07b;
 }
+
 .agent-log-line.abort .log-phase {
   color: #e06c75;
   font-weight: bold;

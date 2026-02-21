@@ -100,6 +100,43 @@ export const auraTools = {
     }
   }),
 
+  planTask: tool({
+    description: 'Create a formal plan of action by breaking down a large task into smaller steps. This will instantly create an interactive "todo" widget on the user canvas so they can visually see your plan and track progress.',
+    inputSchema: z.object({
+      title: z.string().describe('The overall objective or task name'),
+      steps: z.array(z.string()).describe('An array of clear, actionable steps')
+    }),
+    execute: async ({ title, steps }) => {
+      const { BrowserWindow, ipcMain } = await import('electron')
+      const windows = BrowserWindow.getAllWindows()
+      const win = BrowserWindow.getFocusedWindow() || windows.find(w => !w.isDestroyed() && w.id === 1) || windows[0]
+      if (!win) {
+        return { error: 'No active window found' }
+      }
+
+      win.webContents.send('aura:tool:widget', {
+        action: 'create',
+        widgetType: 'todo',
+        title: title,
+        data: steps
+      })
+
+      return new Promise((resolve) => {
+        const timeoutId = setTimeout(() => {
+          ipcMain.removeListener('aura:tool:widget:result', listener)
+          resolve({ error: 'Timeout waiting for plan widget creation' })
+        }, 5000)
+
+        const listener = (event, result) => {
+          clearTimeout(timeoutId)
+          ipcMain.removeListener('aura:tool:widget:result', listener)
+          resolve(result)
+        }
+        ipcMain.once('aura:tool:widget:result', listener)
+      })
+    }
+  }),
+
   askQuestion: tool({
     description:
       'Ask the user a multiple-choice question with optional custom answer field. Use this when you need specific information from the user in a structured format.',
@@ -131,7 +168,8 @@ export const auraTools = {
       const { ipcMain } = await import('electron')
 
       // Send TTS request to renderer
-      const win = BrowserWindow.getFocusedWindow()
+      const windows = BrowserWindow.getAllWindows()
+      const win = BrowserWindow.getFocusedWindow() || windows.find(w => !w.isDestroyed() && w.id === 1) || windows[0]
       if (!win) {
         return { error: 'No active window found' }
       }
@@ -171,7 +209,8 @@ export const auraTools = {
       const { BrowserWindow } = await import('electron')
       const { ipcMain } = await import('electron')
 
-      const win = BrowserWindow.getFocusedWindow()
+      const windows = BrowserWindow.getAllWindows()
+      const win = BrowserWindow.getFocusedWindow() || windows.find(w => !w.isDestroyed() && w.id === 1) || windows[0]
       if (!win) {
         return { error: 'No active window found' }
       }
@@ -245,8 +284,7 @@ export const auraTools = {
     }),
     execute: async ({ action, widgetType, widgetId, data, position, size }) => {
       const { BrowserWindow } = await import('electron')
-
-      const win = BrowserWindow.getFocusedWindow()
+      const win = BrowserWindow.getAllWindows().find(w => !w.isDestroyed() && w.id === 1) || BrowserWindow.getAllWindows()[0]
       if (!win) {
         return { error: 'No active window found' }
       }
@@ -289,8 +327,7 @@ export const auraTools = {
     }),
     execute: async ({ widgetId, script }) => {
       const { BrowserWindow } = await import('electron')
-
-      const win = BrowserWindow.getFocusedWindow()
+      const win = BrowserWindow.getAllWindows().find(w => !w.isDestroyed() && w.id === 1) || BrowserWindow.getAllWindows()[0]
       if (!win) {
         return { error: 'No active window found' }
       }

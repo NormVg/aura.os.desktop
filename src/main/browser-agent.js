@@ -161,7 +161,7 @@ function extractErrorDetails(err) {
 export async function runBrowserAgent({
   task,
   startUrl,
-  headless = false,
+  headless = true,
   settings,
   resolveModel,
   sender
@@ -171,8 +171,8 @@ export async function runBrowserAgent({
   try {
     // 1. Create the browser window
     browserWin = new BrowserWindow({
-      width: 1280,
-      height: 900,
+      width: 1000,
+      height: 700,
       show: !headless,
       webPreferences: {
         nodeIntegration: false,
