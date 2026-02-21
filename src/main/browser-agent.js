@@ -193,7 +193,7 @@ export async function runBrowserAgent({
       snapshot: tool({
         description:
           'Get a snapshot of all interactive elements on the current page. Returns a list of elements with ref IDs. ALWAYS call this first when arriving on a new page.',
-        parameters: jsonSchema({
+        inputSchema: jsonSchema({
           type: 'object',
           properties: {
             reason: { type: 'string', description: 'Brief reason for taking a snapshot' }
@@ -213,7 +213,7 @@ export async function runBrowserAgent({
 
       navigate: tool({
         description: 'Navigate the browser to a URL.',
-        parameters: jsonSchema({
+        inputSchema: jsonSchema({
           type: 'object',
           properties: {
             url: { type: 'string', description: 'Full URL to navigate to, including https://' }
@@ -239,7 +239,7 @@ export async function runBrowserAgent({
       click: tool({
         description:
           'Click an element by its ref ID from snapshot(). Get refs by calling snapshot() first.',
-        parameters: jsonSchema({
+        inputSchema: jsonSchema({
           type: 'object',
           properties: {
             ref: { type: 'string', description: 'Element ref from snapshot, e.g. "e3"' }
@@ -276,7 +276,7 @@ export async function runBrowserAgent({
       fill: tool({
         description:
           'Type text into an input or textarea by ref ID. Clears existing value first.',
-        parameters: jsonSchema({
+        inputSchema: jsonSchema({
           type: 'object',
           properties: {
             ref: { type: 'string', description: 'Element ref from snapshot, e.g. "e2"' },
@@ -336,7 +336,7 @@ export async function runBrowserAgent({
       getPageText: tool({
         description:
           'Read the text content of the current page including body text and links.',
-        parameters: jsonSchema({
+        inputSchema: jsonSchema({
           type: 'object',
           properties: {
             reason: { type: 'string', description: 'Brief reason for reading the page' }
@@ -359,7 +359,7 @@ export async function runBrowserAgent({
 
       scroll: tool({
         description: 'Scroll the page up or down to reveal more content.',
-        parameters: jsonSchema({
+        inputSchema: jsonSchema({
           type: 'object',
           properties: {
             direction: { type: 'string', enum: ['up', 'down'], description: 'Direction to scroll' },
@@ -386,7 +386,7 @@ export async function runBrowserAgent({
       executeJS: tool({
         description:
           'Run arbitrary JavaScript in the page context. Use for complex interactions.',
-        parameters: jsonSchema({
+        inputSchema: jsonSchema({
           type: 'object',
           properties: {
             script: { type: 'string', description: 'JavaScript code to execute in the page' }
@@ -413,7 +413,7 @@ export async function runBrowserAgent({
 
       waitFor: tool({
         description: 'Wait for a specified number of milliseconds. Use after navigation.',
-        parameters: jsonSchema({
+        inputSchema: jsonSchema({
           type: 'object',
           properties: {
             milliseconds: { type: 'number', description: 'Milliseconds to wait, max 8000' }
@@ -430,7 +430,7 @@ export async function runBrowserAgent({
       done: tool({
         description:
           'Signal that the task is complete. Call when finished or cannot proceed.',
-        parameters: jsonSchema({
+        inputSchema: jsonSchema({
           type: 'object',
           properties: {
             summary: { type: 'string', description: 'Summary of what was accomplished' }
