@@ -115,8 +115,8 @@ onMounted(() => {
   }
 
   // Browser Agent Live Logs
-  if (window.api?.browserAgent) {
-    window.api.browserAgent.onStatus((data) => {
+  if (window.api?.auraBrowserAgent) {
+    window.api.auraBrowserAgent.onStatus((data) => {
       browserAgentLogs.value.push(data)
       nextTick(scrollAgentLogsTop)
       nextTick(scrollToBottom)
@@ -128,8 +128,8 @@ onUnmounted(() => {
   if (window.api?.auraQuestion) {
     window.api.auraQuestion.removeListeners()
   }
-  if (window.api?.browserAgent) {
-    window.api.browserAgent.removeListeners()
+  if (window.api?.auraBrowserAgent) {
+    window.api.auraBrowserAgent.removeListeners()
   }
 })
 
