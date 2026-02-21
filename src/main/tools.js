@@ -6,6 +6,17 @@ import { tool } from 'ai'
 import { z } from 'zod'
 import { shell, ipcMain } from 'electron'
 
+// ── Chat Context Injection ────────────────────────────────────
+// The browser agent tool needs access to the current chat's settings
+// and sender. These are injected by ai-service.js before each chat.
+let _chatContext = null
+export function setChatContext(ctx) {
+  _chatContext = ctx
+}
+export function getChatContext() {
+  return _chatContext
+}
+
 // ── Tools registry ────────────────────────────────────────────
 export const auraTools = {
   getCurrentTime: tool({
@@ -323,20 +334,28 @@ export const auraTools = {
         .describe('If true, run without a visible browser window')
     }),
     execute: async ({ task, startUrl, headless }) => {
-      const { BrowserWindow } = await import('electron')
-
-      const win = BrowserWindow.getFocusedWindow()
-      if (!win) {
-        return { error: 'No active window found to stream status updates' }
+      const ctx = getChatContext()
+      if (!ctx || !ctx.settings || !ctx.sender) {
+        return { error: 'Browser agent requires an active chat context with settings. Try again.' }
       }
 
-      // Delegate to the browser agent via IPC — the actual execution
-      // happens through the handler registered in index.js
-      win.webContents.send('aura:browser:agent:launch', { task, startUrl, headless })
+      try {
+        const { runBrowserAgent } = await import('./browser-agent.js')
+        const { resolveModel } = await import('./ai-service.js')
 
-      return {
-        success: true,
-        message: `Browser agent launched. Task: "${task}". The agent is now running autonomously and will report back when done.`
+        // Run the agent synchronously — the chat tool loop will WAIT for the full result
+        const result = await runBrowserAgent({
+          task,
+          startUrl,
+          headless: headless || false,
+          settings: ctx.settings,
+          resolveModel,
+          sender: ctx.sender
+        })
+
+        return result
+      } catch (err) {
+        return { error: `Browser agent failed: ${err.message}` }
       }
     }
   })

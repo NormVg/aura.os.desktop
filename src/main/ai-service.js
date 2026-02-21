@@ -41,7 +41,7 @@ export function resolveModel(role, settings) {
   return createProvider(entry, settings.keys)
 }
 
-import { auraTools } from './tools.js'
+import { auraTools, setChatContext } from './tools.js'
 
 // ── Unified System Prompt ─────────────────────────────────────
 function getSystemPrompt(settings, mode) {
@@ -76,6 +76,7 @@ ${
 export async function handleChat({ messages, role = 'chat', settings, sender }) {
   try {
     const model = resolveModel(role, settings)
+    setChatContext({ settings, sender })
 
     const systemPrompt = getSystemPrompt(settings, 'chat')
 
@@ -221,6 +222,7 @@ export async function handleVoiceConvo({ audioBase64, settings, messages = [], s
     // 2. AI response (streaming with tools support)
     sender.send('aura:voice:status', 'thinking')
     const model = resolveModel('chat', settings)
+    setChatContext({ settings, sender })
     const systemPrompt = getSystemPrompt(settings, 'voice')
 
     // Build full conversation history: prior messages + new user message
