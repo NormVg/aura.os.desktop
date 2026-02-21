@@ -1,6 +1,6 @@
 <script setup>
-import { reactive, ref, watch, onMounted, provide } from 'vue'
-import { Edit2, Eye, Trash2 } from 'lucide-vue-next'
+import { reactive, ref, computed, watch, onMounted, provide } from 'vue'
+import { Edit2, Eye, Trash2, ZoomIn, ZoomOut, RotateCcw } from 'lucide-vue-next'
 import { useWorkspaceStore } from '../stores/workspaces.js'
 
 const props = defineProps({
@@ -30,9 +30,9 @@ function toggleEdit() {
 // Only show edit toggle for Note, Mermaid, Image, and Webview
 const supportsEditing = ref(
   props.type === 'note' ||
-    props.type === 'mermaid' ||
-    props.type === 'image' ||
-    props.type === 'webview'
+  props.type === 'mermaid' ||
+  props.type === 'image' ||
+  props.type === 'webview'
 )
 
 // Editing state is now passed via scoped slot
@@ -133,33 +133,59 @@ function deleteWidget() {
   wsStore.removeWidget(props.id)
 }
 
+// ── Content Zoom ───────────────────────────────────────────
+const contentScale = computed(() => {
+  const ws = wsStore.active
+  if (!ws) return 1
+  const widget = ws.widgets.find((wg) => wg.id === props.id)
+  return widget?.contentScale || 1
+})
+
+function zoomIn() {
+  const newScale = Math.min(3.0, Math.round((contentScale.value + 0.15) * 100) / 100)
+  wsStore.updateWidget(props.id, { contentScale: newScale })
+}
+function zoomOut() {
+  const newScale = Math.max(0.3, Math.round((contentScale.value - 0.15) * 100) / 100)
+  wsStore.updateWidget(props.id, { contentScale: newScale })
+}
+function zoomReset() {
+  wsStore.updateWidget(props.id, { contentScale: 1 })
+}
+
 // ── Hover ──────────────────────────────────────────────────
 const hovered = ref(false)
 </script>
 
 <template>
-  <div
-    class="widget"
-    :style="{
-      transform: `translate(${pos.x}px, ${pos.y}px)`,
-      width: size.w ? `${size.w}px` : 'max-content',
-      height: size.h ? `${size.h}px` : 'max-content'
-    }"
-    @mouseenter="hovered = true"
-    @mouseleave="hovered = false"
-  >
-    <!-- Floating Action Menu (top-left) -->
+  <div class="widget" :style="{
+    transform: `translate(${pos.x}px, ${pos.y}px)`,
+    width: size.w ? `${size.w}px` : 'max-content',
+    height: size.h ? `${size.h}px` : 'max-content'
+  }" @mouseenter="hovered = true" @mouseleave="hovered = false">
+    <!-- Floating Action Menu (bottom-left) -->
     <div class="floating-action-menu" :class="{ visible: hovered }">
-      <button
-        v-if="supportsEditing"
-        class="action-btn"
-        @click.stop="toggleEdit"
-        :title="isEditing ? 'View Mode' : 'Edit Mode'"
-      >
+      <button v-if="supportsEditing" class="action-btn" @click.stop="toggleEdit"
+        :title="isEditing ? 'View Mode' : 'Edit Mode'">
         <Eye v-if="isEditing" :size="14" />
         <Edit2 v-else :size="14" />
         <span>{{ isEditing ? 'View' : 'Edit' }}</span>
       </button>
+
+      <!-- Zoom controls -->
+      <div class="zoom-controls">
+        <button class="zoom-btn" @click.stop="zoomOut" title="Zoom Out">
+          <ZoomOut :size="14" />
+        </button>
+        <button class="zoom-label" @click.stop="zoomReset"
+          :title="`${Math.round(contentScale * 100)}% — Click to reset`">
+          {{ Math.round(contentScale * 100) }}%
+        </button>
+        <button class="zoom-btn" @click.stop="zoomIn" title="Zoom In">
+          <ZoomIn :size="14" />
+        </button>
+      </div>
+
       <button class="action-btn danger" @click.stop="deleteWidget" title="Delete Widget">
         <Trash2 :size="14" />
       </button>
@@ -177,35 +203,16 @@ const hovered = ref(false)
 
     <!-- Content slot — measured on mount -->
     <div ref="contentEl" class="widget-content" :class="{ 'is-editing': isEditing }">
-      <slot :isEditing="isEditing" :toggleEdit="toggleEdit" />
+      <div class="widget-content-inner" :style="{ transform: `scale(${contentScale})`, transformOrigin: 'center' }">
+        <slot :isEditing="isEditing" :toggleEdit="toggleEdit" />
+      </div>
     </div>
 
     <!-- Resize handle — bottom-right -->
-    <div
-      class="resize-handle"
-      :class="{ visible: hovered }"
-      @mousedown="onResizeDown"
-      title="Resize"
-    >
+    <div class="resize-handle" :class="{ visible: hovered }" @mousedown="onResizeDown" title="Resize">
       <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
-        <line
-          x1="3"
-          y1="11"
-          x2="11"
-          y2="3"
-          stroke="currentColor"
-          stroke-width="1.5"
-          stroke-linecap="round"
-        />
-        <line
-          x1="7"
-          y1="11"
-          x2="11"
-          y2="7"
-          stroke="currentColor"
-          stroke-width="1.5"
-          stroke-linecap="round"
-        />
+        <line x1="3" y1="11" x2="11" y2="3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" />
+        <line x1="7" y1="11" x2="11" y2="7" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" />
       </svg>
     </div>
   </div>
@@ -317,6 +324,64 @@ const hovered = ref(false)
   color: #e06c75;
 }
 
+/* ── Zoom Controls ── */
+.zoom-controls {
+  display: flex;
+  align-items: center;
+  gap: 0;
+  background: rgba(30, 30, 34, 0.8);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 14px;
+  backdrop-filter: blur(12px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  overflow: hidden;
+}
+
+.zoom-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  background: transparent;
+  border: none;
+  color: #cdc6f7;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.zoom-btn:hover {
+  background: rgba(124, 106, 255, 0.3);
+  color: #fff;
+}
+
+.zoom-btn:active {
+  transform: scale(0.9);
+}
+
+.zoom-label {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 40px;
+  height: 30px;
+  background: transparent;
+  border: none;
+  border-left: 1px solid rgba(255, 255, 255, 0.08);
+  border-right: 1px solid rgba(255, 255, 255, 0.08);
+  color: rgba(205, 198, 247, 0.7);
+  font-size: 10px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  letter-spacing: 0.02em;
+}
+
+.zoom-label:hover {
+  color: #fff;
+  background: rgba(124, 106, 255, 0.2);
+}
+
 /* ── Drag handle ── */
 .drag-handle {
   position: absolute;
@@ -330,7 +395,6 @@ const hovered = ref(false)
   align-items: center;
   justify-content: center;
   color: rgba(255, 255, 255, 0);
-  /* Hidden SVGs, we will use a sleek line */
   cursor: grab;
   opacity: 0;
   transition: opacity 0.3s ease;
@@ -365,7 +429,6 @@ const hovered = ref(false)
   background: #7c6aff;
 }
 
-/* Hide old dots */
 .drag-handle svg {
   display: none;
 }
@@ -381,8 +444,13 @@ const hovered = ref(false)
   transition: padding 0.3s ease;
 }
 
+.widget-content-inner {
+  width: 100%;
+  height: 100%;
+  transition: transform 0.15s ease;
+}
+
 .widget-content.is-editing {
-  /* Extra padding not needed now that the menu is completely outside */
   padding-top: 24px;
 }
 
@@ -415,7 +483,6 @@ const hovered = ref(false)
   transform: scale(1.1);
 }
 
-/* Redesign Chevron Resize SVG */
 .resize-handle svg {
   width: 14px;
   height: 14px;
