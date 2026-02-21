@@ -11,17 +11,20 @@ mermaid.initialize({
   startOnLoad: false,
   theme: 'dark',
   themeVariables: {
-    primaryColor: '#7c6aff',
-    primaryTextColor: '#cdc6f7',
-    primaryBorderColor: '#7c6aff',
-    lineColor: '#cdc6f7',
-    secondaryColor: '#1E1E20',
-    tertiaryColor: '#18171c',
-    background: '#18171c',
-    mainBkg: '#1E1E20',
-    secondBkg: '#18171c',
-    textColor: '#cdc6f7',
-    fontSize: '13px'
+    primaryColor: '#8B7CFF',        // brighter node fill
+    primaryTextColor: '#FFFFFF',    // max contrast text
+    primaryBorderColor: '#A89CFF',  // clearer borders
+    lineColor: '#E6E1FF',           // brighter connectors
+
+    secondaryColor: '#111114',      // deeper contrast layer
+    tertiaryColor: '#0B0B0E',       // darkest base
+
+    background: '#0B0B0E',          // canvas background
+    mainBkg: '#15151A',             // node background
+    secondBkg: '#101014',
+
+    textColor: '#F5F5FF',           // global text
+    fontSize: '14px'
   }
 })
 
