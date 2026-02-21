@@ -444,8 +444,8 @@ export async function runBrowserAgent({
     }
 
     // 4. Run the agent
-    const MAX_OUTER_STEPS = 8 // outer loop iterations
-    const MAX_INNER_STEPS = 6 // AI SDK inner steps per generateText call
+    const MAX_OUTER_STEPS = 15 // outer loop iterations
+    const MAX_INNER_STEPS = 8 // AI SDK inner steps per generateText call
     const MAX_CONSECUTIVE_ERRORS = 3
 
     let messages = [
