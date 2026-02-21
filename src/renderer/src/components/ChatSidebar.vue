@@ -57,7 +57,7 @@ const friendlyToolNames = {
 const expandedTools = ref({}) // reactive object: { [id]: bool }
 function toggleTool(id) {
   // If undefined (default closed), set to true. Else toggle.
-  expandedTools.value[id] = !expandedTools[id]
+  expandedTools.value[id] = !expandedTools.value[id]
 }
 function toolIcon(name) {
   return toolIcons[name] || Wrench
