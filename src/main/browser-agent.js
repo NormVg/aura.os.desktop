@@ -406,13 +406,34 @@ ${pageInfo.inputs || '(none found)'}`
       messages.push(stepMessage)
 
       try {
-        // Call the model with all browser tools
         const result = await generateText({
           model: visionModel,
           system: useVision ? VISION_SYSTEM_PROMPT : TEXT_ONLY_SYSTEM_PROMPT,
           messages,
           tools: browserTools,
-          maxSteps: 3
+          maxSteps: 3,
+          onStepFinish: ({ text, toolCalls }) => {
+            // Stream the model's inner thoughts natively
+            if (text) {
+              sender.send('aura:browser:agent:status', {
+                step: step + 1,
+                phase: 'thinking',
+                message: text.substring(0, 150) + (text.length > 150 ? '...' : '')
+              })
+            }
+            // Stream the tool requests immediately
+            if (toolCalls && toolCalls.length > 0) {
+              for (const tc of toolCalls) {
+                sender.send('aura:browser:agent:status', {
+                  step: step + 1,
+                  phase: 'acting',
+                  message: `Running: ${tc.toolName}(${JSON.stringify(tc.args).substring(0, 50)})`,
+                  toolName: tc.toolName,
+                  args: tc.args
+                })
+              }
+            }
+          }
         })
 
         // Reset consecutive error counter on success
@@ -423,19 +444,11 @@ ${pageInfo.inputs || '(none found)'}`
           messages.push({ role: 'assistant', content: result.text })
         }
 
-        // Check tool results for "done" signal
+        // Check if the agent called the 'done' tool
         if (result.steps) {
           for (const agentStep of result.steps) {
             if (agentStep.toolResults) {
               for (const tr of agentStep.toolResults) {
-                sender.send('aura:browser:agent:status', {
-                  step: step + 1,
-                  phase: 'acting',
-                  message: `Executed: ${tr.toolName}`,
-                  toolName: tr.toolName,
-                  args: tr.args
-                })
-
                 if (tr.result && tr.result.done) {
                   finished = true
                   finalSummary = tr.result.summary

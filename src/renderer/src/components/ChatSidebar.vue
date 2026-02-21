@@ -57,6 +57,19 @@ function formatArgs(args) {
 // ── DOM refs ────────────────────────────────────────────────
 const messagesEl = ref(null)
 const chatInputRef = ref(null)
+const browserAgentLogsEl = ref(null)
+
+// ── Browser Agent Logs State ────────────────────────────────
+const browserAgentLogs = ref([])
+watch(isStreaming, (newVal) => {
+  if (newVal) browserAgentLogs.value = [] // clear logs on new message
+})
+
+function scrollAgentLogsTop() {
+  if (browserAgentLogsEl.value) {
+    browserAgentLogsEl.value.scrollTop = browserAgentLogsEl.value.scrollHeight
+  }
+}
 
 function useSuggestion(s) {
   chatStore.setReplyingTo(s)
@@ -100,11 +113,23 @@ onMounted(() => {
       nextTick(scrollToBottom)
     })
   }
+
+  // Browser Agent Live Logs
+  if (window.api?.browserAgent) {
+    window.api.browserAgent.onStatus((data) => {
+      browserAgentLogs.value.push(data)
+      nextTick(scrollAgentLogsTop)
+      nextTick(scrollToBottom)
+    })
+  }
 })
 
 onUnmounted(() => {
   if (window.api?.auraQuestion) {
     window.api.auraQuestion.removeListeners()
+  }
+  if (window.api?.browserAgent) {
+    window.api.browserAgent.removeListeners()
   }
 })
 
@@ -255,6 +280,31 @@ function copy(msg) {
           </div>
           <div v-if="tc.status === 'done' && expandedTools[tc.id]" class="tool-result">
             <pre>{{ JSON.stringify(tc.result, null, 2) }}</pre>
+          </div>
+
+          <!-- Live Browser Agent Logs -->
+          <div
+            v-if="
+              tc.toolName === 'browserAgent' &&
+              browserAgentLogs.length > 0 &&
+              expandedTools[tc.id] !== false
+            "
+            class="agent-logs"
+            ref="browserAgentLogsEl"
+          >
+            <div
+              v-for="(log, i) in browserAgentLogs"
+              :key="i"
+              class="agent-log-line"
+              :class="log.phase"
+            >
+              <span class="log-step">[{{ log.step }}]</span>
+              <span class="log-phase">{{ log.phase.toUpperCase() }}</span>
+              <span class="log-msg">{{ log.message }}</span>
+            </div>
+            <div v-if="tc.status === 'running'" class="agent-log-line thinking">
+              <span class="streaming-cursor">|</span>
+            </div>
           </div>
         </div>
       </div>
@@ -798,5 +848,54 @@ function copy(msg) {
   white-space: pre-wrap;
   word-break: break-all;
   opacity: 0.8;
+}
+.agent-logs {
+  background: rgba(0, 0, 0, 0.4);
+  border-radius: 6px;
+  padding: 10px;
+  margin-top: 8px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  line-height: 1.5;
+  color: #a0a0b0;
+  max-height: 250px;
+  overflow-y: auto;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.agent-log-line {
+  margin-bottom: 4px;
+  word-break: break-word;
+}
+
+.agent-log-line.thinking .log-phase {
+  color: #8a63d2;
+}
+.agent-log-line.acting .log-phase {
+  color: #56b6c2;
+}
+.agent-log-line.error .log-phase {
+  color: #e06c75;
+}
+.agent-log-line.fallback .log-phase {
+  color: #e6c07b;
+}
+.agent-log-line.abort .log-phase {
+  color: #e06c75;
+  font-weight: bold;
+}
+
+.log-step {
+  color: #606070;
+  margin-right: 6px;
+}
+
+.log-phase {
+  font-weight: 600;
+  margin-right: 6px;
+}
+
+.log-msg {
+  color: #d0d0e0;
 }
 </style>
