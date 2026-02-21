@@ -310,9 +310,25 @@ onMounted(() => {
             widgetData.h = widgetData.h || 500
           } else if (widgetType === 'todo') {
             try {
-              const items = data ? (typeof data === 'string' ? JSON.parse(data) : data) : []
+              let items = data ? (typeof data === 'string' ? JSON.parse(data) : data) : []
               if (!Array.isArray(items))
                 throw new Error('Root data structure must be an array of todo items')
+              // Normalize items: AI might send plain strings or objects missing id/text
+              let idCounter = Date.now()
+              items = items.map((item) => {
+                if (typeof item === 'string') {
+                  return { id: idCounter++, text: item, completed: false, createdAt: Date.now() }
+                }
+                if (typeof item === 'object' && item !== null) {
+                  return {
+                    id: item.id || idCounter++,
+                    text: item.text || item.title || item.name || item.label || item.task || item.content || String(item),
+                    completed: !!item.completed || !!item.done,
+                    createdAt: item.createdAt || Date.now()
+                  }
+                }
+                return { id: idCounter++, text: String(item), completed: false, createdAt: Date.now() }
+              })
               widgetData.data = { items }
             } catch (err) {
               window.api.send('aura:tool:widget:result', {
@@ -365,14 +381,14 @@ onMounted(() => {
             message: `Created ${widgetType} widget with ID ${id}`,
             widget: newWidget
               ? {
-                  id: newWidget.id,
-                  type: newWidget.type,
-                  x: newWidget.x,
-                  y: newWidget.y,
-                  w: newWidget.w,
-                  h: newWidget.h,
-                  data: JSON.parse(JSON.stringify(newWidget.data))
-                }
+                id: newWidget.id,
+                type: newWidget.type,
+                x: newWidget.x,
+                y: newWidget.y,
+                w: newWidget.w,
+                h: newWidget.h,
+                data: JSON.parse(JSON.stringify(newWidget.data))
+              }
               : null
           })
         } else if (action === 'update') {
@@ -450,14 +466,14 @@ onMounted(() => {
             message: `Successfully updated widget ${widgetId}`,
             widget: updatedWidget
               ? {
-                  id: updatedWidget.id,
-                  type: updatedWidget.type,
-                  x: updatedWidget.x,
-                  y: updatedWidget.y,
-                  w: updatedWidget.w,
-                  h: updatedWidget.h,
-                  data: JSON.parse(JSON.stringify(updatedWidget.data))
-                }
+                id: updatedWidget.id,
+                type: updatedWidget.type,
+                x: updatedWidget.x,
+                y: updatedWidget.y,
+                w: updatedWidget.w,
+                h: updatedWidget.h,
+                data: JSON.parse(JSON.stringify(updatedWidget.data))
+              }
               : null
           })
         } else if (action === 'get') {
@@ -583,61 +599,27 @@ onUnmounted(() => {
   <div class="desktop">
     <Transition name="workspace" :style="{ '--dir': slideDir }">
       <div class="workspace-layer" :key="active.id">
-        <Canvas
-          :initialPanX="active.panX"
-          :initialPanY="active.panY"
-          :initialScale="active.scale"
+        <Canvas :initialPanX="active.panX" :initialPanY="active.panY" :initialScale="active.scale"
           @scale="(s) => wsStore.updateCanvas({ scale: s })"
-          @pan="(p) => wsStore.updateCanvas({ panX: p.x, panY: p.y })"
-        >
+          @pan="(p) => wsStore.updateCanvas({ panX: p.x, panY: p.y })">
           <TransitionGroup name="widget-anim">
-            <Widget
-              v-for="w in active.widgets"
-              :key="w.id"
-              :id="w.id"
-              :x="w.x"
-              :y="w.y"
-              :w="w.w"
-              :h="w.h"
-              :type="w.type"
-              :scale="active.scale"
-              @move="({ id, x, y }) => wsStore.updateWidget(id, { x, y })"
-              @resize="({ id, w, h }) => wsStore.updateWidget(id, { w, h })"
-            >
+            <Widget v-for="w in active.widgets" :key="w.id" :id="w.id" :x="w.x" :y="w.y" :w="w.w" :h="w.h"
+              :type="w.type" :scale="active.scale" @move="({ id, x, y }) => wsStore.updateWidget(id, { x, y })"
+              @resize="({ id, w, h }) => wsStore.updateWidget(id, { w, h })">
               <template #default="{ isEditing, toggleEdit }">
-                <WidgetNote
-                  v-if="w.type === 'note'"
-                  :id="w.id"
-                  :data="w.data"
-                  :is-editing="isEditing"
-                  @toggle-edit="toggleEdit"
-                />
+                <WidgetNote v-if="w.type === 'note'" :id="w.id" :data="w.data" :is-editing="isEditing"
+                  @toggle-edit="toggleEdit" />
                 <WidgetClock v-else-if="w.type === 'clock'" />
                 <WidgetTodo v-else-if="w.type === 'todo'" :id="w.id" :data="w.data" />
-                <WidgetImageViewer
-                  v-else-if="w.type === 'image'"
-                  :id="w.id"
-                  :data="w.data"
-                  :is-editing="isEditing"
-                  @toggle-edit="toggleEdit"
-                />
+                <WidgetImageViewer v-else-if="w.type === 'image'" :id="w.id" :data="w.data" :is-editing="isEditing"
+                  @toggle-edit="toggleEdit" />
                 <WidgetTimer v-else-if="w.type === 'timer'" :id="w.id" :data="w.data" />
-                <WidgetWebview
-                  v-else-if="w.type === 'webview'"
-                  :id="w.id"
-                  :data="w.data"
-                  :is-editing="isEditing"
-                  @toggle-edit="toggleEdit"
-                />
-                <MermaidWidget
-                  v-else-if="w.type === 'mermaid'"
-                  :initialCode="w.data"
-                  :title="w.title || 'Mermaid Diagram'"
-                  :is-editing="isEditing"
-                  @toggle-edit="toggleEdit"
+                <WidgetWebview v-else-if="w.type === 'webview'" :id="w.id" :data="w.data" :is-editing="isEditing"
+                  @toggle-edit="toggleEdit" />
+                <MermaidWidget v-else-if="w.type === 'mermaid'" :initialCode="w.data"
+                  :title="w.title || 'Mermaid Diagram'" :is-editing="isEditing" @toggle-edit="toggleEdit"
                   @update="(code) => wsStore.updateWidget(w.id, { data: code })"
-                  @updateTitle="(title) => wsStore.updateWidget(w.id, { title })"
-                />
+                  @updateTitle="(title) => wsStore.updateWidget(w.id, { title })" />
                 <div v-else class="demo-widget">
                   Widget {{ w.id }} <br />
                   <span style="font-size: 10px; opacity: 0.5">{{ w.type || 'generic' }}</span>
@@ -663,15 +645,10 @@ onUnmounted(() => {
     <StateBar v-if="voiceActive" key="voice">
       <div class="voice-state-content">
         <div class="voice-header">
-          <component
-            :is="voiceStatusConfig.icon"
-            class="v-icon"
-            :class="{
-              spin: voiceStatusConfig.spin,
-              'pulse-ring': voiceStatusConfig.class === 'pulse-ring'
-            }"
-            :size="16"
-          />
+          <component :is="voiceStatusConfig.icon" class="v-icon" :class="{
+            spin: voiceStatusConfig.spin,
+            'pulse-ring': voiceStatusConfig.class === 'pulse-ring'
+          }" :size="16" />
           <span class="v-label">{{ voiceStatusConfig.text }}</span>
         </div>
 
@@ -688,18 +665,14 @@ onUnmounted(() => {
 
         <!-- Use TextBlock for content if available -->
         <div class="voice-body-wrapper" v-if="voiceAiTextClean">
-          <TextBlock :text="voiceAiTextClean" @close="() => {}" />
+          <TextBlock :text="voiceAiTextClean" @close="() => { }" />
         </div>
       </div>
     </StateBar>
 
     <!-- Manual Expanded State -->
     <StateBar v-else-if="expanded" key="expanded">
-      <div
-        v-if="voiceAiTextClean"
-        class="voice-state-content"
-        style="max-height: 500px; padding: 0"
-      >
+      <div v-if="voiceAiTextClean" class="voice-state-content" style="max-height: 500px; padding: 0">
         <div class="voice-header" style="padding: 14px 18px 8px">
           <Sparkles :size="16" class="v-icon" style="color: #c678dd" />
           <span class="v-label">Recent Response</span>
