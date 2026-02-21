@@ -17,7 +17,9 @@ import {
   Timer,
   ChevronDown,
   ChevronRight,
-  Loader2
+  Loader2,
+  Copy,
+  Check
 } from 'lucide-vue-next'
 
 const chatStore = useChatStore()
@@ -151,6 +153,12 @@ function copy(msg) {
   copiedId.value = msg.id
   setTimeout(() => (copiedId.value = null), 1500)
 }
+
+function copyText(text, id) {
+  navigator.clipboard.writeText(text)
+  copiedId.value = id
+  setTimeout(() => (copiedId.value = null), 1500)
+}
 </script>
 
 <template>
@@ -171,7 +179,15 @@ function copy(msg) {
       <div v-for="msg in messages" :key="msg.id" class="msg-row" :class="msg.role">
         <!-- User bubble -->
         <div v-if="msg.role === 'user'" class="user-bubble">
-          {{ msg.text }}
+          <span class="user-text">{{ msg.text }}</span>
+          <button
+            class="inline-copy-btn"
+            :class="{ copied: copiedId === 'user-' + msg.id }"
+            @click="copyText(msg.text, 'user-' + msg.id)"
+            title="Copy"
+          >
+            <component :is="copiedId === 'user-' + msg.id ? Check : Copy" :size="12" />
+          </button>
         </div>
 
         <!-- AI message -->
@@ -182,9 +198,17 @@ function copy(msg) {
               <div class="tool-header" @click="toggleTool(tc.id)">
                 <component :is="toolIcon(tc.toolName)" :size="14" class="tool-icon" />
                 <span class="tool-name">{{ tc.toolName }}</span>
-                <span class="tool-args" v-if="formatArgs(tc.args)"
-                  >({{ formatArgs(tc.args) }})</span
-                >
+                <span class="tool-args" v-if="formatArgs(tc.args)">
+                  ({{ formatArgs(tc.args) }})
+                  <button
+                    class="inline-copy-btn"
+                    :class="{ copied: copiedId === 'args-' + tc.id }"
+                    @click.stop="copyText(formatArgs(tc.args), 'args-' + tc.id)"
+                    title="Copy arguments"
+                  >
+                    <component :is="copiedId === 'args-' + tc.id ? Check : Copy" :size="12" />
+                  </button>
+                </span>
                 <component
                   :is="expandedTools[tc.id] ? ChevronDown : ChevronRight"
                   :size="14"
@@ -264,7 +288,17 @@ function copy(msg) {
           <div class="tool-header" @click="toggleTool(tc.id)">
             <component :is="toolIcon(tc.toolName)" :size="14" class="tool-icon" />
             <span class="tool-name">{{ tc.toolName }}</span>
-            <span class="tool-args" v-if="formatArgs(tc.args)">({{ formatArgs(tc.args) }})</span>
+            <span class="tool-args" v-if="formatArgs(tc.args)">
+              ({{ formatArgs(tc.args) }})
+              <button
+                class="inline-copy-btn"
+                :class="{ copied: copiedId === 'args-' + tc.id }"
+                @click.stop="copyText(formatArgs(tc.args), 'args-' + tc.id)"
+                title="Copy arguments"
+              >
+                <component :is="copiedId === 'args-' + tc.id ? Check : Copy" :size="12" />
+              </button>
+            </span>
 
             <component
               v-if="tc.status === 'running'"
@@ -303,6 +337,14 @@ function copy(msg) {
               <span class="log-step">[{{ log.step }}]</span>
               <span class="log-phase">{{ log.phase.toUpperCase() }}</span>
               <span class="log-msg">{{ log.message }}</span>
+              <button
+                class="inline-copy-btn"
+                :class="{ copied: copiedId === 'log-' + i }"
+                @click.stop="copyText(log.message, 'log-' + i)"
+                title="Copy log text"
+              >
+                <component :is="copiedId === 'log-' + i ? Check : Copy" :size="12" />
+              </button>
             </div>
             <div v-if="tc.status === 'running'" class="agent-log-line thinking">
               <span class="streaming-cursor">|</span>
@@ -395,6 +437,14 @@ function copy(msg) {
   box-shadow:
     0 4px 20px rgba(140, 120, 240, 0.12),
     0 1px 0 rgba(255, 255, 255, 0.05) inset;
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+}
+
+.user-text {
+  flex: 1;
+  word-break: break-word;
 }
 
 /* AI message */
@@ -592,6 +642,53 @@ function copy(msg) {
   background: rgba(205, 198, 247, 0.12);
   border-color: rgba(205, 198, 247, 0.2);
   color: #cdc6f7;
+}
+
+/* ── Inline Copy Button ── */
+.inline-copy-btn {
+  background: transparent;
+  border: none;
+  color: inherit;
+  opacity: 0.4;
+  cursor: pointer;
+  padding: 3px;
+  border-radius: 4px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin-left: 6px;
+  transition: opacity 0.15s, background 0.15s;
+}
+
+.inline-copy-btn:hover {
+  opacity: 1;
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.inline-copy-btn.copied {
+  color: #a89fd4;
+  opacity: 1;
+}
+
+.tool-args .inline-copy-btn,
+.agent-log-line .inline-copy-btn {
+  opacity: 0;
+}
+
+.tool-header:hover .inline-copy-btn,
+.agent-log-line:hover .inline-copy-btn {
+  opacity: 0.4;
+}
+
+.tool-header:hover .inline-copy-btn:hover,
+.agent-log-line:hover .inline-copy-btn:hover {
+  opacity: 1;
+  background: rgba(255, 255, 255, 0.15);
+}
+
+.tool-args .inline-copy-btn.copied,
+.agent-log-line .inline-copy-btn.copied {
+  opacity: 1;
 }
 
 /* ── Empty State ── */
