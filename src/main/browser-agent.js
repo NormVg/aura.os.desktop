@@ -4,14 +4,18 @@
  * Spawns a real Chromium BrowserWindow, captures screenshots,
  * reasons about page state using a vision-capable model, and
  * executes granular browser actions in a self-correcting loop.
+ *
+ * If the model does not support vision (images), the agent
+ * automatically falls back to text-only mode using DOM text
+ * extraction via executeJavaScript.
  */
 import { generateText } from 'ai'
 import { tool } from 'ai'
 import { z } from 'zod'
 import { BrowserWindow } from 'electron'
 
-// ── System Prompt ─────────────────────────────────────────────
-const BROWSER_AGENT_SYSTEM_PROMPT = `You are Aura's Browser Agent — an autonomous web automation pilot.
+// ── System Prompts ────────────────────────────────────────────
+const VISION_SYSTEM_PROMPT = `You are Aura's Browser Agent — an autonomous web automation pilot.
 
 You are controlling a real Chromium browser. After every action, you receive a fresh screenshot of the current page.
 
@@ -34,10 +38,55 @@ You are controlling a real Chromium browser. After every action, you receive a f
 - Maximum 25 steps. Be efficient.
 - Always call done() when finished with a clear summary of what was accomplished.`
 
+const TEXT_ONLY_SYSTEM_PROMPT = `You are Aura's Browser Agent — an autonomous web automation pilot running in TEXT-ONLY mode (no screenshots).
+
+You are controlling a real Chromium browser. After every action, you receive the page's text content, title, and URL — but NO visual screenshot.
+
+# How to operate
+1. READ the page text carefully to understand the page structure and content.
+2. THINK about what action to take next to accomplish the user's task.
+3. ACT by calling tools. Prefer executeJS and getPageInfo for navigation and data extraction since you cannot see the page visually.
+4. REPEAT until the task is done, then call the "done" tool.
+
+# Strategy for text-only mode
+- Use getPageInfo() liberally to understand what's on the page.
+- Use executeJS() to query specific elements: document.querySelector(), document.querySelectorAll(), etc.
+- Use executeJS() to click elements by selector instead of coordinates: document.querySelector('a.some-link').click()
+- Use executeJS() to fill forms: document.querySelector('input[name="q"]').value = 'search term'
+- Use navigate() for direct URL navigation.
+- Avoid the click(x,y) tool since you cannot see coordinates.
+
+# Rules
+- Use executeJS to interact with the DOM since you have no visual reference for coordinates.
+- If a page is loading, use waitFor(1500) and call getPageInfo again.
+- If you encounter a login form, describe it and call done() — NEVER enter credentials.
+- Maximum 25 steps. Be efficient.
+- Always call done() when finished with a clear summary of what was accomplished.`
+
 // ── Screenshot helper ─────────────────────────────────────────
 async function captureScreenshot(win) {
   const image = await win.webContents.capturePage()
   return image.toPNG().toString('base64')
+}
+
+// ── Page text helper (for text-only fallback) ─────────────────
+async function extractPageText(win) {
+  try {
+    const title = win.webContents.getTitle()
+    const url = win.webContents.getURL()
+    const bodyText = await win.webContents.executeJavaScript(
+      `document.body ? document.body.innerText.substring(0, 5000) : '(empty page)'`
+    )
+    const links = await win.webContents.executeJavaScript(
+      `Array.from(document.querySelectorAll('a[href]')).slice(0, 30).map(a => a.textContent.trim() + ' → ' + a.href).join('\\n')`
+    )
+    const inputs = await win.webContents.executeJavaScript(
+      `Array.from(document.querySelectorAll('input, textarea, button, select')).slice(0, 20).map(el => el.tagName + '[' + (el.type||'') + '] name=' + (el.name||'') + ' id=' + (el.id||'') + ' placeholder=' + (el.placeholder||'')).join('\\n')`
+    )
+    return { title, url, bodyText, links, inputs }
+  } catch {
+    return { title: '', url: '', bodyText: '(failed to extract page text)', links: '', inputs: '' }
+  }
 }
 
 // ── Browser Agent Orchestrator ────────────────────────────────
@@ -199,7 +248,7 @@ export async function runBrowserAgent({
 
       executeJS: tool({
         description:
-          'Execute raw JavaScript in the page context. Use this to interact with elements programmatically, extract data, or perform actions that are hard to do with click/type.',
+          'Execute raw JavaScript in the page context. Use this to interact with elements programmatically, extract data, or perform actions that are hard to do with click/type. In text-only mode, prefer this for clicking elements by CSS selector.',
         inputSchema: z.object({
           script: z.string().describe('JavaScript code to execute in the page')
         }),
@@ -228,19 +277,10 @@ export async function runBrowserAgent({
 
       getPageInfo: tool({
         description:
-          'Get metadata about the current page including title, URL, and a trimmed version of the visible text content.',
+          'Get metadata about the current page including title, URL, visible text, links, and form elements. Essential in text-only mode.',
         inputSchema: z.object({}),
         execute: async () => {
-          try {
-            const title = browserWin.webContents.getTitle()
-            const url = browserWin.webContents.getURL()
-            const bodyText = await browserWin.webContents.executeJavaScript(
-              `document.body ? document.body.innerText.substring(0, 3000) : ''`
-            )
-            return { title, url, bodyText }
-          } catch (err) {
-            return { error: err.message }
-          }
+          return await extractPageText(browserWin)
         }
       }),
 
@@ -260,55 +300,90 @@ export async function runBrowserAgent({
       })
     }
 
-    // 4. Autonomous loop
+    // 4. Autonomous loop — with automatic vision/text-only detection
     const MAX_STEPS = 25
     let messages = []
     let finished = false
     let finalSummary = ''
+    let useVision = true // start optimistic, auto-downgrade on first image error
 
     for (let step = 0; step < MAX_STEPS && !finished; step++) {
-      // Take a fresh screenshot
-      const screenshotBase64 = await captureScreenshot(browserWin)
       const pageTitle = browserWin.webContents.getTitle()
       const pageUrl = browserWin.webContents.getURL()
 
-      sender.send('aura:browser:agent:status', {
-        step: step + 1,
-        phase: 'thinking',
-        message: `Analyzing page: ${pageTitle}`,
-        screenshot: screenshotBase64,
-        url: pageUrl
-      })
+      let stepMessage
 
-      // Build the user message with a screenshot for this step
-      const stepMessage = {
-        role: 'user',
-        content: [
-          {
-            type: 'image',
-            image: Buffer.from(screenshotBase64, 'base64'),
-            mimeType: 'image/png'
-          },
-          {
-            type: 'text',
-            text:
-              step === 0
-                ? `TASK: ${task}\n\nThis is the current browser page (${pageUrl}). The viewport is 1280x900 pixels. Analyze the screenshot and decide what to do first.`
-                : `Step ${step + 1}: Here is the updated page after your last action (${pageUrl}). What should we do next?`
-          }
-        ]
+      if (useVision) {
+        // Vision mode: capture screenshot and send as image content part
+        const screenshotBase64 = await captureScreenshot(browserWin)
+
+        sender.send('aura:browser:agent:status', {
+          step: step + 1,
+          phase: 'thinking',
+          message: `[Vision] Analyzing page: ${pageTitle}`,
+          screenshot: screenshotBase64,
+          url: pageUrl
+        })
+
+        stepMessage = {
+          role: 'user',
+          content: [
+            {
+              type: 'image',
+              image: Buffer.from(screenshotBase64, 'base64'),
+              mimeType: 'image/png'
+            },
+            {
+              type: 'text',
+              text:
+                step === 0
+                  ? `TASK: ${task}\n\nThis is the current browser page (${pageUrl}). The viewport is 1280x900 pixels. Analyze the screenshot and decide what to do first.`
+                  : `Step ${step + 1}: Here is the updated page after your last action (${pageUrl}). What should we do next?`
+            }
+          ]
+        }
+      } else {
+        // Text-only mode: extract DOM text and pass as plain text
+        const pageInfo = await extractPageText(browserWin)
+
+        sender.send('aura:browser:agent:status', {
+          step: step + 1,
+          phase: 'thinking',
+          message: `[Text] Reading page: ${pageTitle}`,
+          url: pageUrl
+        })
+
+        const pageDescription = `PAGE TITLE: ${pageInfo.title}
+URL: ${pageInfo.url}
+
+PAGE TEXT (first 5000 chars):
+${pageInfo.bodyText}
+
+LINKS ON PAGE:
+${pageInfo.links || '(none found)'}
+
+FORM ELEMENTS:
+${pageInfo.inputs || '(none found)'}`
+
+        stepMessage = {
+          role: 'user',
+          content:
+            step === 0
+              ? `TASK: ${task}\n\nHere is the current page content:\n\n${pageDescription}\n\nDecide what to do first. Use executeJS to interact with elements by CSS selector since you cannot see the page visually.`
+              : `Step ${step + 1}: Here is the updated page after your last action:\n\n${pageDescription}\n\nWhat should we do next?`
+        }
       }
 
       messages.push(stepMessage)
 
       try {
-        // Call the vision model with all browser tools
+        // Call the model with all browser tools
         const result = await generateText({
           model: visionModel,
-          system: BROWSER_AGENT_SYSTEM_PROMPT,
+          system: useVision ? VISION_SYSTEM_PROMPT : TEXT_ONLY_SYSTEM_PROMPT,
           messages,
           tools: browserTools,
-          maxSteps: 3 // allow chained tool calls within a single reasoning step
+          maxSteps: 3
         })
 
         // Capture the assistant's response into history
@@ -321,7 +396,6 @@ export async function runBrowserAgent({
           for (const agentStep of result.steps) {
             if (agentStep.toolResults) {
               for (const tr of agentStep.toolResults) {
-                // Send status for each action
                 sender.send('aura:browser:agent:status', {
                   step: step + 1,
                   phase: 'acting',
@@ -340,6 +414,33 @@ export async function runBrowserAgent({
         }
       } catch (err) {
         console.error('[BrowserAgent] Step error:', err)
+
+        // Detect image/vision incompatibility and auto-downgrade
+        const errMsg = (err.message || '') + (err.responseBody || '')
+        const isImageError =
+          errMsg.includes('image') ||
+          errMsg.includes('ImageData') ||
+          errMsg.includes('unmarshal') ||
+          errMsg.includes('vision') ||
+          errMsg.includes('multimodal')
+
+        if (useVision && isImageError) {
+          console.log('[BrowserAgent] Vision not supported by model. Switching to text-only mode.')
+          useVision = false
+
+          sender.send('aura:browser:agent:status', {
+            step: step + 1,
+            phase: 'fallback',
+            message:
+              'Model does not support vision/images. Switching to text-only DOM analysis mode.'
+          })
+
+          // Remove the failed image message from history and retry this step
+          messages.pop()
+          step-- // retry this step in text-only mode
+          continue
+        }
+
         sender.send('aura:browser:agent:status', {
           step: step + 1,
           phase: 'error',
@@ -359,17 +460,13 @@ export async function runBrowserAgent({
         'Browser agent reached maximum step limit (25). The task may be partially completed.'
     }
 
-    // 5. Take a final screenshot
-    const finalScreenshot = await captureScreenshot(browserWin)
-
+    // 5. Cleanup
     sender.send('aura:browser:agent:done', {
       success: true,
       summary: finalSummary,
-      screenshot: finalScreenshot,
       url: browserWin.webContents.getURL()
     })
 
-    // Close the browser window
     browserWin.close()
 
     return { success: true, summary: finalSummary }
