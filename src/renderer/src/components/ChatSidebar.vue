@@ -963,6 +963,7 @@ function copyAllLogs(logs) {
   opacity: 0.8;
 }
 .agent-logs {
+  position: relative;
   background: rgba(0, 0, 0, 0.4);
   border-radius: 6px;
   padding: 10px;
@@ -1010,5 +1011,33 @@ function copyAllLogs(logs) {
 
 .log-msg {
   color: #d0d0e0;
+}
+
+.copy-all-logs-btn {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: rgba(255, 255, 255, 0.6);
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 11px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  cursor: pointer;
+  transition: all 0.15s;
+  z-index: 10;
+}
+
+.copy-all-logs-btn:hover {
+  background: rgba(255, 255, 255, 0.15);
+  color: rgba(255, 255, 255, 0.9);
+}
+
+.copy-all-logs-btn.copied {
+  color: #a89fd4;
+  border-color: rgba(168, 159, 212, 0.4);
 }
 </style>
