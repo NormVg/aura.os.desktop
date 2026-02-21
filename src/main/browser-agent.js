@@ -356,9 +356,11 @@ export async function runBrowserAgent({
           role: 'user',
           content: [
             {
-              type: 'image',
-              image: Buffer.from(screenshotBase64, 'base64'),
-              mimeType: 'image/png'
+              // Note: ai-sdk-ollama specifically requires 'file' type for images
+              // see: https://github.com/jagreehal/ai-sdk-ollama
+              type: 'file',
+              data: Buffer.from(screenshotBase64, 'base64'),
+              mediaType: 'image/png'
             },
             {
               type: 'text',

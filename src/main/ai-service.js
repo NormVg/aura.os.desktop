@@ -1,7 +1,7 @@
 import { streamText, generateText, stepCountIs } from 'ai'
 import { createOpenRouter } from '@openrouter/ai-sdk-provider'
 import { createGoogleGenerativeAI } from '@ai-sdk/google'
-import { createOllama } from 'ollama-ai-provider-v2'
+import { createOllama } from 'ai-sdk-ollama'
 import { EdgeTTS } from 'edge-tts-universal'
 
 // ── Provider factory ──────────────────────────────────────────
@@ -21,8 +21,14 @@ export function createProvider(modelEntry, keys) {
   }
 
   if (modelEntry.provider === 'ollama') {
+    // ai-sdk-ollama expects the root URL, not the /api endpoint
+    let baseUrl = keys.ollamaBaseURL || 'http://localhost:11434'
+    if (baseUrl.endsWith('/api')) {
+      baseUrl = baseUrl.substring(0, baseUrl.length - 4)
+    }
+
     const ollama = createOllama({
-      baseURL: keys.ollamaBaseURL || 'http://localhost:11434/api'
+      baseURL: baseUrl
     })
     return ollama(modelEntry.modelId)
   }

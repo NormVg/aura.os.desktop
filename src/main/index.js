@@ -11,6 +11,15 @@ import { PluginManager } from './plugin-system/plugin-manager.js'
 const pluginManager = new PluginManager()
 
 function createWindow() {
+  // Determine icon path for each platform
+  let winIcon = undefined
+  if (process.platform === 'darwin') {
+    winIcon = join(__dirname, '../../build/icon.icns')
+  } else if (process.platform === 'win32') {
+    winIcon = join(__dirname, '../../build/icon.ico')
+  } else if (process.platform === 'linux') {
+    winIcon = join(__dirname, '../../build/icon.png')
+  }
   // Create the browser window.
   const mainWindow = new BrowserWindow({
     width: 900,
@@ -18,7 +27,7 @@ function createWindow() {
     menuBarVisible: false,
     show: false,
     autoHideMenuBar: true,
-    ...(process.platform === 'linux' ? { icon } : {}),
+    icon: winIcon,
     webPreferences: {
       preload: join(__dirname, '../preload/index.js'),
       sandbox: false,
