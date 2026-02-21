@@ -128,6 +128,7 @@ export const useWorkspaceStore = defineStore('workspaces', () => {
     if (props.h !== undefined) widget.h = props.h
     if (props.data !== undefined) widget.data = props.data
     if (props.title !== undefined) widget.title = props.title
+    if (props.contentScale !== undefined) widget.contentScale = props.contentScale
     saveState()
   }
 
