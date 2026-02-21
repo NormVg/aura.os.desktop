@@ -12,8 +12,7 @@
  * Works with any model — no vision required.
  * Inspired by Vercel's agent-browser accessibility-tree approach.
  */
-import { generateText, tool } from 'ai'
-import { z } from 'zod'
+import { generateText, tool, jsonSchema } from 'ai'
 import { BrowserWindow } from 'electron'
 
 // ── System Prompt ─────────────────────────────────────────────
@@ -188,17 +187,21 @@ export async function runBrowserAgent({
       }
     }
 
-    // 3. Define tools
+    // 3. Define tools — using jsonSchema() instead of Zod to bypass Zod v4/v3 mismatch
+    //    in ai-sdk-ollama (which detects Zod via .parse and falls back to empty schemas)
     const browserTools = {
       snapshot: tool({
         description:
-          'Get a snapshot of all interactive elements on the current page. Returns a list of elements with ref IDs (e.g. "e1"), tags, labels, and URLs. ALWAYS call this first when arriving on a new page before clicking anything.',
-        parameters: z.object({
-          reason: z.string().describe('Brief reason why you are taking a snapshot')
+          'Get a snapshot of all interactive elements on the current page. Returns a list of elements with ref IDs. ALWAYS call this first when arriving on a new page.',
+        parameters: jsonSchema({
+          type: 'object',
+          properties: {
+            reason: { type: 'string', description: 'Brief reason for taking a snapshot' }
+          },
+          required: ['reason']
         }),
         execute: async () => {
           try {
-            // Wait briefly for any pending navigation
             await new Promise((r) => setTimeout(r, 600))
             const snap = await browserWin.webContents.executeJavaScript(SNAPSHOT_SCRIPT)
             return snap
@@ -210,14 +213,17 @@ export async function runBrowserAgent({
 
       navigate: tool({
         description: 'Navigate the browser to a URL.',
-        parameters: z.object({
-          url: z.string().describe('Full URL to navigate to, including https://')
+        parameters: jsonSchema({
+          type: 'object',
+          properties: {
+            url: { type: 'string', description: 'Full URL to navigate to, including https://' }
+          },
+          required: ['url']
         }),
         execute: async ({ url }) => {
           try {
             const normalized = url.startsWith('http') ? url : 'https://' + url
             await browserWin.loadURL(normalized)
-            // Wait for page to settle
             await new Promise((r) => setTimeout(r, 1500))
             return {
               success: true,
@@ -232,19 +238,22 @@ export async function runBrowserAgent({
 
       click: tool({
         description:
-          'Click an element by its ref ID from snapshot() (e.g. "e3"). Get refs by calling snapshot() first.',
-        parameters: z.object({
-          ref: z.string().describe('Element ref from snapshot, e.g. "e3"')
+          'Click an element by its ref ID from snapshot(). Get refs by calling snapshot() first.',
+        parameters: jsonSchema({
+          type: 'object',
+          properties: {
+            ref: { type: 'string', description: 'Element ref from snapshot, e.g. "e3"' }
+          },
+          required: ['ref']
         }),
         execute: async ({ ref }) => {
           try {
             const result = await browserWin.webContents.executeJavaScript(`
               (() => {
                 const el = document.querySelector('[data-aura-ref="${ref}"]')
-                if (!el) return { error: 'Element not found: ${ref}. Call snapshot() again to get fresh refs.' }
+                if (!el) return { error: 'Element not found: ${ref}. Call snapshot() again.' }
                 el.scrollIntoView({ behavior: 'instant', block: 'center' })
                 el.focus()
-                // dispatch real mouse events for SPAs
                 el.dispatchEvent(new MouseEvent('mousedown', { bubbles: true, cancelable: true }))
                 el.dispatchEvent(new MouseEvent('mouseup', { bubbles: true, cancelable: true }))
                 el.dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true }))
@@ -266,23 +275,25 @@ export async function runBrowserAgent({
 
       fill: tool({
         description:
-          'Type text into an input or textarea element by its ref ID. Clears existing value first.',
-        parameters: z.object({
-          ref: z.string().describe('Element ref from snapshot, e.g. "e2"'),
-          text: z.string().describe('Text to type into the element'),
-          submit: z.boolean().describe('Set true to press Enter after typing to submit the form, false otherwise')
+          'Type text into an input or textarea by ref ID. Clears existing value first.',
+        parameters: jsonSchema({
+          type: 'object',
+          properties: {
+            ref: { type: 'string', description: 'Element ref from snapshot, e.g. "e2"' },
+            text: { type: 'string', description: 'Text to type into the element' },
+            submit: { type: 'boolean', description: 'Set true to press Enter after typing to submit' }
+          },
+          required: ['ref', 'text', 'submit']
         }),
         execute: async ({ ref, text, submit }) => {
           const pressEnter = submit === true
           try {
-            // Focus and clear the element via JS
             const focusResult = await browserWin.webContents.executeJavaScript(`
               (() => {
                 const el = document.querySelector('[data-aura-ref="${ref}"]')
                 if (!el) return { error: 'Element not found: ${ref}. Call snapshot() again.' }
                 el.scrollIntoView({ behavior: 'instant', block: 'center' })
                 el.focus()
-                // Clear existing value
                 el.select?.()
                 el.value = ''
                 el.dispatchEvent(new Event('input', { bubbles: true }))
@@ -293,11 +304,9 @@ export async function runBrowserAgent({
 
             if (focusResult.error) return focusResult
 
-            // Type the text using Electron's insertText (reliable for all inputs)
             await browserWin.webContents.insertText(text)
             await new Promise((r) => setTimeout(r, 200))
 
-            // Trigger React/Vue synthetic events after typing
             await browserWin.webContents.executeJavaScript(`
               (() => {
                 const el = document.querySelector('[data-aura-ref="${ref}"]')
@@ -317,7 +326,7 @@ export async function runBrowserAgent({
               await new Promise((r) => setTimeout(r, 300))
             }
 
-            return { success: true, typed: text, pressedEnter: pressEnter || false }
+            return { success: true, typed: text, pressedEnter: pressEnter }
           } catch (err) {
             return { error: err.message }
           }
@@ -326,9 +335,13 @@ export async function runBrowserAgent({
 
       getPageText: tool({
         description:
-          'Read the text content of the current page including body text and links. Use this to extract information from pages.',
-        parameters: z.object({
-          reason: z.string().describe('Brief reason why you are reading the page')
+          'Read the text content of the current page including body text and links.',
+        parameters: jsonSchema({
+          type: 'object',
+          properties: {
+            reason: { type: 'string', description: 'Brief reason for reading the page' }
+          },
+          required: ['reason']
         }),
         execute: async () => {
           try {
@@ -346,9 +359,13 @@ export async function runBrowserAgent({
 
       scroll: tool({
         description: 'Scroll the page up or down to reveal more content.',
-        parameters: z.object({
-          direction: z.enum(['up', 'down']).describe('Direction to scroll'),
-          pixels: z.number().describe('Number of pixels to scroll, e.g. 400')
+        parameters: jsonSchema({
+          type: 'object',
+          properties: {
+            direction: { type: 'string', enum: ['up', 'down'], description: 'Direction to scroll' },
+            pixels: { type: 'number', description: 'Number of pixels to scroll, e.g. 400' }
+          },
+          required: ['direction', 'pixels']
         }),
         execute: async ({ direction, pixels }) => {
           try {
@@ -368,9 +385,13 @@ export async function runBrowserAgent({
 
       executeJS: tool({
         description:
-          'Run arbitrary JavaScript in the page context. Use for complex interactions not covered by other tools — extracting data, checking state, etc.',
-        parameters: z.object({
-          script: z.string().describe('JavaScript code to execute in the page')
+          'Run arbitrary JavaScript in the page context. Use for complex interactions.',
+        parameters: jsonSchema({
+          type: 'object',
+          properties: {
+            script: { type: 'string', description: 'JavaScript code to execute in the page' }
+          },
+          required: ['script']
         }),
         execute: async ({ script }) => {
           try {
@@ -391,9 +412,13 @@ export async function runBrowserAgent({
       }),
 
       waitFor: tool({
-        description: 'Wait for a specified number of milliseconds. Use after navigation or to let pages load.',
-        parameters: z.object({
-          milliseconds: z.number().describe('Number of milliseconds to wait, max 8000')
+        description: 'Wait for a specified number of milliseconds. Use after navigation.',
+        parameters: jsonSchema({
+          type: 'object',
+          properties: {
+            milliseconds: { type: 'number', description: 'Milliseconds to wait, max 8000' }
+          },
+          required: ['milliseconds']
         }),
         execute: async ({ milliseconds }) => {
           const duration = Math.min(milliseconds || 2000, 8000)
@@ -404,11 +429,13 @@ export async function runBrowserAgent({
 
       done: tool({
         description:
-          'Signal that the task is complete. Call this when you have finished the automation or cannot proceed further.',
-        parameters: z.object({
-          summary: z
-            .string()
-            .describe('A clear summary of what was accomplished or why the task could not be completed')
+          'Signal that the task is complete. Call when finished or cannot proceed.',
+        parameters: jsonSchema({
+          type: 'object',
+          properties: {
+            summary: { type: 'string', description: 'Summary of what was accomplished' }
+          },
+          required: ['summary']
         }),
         execute: async ({ summary }) => {
           return { done: true, summary }
