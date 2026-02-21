@@ -265,17 +265,19 @@ function copy(msg) {
             <component :is="toolIcon(tc.toolName)" :size="14" class="tool-icon" />
             <span class="tool-name">{{ tc.toolName }}</span>
             <span class="tool-args" v-if="formatArgs(tc.args)">({{ formatArgs(tc.args) }})</span>
+
             <component
-              :is="
-                tc.status === 'running'
-                  ? Loader2
-                  : expandedTools[tc.id]
-                    ? ChevronDown
-                    : ChevronRight
-              "
+              v-if="tc.status === 'running'"
+              :is="Loader2"
+              :size="14"
+              class="tool-status-icon spin"
+              style="margin-right: 4px;"
+            />
+
+            <component
+              :is="expandedTools[tc.id] !== false ? ChevronDown : ChevronRight"
               :size="14"
               class="tool-status-icon"
-              :class="{ spin: tc.status === 'running' }"
             />
           </div>
           <div v-if="tc.status === 'done' && expandedTools[tc.id]" class="tool-result">
