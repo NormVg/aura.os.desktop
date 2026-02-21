@@ -89,6 +89,31 @@ async function extractPageText(win) {
   }
 }
 
+// ── Error detail extractor (digs into nested AI SDK errors) ──
+function extractErrorDetails(err) {
+  // The AI SDK wraps errors: RetryError → APICallError → responseBody
+  // We need to dig through all layers to find image-related error messages
+  let details = err.message || ''
+
+  // Direct responseBody (APICallError)
+  if (err.responseBody) details += ' ' + err.responseBody
+
+  // Nested lastError (RetryError wraps APICallError)
+  if (err.lastError) {
+    details += ' ' + (err.lastError.message || '')
+    if (err.lastError.responseBody) details += ' ' + err.lastError.responseBody
+  }
+
+  // Array of errors (RetryError.errors[])
+  if (err.errors && Array.isArray(err.errors)) {
+    for (const e of err.errors) {
+      if (e.responseBody) details += ' ' + e.responseBody
+    }
+  }
+
+  return details
+}
+
 // ── Browser Agent Orchestrator ────────────────────────────────
 export async function runBrowserAgent({
   task,
@@ -302,10 +327,12 @@ export async function runBrowserAgent({
 
     // 4. Autonomous loop — with automatic vision/text-only detection
     const MAX_STEPS = 25
+    const MAX_CONSECUTIVE_ERRORS = 3
     let messages = []
     let finished = false
     let finalSummary = ''
     let useVision = true // start optimistic, auto-downgrade on first image error
+    let consecutiveErrors = 0
 
     for (let step = 0; step < MAX_STEPS && !finished; step++) {
       const pageTitle = browserWin.webContents.getTitle()
@@ -386,6 +413,9 @@ ${pageInfo.inputs || '(none found)'}`
           maxSteps: 3
         })
 
+        // Reset consecutive error counter on success
+        consecutiveErrors = 0
+
         // Capture the assistant's response into history
         if (result.text) {
           messages.push({ role: 'assistant', content: result.text })
@@ -415,8 +445,10 @@ ${pageInfo.inputs || '(none found)'}`
       } catch (err) {
         console.error('[BrowserAgent] Step error:', err)
 
+        // Deep-extract error details from nested RetryError / APICallError
+        const errMsg = extractErrorDetails(err)
+
         // Detect image/vision incompatibility and auto-downgrade
-        const errMsg = (err.message || '') + (err.responseBody || '')
         const isImageError =
           errMsg.includes('image') ||
           errMsg.includes('ImageData') ||
@@ -427,6 +459,7 @@ ${pageInfo.inputs || '(none found)'}`
         if (useVision && isImageError) {
           console.log('[BrowserAgent] Vision not supported by model. Switching to text-only mode.')
           useVision = false
+          consecutiveErrors = 0 // reset since this is a recoverable switch
 
           sender.send('aura:browser:agent:status', {
             step: step + 1,
@@ -441,17 +474,38 @@ ${pageInfo.inputs || '(none found)'}`
           continue
         }
 
+        // Track consecutive failures
+        consecutiveErrors++
+
+        if (consecutiveErrors >= MAX_CONSECUTIVE_ERRORS) {
+          // Abort early — the model is fundamentally broken for this task
+          const statusCode = err.statusCode || err.lastError?.statusCode || 'unknown'
+          finalSummary =
+            `Browser agent aborted after ${MAX_CONSECUTIVE_ERRORS} consecutive model failures (HTTP ${statusCode}). This usually means:\n` +
+            `• The model crashed (500 error = Ollama ran out of memory or the model is too large)\n` +
+            `• The model doesn't support tool calling (try a different model)\n` +
+            `• The Ollama server is overloaded\n\n` +
+            `Recommendation: In Settings → Model Routing → Vision, assign a cloud-hosted model like google/gemini-2.0-flash-001 via OpenRouter, or a smaller local Ollama model that supports tool calling.`
+
+          sender.send('aura:browser:agent:status', {
+            step: step + 1,
+            phase: 'abort',
+            message: `Aborting: ${MAX_CONSECUTIVE_ERRORS} consecutive model failures (HTTP ${statusCode}).`
+          })
+
+          finished = true
+          break
+        }
+
         sender.send('aura:browser:agent:status', {
           step: step + 1,
           phase: 'error',
-          message: `Error: ${err.message}`
+          message: `Error (attempt ${consecutiveErrors}/${MAX_CONSECUTIVE_ERRORS}): ${err.message}`
         })
 
-        // Try to recover by continuing the loop
-        messages.push({
-          role: 'assistant',
-          content: `I encountered an error: ${err.message}. Let me try a different approach.`
-        })
+        // Remove the failed message and retry
+        messages.pop()
+        step-- // don't count failed steps
       }
     }
 
